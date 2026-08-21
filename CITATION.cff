@@ -1,0 +1,47 @@
+cff-version: 1.2.0
+message: >-
+  If you use this dataset or pipeline, please cite it as below, and credit
+  OpenStreetMap contributors (ODbL 1.0) as the underlying data source.
+type: dataset
+title: >-
+  European Grid Topology Dataset: 36 countries, 50-750 kV, topologically
+  connected, from OpenStreetMap
+version: v23
+date-released: "2026-08-19"
+authors:
+  - family-names: "<surname>"
+    given-names: Duncan
+    affiliation: Continuum Industries
+license: ODbL-1.0
+doi: DOI-TBD
+repository-code: "REPO-URL-TBD"
+keywords:
+  - electricity transmission
+  - grid topology
+  - OpenStreetMap
+  - PyPSA
+  - network model
+  - Europe
+  - sub-transmission
+references:
+  - type: article
+    title: >-
+      A crowdsourced dataset of the European electricity transmission grid
+      built on OpenStreetMap
+    authors:
+      - family-names: Xiong
+        given-names: Bobby
+      - family-names: Fioriti
+        given-names: Davide
+      - family-names: Neumann
+        given-names: Fabian
+      - family-names: Riepin
+        given-names: Iegor
+      - family-names: Brown
+        given-names: Tom
+    doi: 10.1038/s41597-025-04550-7
+    year: 2025
+    journal: Scientific Data
+    notes: >-
+      The build method follows this paper; this dataset extends it with a
+      50 kV voltage floor, frequency separation and cell-level provenance.

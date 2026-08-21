@@ -1,0 +1,7 @@
+# No LFS in this repo - the GeoPackages publish on Zenodo and are gitignored.
+*.py   text
+*.md   text
+*.csv  text
+*.json text
+*.yaml text
+*.tsv  text

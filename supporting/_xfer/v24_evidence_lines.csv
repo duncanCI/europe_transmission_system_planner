@@ -1,0 +1,190 @@
+line_id,navn,eier,voltage_kv,geod_km,nve_layer,osm_covered_frac,driftsattaar,snap0,snap1,bus0,bus1
+nve/transmisjon_luft/1000382,Varangerbotn - Ivalo,STATNETT SF,220.0,28.701559407152327,transmisjon_luft,0.08041958041958042,,existing,unsnapped,st0031391_220kV,
+nve/transmisjon_luft/1711652,LEIVDAL - VESTRE ÅSKÅRA,LINJA AS,132.0,1.8837410775558197,transmisjon_luft,0.0,1965.0,nve_junction,unsnapped,nve_jn_0000_132,
+nve/transmisjon_luft/1711653,LEIVDAL - VESTRE ÅSKÅRA,LINJA AS,132.0,0.8264972074883126,transmisjon_luft,0.0,1965.0,nve_junction,nve_junction,nve_jn_0001_132,nve_jn_0000_132
+nve/transmisjon_luft/1711654,LEIVDAL - VESTRE ÅSKÅRA,LINJA AS,132.0,10.588970972441498,transmisjon_luft,0.215962441314554,1965.0,existing,nve_junction,st0012498_132kV,nve_jn_0001_132
+nve/transmisjon_luft/1711703,M 132 MOSKOG - HØYANGER (MIDLERTIDIG),LINJA AS,132.0,25.072034139887084,transmisjon_luft,0.005988023952095809,1966.0,existing,unsnapped,st0012676_132kV,
+nve/transmisjon_luft/1711986,132 HAUGEN-LEIVDAL,LINJA AS,132.0,8.793600518249796,transmisjon_luft,0.24431818181818182,1966.0,nve_junction,existing,nve_jn_0002_132,st0023397_132kV
+nve/transmisjon_luft/1711987,132 HAUGEN-LEIVDAL,LINJA AS,132.0,19.941307928442455,transmisjon_luft,0.38596491228070173,1966.0,existing,nve_junction,st0029874_132kV,nve_jn_0002_132
+nve/transmisjon_luft/1712160,132 HYDRO HØYANGER-MOSKOG,LINJA AS,145.0,33.993400984940564,transmisjon_luft,0.18382352941176472,1966.0,unsnapped,unsnapped,,
+nve/regionalnett_luft/5246,,GLITRE NETT AS,50.0,0.34283771269677465,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0003_50,nve_jn_0005_50
+nve/regionalnett_luft/17612,,GLITRE NETT AS,50.0,1.3543541920737583,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0032_50,nve_jn_0024_50
+nve/regionalnett_luft/22445,,GLITRE NETT AS,50.0,1.493367855470996,regionalnett_luft,0.0,,new_nve,nve_junction,,nve_jn_0009_50
+nve/regionalnett_luft/38185,,GLITRE NETT AS,132.0,10.062358371374982,regionalnett_luft,0.25742574257425743,,existing,existing,st0029944_132kV,st0023527_132kV
+nve/regionalnett_luft/64915,,GLITRE NETT AS,50.0,0.3850891129266092,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0023_50,nve_jn_0003_50
+nve/regionalnett_luft/117724,,GLITRE NETT AS,50.0,1.2667461690613144,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0033_50,nve_jn_0007_50
+nve/regionalnett_luft/126617,,GLITRE NETT AS,50.0,29.24252630499402,regionalnett_luft,0.12286689419795221,,nve_junction,nve_junction,nve_jn_0026_145,nve_jn_0054_145
+nve/regionalnett_luft/147013,Granvin-Ulvik,BKK AS,50.0,11.9719706522154,regionalnett_luft,0.03734439834024896,1974.0,nve_junction,unsnapped,nve_jn_0017_50,
+nve/regionalnett_luft/155472,,GLITRE NETT AS,50.0,4.663634948598237,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0021_50,nve_jn_0011_50
+nve/regionalnett_luft/183558,,GLITRE NETT AS,132.0,9.82541605723566,regionalnett_luft,0.08629441624365482,,existing,existing,st0023342_132kV,st0023343_132kV
+nve/regionalnett_luft/206911,,GLITRE NETT AS,50.0,0.4290418715016259,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0012_50,nve_jn_0040_50
+nve/regionalnett_luft/238700,Hodnaberg-Kaldestad,BKK AS,50.0,13.352232796520546,regionalnett_luft,0.0,1959.0,nve_junction,nve_junction,nve_jn_0036_50,nve_jn_0004_50
+nve/regionalnett_luft/277846,,INDRE HORDALAND KRAFTNETT AS,50.0,0.3994760127656716,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0014_50,nve_jn_0010_50
+nve/regionalnett_luft/284209,,GLITRE NETT AS,50.0,7.537073353846073,regionalnett_luft,0.0,,unsnapped,nve_junction,,nve_jn_0020_50
+nve/regionalnett_luft/301908,,GLITRE NETT AS,132.0,4.733207823221776,regionalnett_luft,0.07368421052631578,,existing,existing,st0012446_132kV,st0023342_132kV
+nve/regionalnett_luft/345062,Fosse-Kaldestad,BKK AS,50.0,8.80323295868985,regionalnett_luft,0.03389830508474576,1958.0,nve_junction,nve_junction,nve_jn_0004_50,nve_jn_0019_50
+nve/regionalnett_luft/399711,,GLITRE NETT AS,50.0,26.867754872438947,regionalnett_luft,0.0260707635009311,,nve_junction,new_nve,nve_jn_0031_50,
+nve/regionalnett_luft/434309,,GLITRE NETT AS,50.0,1.509253768573517,regionalnett_luft,0.0,,new_nve,nve_junction,,nve_jn_0009_50
+nve/regionalnett_luft/496413,,GLITRE NETT AS,50.0,28.377008641012452,regionalnett_luft,0.022887323943661973,,new_nve,new_nve,,
+nve/regionalnett_luft/546627,,GLITRE NETT AS,50.0,1.3911682642941494,regionalnett_luft,0.10714285714285714,,new_nve,nve_junction,,nve_jn_0009_50
+nve/regionalnett_luft/561186,,GLITRE NETT AS,50.0,7.370885257086524,regionalnett_luft,0.02702702702702703,,nve_junction,nve_junction,nve_jn_0005_50,nve_jn_0037_50
+nve/regionalnett_luft/573710,,GLITRE NETT AS,50.0,1.6339852298232924,regionalnett_luft,0.0,,new_nve,nve_junction,,nve_jn_0006_50
+nve/regionalnett_luft/581773,,INDRE HORDALAND KRAFTNETT AS,50.0,14.29945666898446,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0042_50,nve_jn_0043_50
+nve/regionalnett_luft/590995,,GLITRE NETT AS,50.0,3.127353085294289,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0006_50,nve_jn_0009_50
+nve/regionalnett_luft/689604,,GLITRE NETT AS,132.0,6.367419234548741,regionalnett_luft,0.03125,,existing,nve_junction,st0023342_132kV,nve_jn_0062_132
+nve/regionalnett_luft/732968,,GLITRE NETT AS,50.0,0.8171099495516032,regionalnett_luft,0.0,,new_nve,nve_junction,,nve_jn_0033_50
+nve/regionalnett_luft/741386,,TENSIO TS AS,132.0,6.106880213823619,regionalnett_luft,0.23577235772357724,,unsnapped,existing,,st0012467_132kV
+nve/regionalnett_luft/745398,,GLITRE NETT AS,50.0,3.0228145786776768,regionalnett_luft,0.3770491803278688,,nve_junction,new_nve,nve_jn_0008_50,
+nve/regionalnett_luft/774392,,GLITRE NETT AS,50.0,1.265893294571641,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0007_50,nve_jn_0033_50
+nve/regionalnett_luft/796251,,GLITRE NETT AS,50.0,3.0228145786776763,regionalnett_luft,0.3770491803278688,,new_nve,nve_junction,,nve_jn_0008_50
+nve/regionalnett_luft/836299,,GLITRE NETT AS,50.0,1.4098846020439657,regionalnett_luft,0.10344827586206896,,nve_junction,new_nve,nve_jn_0009_50,
+nve/regionalnett_luft/854584,,GLITRE NETT AS,132.0,3.457998502449425,regionalnett_luft,0.2,,nve_junction,existing,nve_jn_0063_132,st0023343_132kV
+nve/regionalnett_luft/877268,,INDRE HORDALAND KRAFTNETT AS,50.0,2.2969323283408003,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0010_50,nve_jn_0045_50
+nve/regionalnett_luft/878516,,GLITRE NETT AS,50.0,1.0141859454938278,regionalnett_luft,0.38095238095238093,,nve_junction,nve_junction,nve_jn_0060_50,nve_jn_0061_50
+nve/regionalnett_luft/1009900,,TENSIO TN AS,66.0,1.6257159869500728,regionalnett_luft,0.2727272727272727,,unsnapped,unsnapped,,
+nve/regionalnett_luft/1010418,,GLITRE NETT AS,50.0,0.5955451867380911,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0033_50,nve_jn_0025_50
+nve/regionalnett_luft/1104802,GI-MA1,LNETT AS,52.0,8.849482009741244,regionalnett_luft,0.005649717514124294,1949.0,existing,unsnapped,st0028363_50kV,
+nve/regionalnett_luft/1142359,,GLITRE NETT AS,66.0,11.521598517503051,regionalnett_luft,0.04329004329004329,,nve_junction,unsnapped,nve_jn_0016_66,
+nve/regionalnett_luft/1253858,,GLITRE NETT AS,50.0,4.1502937833787,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0024_50,nve_jn_0033_50
+nve/regionalnett_luft/1253871,,GLITRE NETT AS,50.0,24.87797167578687,regionalnett_luft,0.02610441767068273,,nve_junction,nve_junction,nve_jn_0015_50,nve_jn_0031_50
+nve/regionalnett_luft/1258413,,INDRE HORDALAND KRAFTNETT AS,50.0,0.30739223624555334,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0018_50,nve_jn_0013_50
+nve/regionalnett_luft/1266641,NULL,HOLMEN KRAFT AS,50.0,9.682674691967305,regionalnett_luft,0.0,,unsnapped,nve_junction,,nve_jn_0056_50
+nve/regionalnett_luft/1275899,,GLITRE NETT AS,50.0,2.707518875494537,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0011_50,nve_jn_0012_50
+nve/regionalnett_luft/1282344,,GLITRE NETT AS,132.0,4.733207823221776,regionalnett_luft,0.07368421052631578,,existing,existing,st0012446_132kV,st0023342_132kV
+nve/regionalnett_luft/1307065,,INDRE HORDALAND KRAFTNETT AS,50.0,0.7427365638103173,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0013_50,nve_jn_0014_50
+nve/regionalnett_luft/1333686,,GLITRE NETT AS,50.0,24.877971675786874,regionalnett_luft,0.02610441767068273,,nve_junction,nve_junction,nve_jn_0015_50,nve_jn_0064_50
+nve/regionalnett_luft/1353788,,GLITRE NETT AS,66.0,1.9392848454838734,regionalnett_luft,0.07692307692307693,,unsnapped,nve_junction,,nve_jn_0016_66
+nve/regionalnett_luft/1430561,Bu-Granvin,BKK AS,50.0,8.850088388817857,regionalnett_luft,0.04519774011299435,1961.0,nve_junction,unsnapped,nve_jn_0017_50,
+nve/regionalnett_luft/1434375,,GLITRE NETT AS,50.0,0.45181624001814996,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0065_50,nve_jn_0022_50
+nve/regionalnett_luft/1443073,,INDRE HORDALAND KRAFTNETT AS,50.0,1.6544624092491982,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0044_50,nve_jn_0018_50
+nve/regionalnett_luft/1447860,Dale-Fosse,BKK AS,50.0,4.288274834084528,regionalnett_luft,0.06976744186046512,1958.0,unsnapped,nve_junction,,nve_jn_0019_50
+nve/regionalnett_luft/1461309,,GLITRE NETT AS,50.0,2.623740191218102,regionalnett_luft,0.018867924528301886,,nve_junction,nve_junction,nve_jn_0055_50,nve_jn_0032_50
+nve/regionalnett_luft/1480564,,GLITRE NETT AS,132.0,10.062358371374982,regionalnett_luft,0.25742574257425743,,existing,existing,st0023527_132kV,st0029944_132kV
+nve/regionalnett_luft/1495573,,GLITRE NETT AS,50.0,0.4972011031262898,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0020_50,nve_jn_0021_50
+nve/regionalnett_luft/1499876,,GLITRE NETT AS,50.0,0.8217663592388497,regionalnett_luft,0.0,,nve_junction,new_nve,nve_jn_0033_50,
+nve/regionalnett_luft/1544593,,GLITRE NETT AS,132.0,5.392277899962232,regionalnett_luft,0.10091743119266056,,existing,existing,st0023343_132kV,st0029944_132kV
+nve/regionalnett_luft/1551845,GROV - SVELGEN (UTE AV DRIFT),LINJA AS,66.0,2.795946198895454,regionalnett_luft,0.24561403508771928,1969.0,unsnapped,unsnapped,,
+nve/regionalnett_luft/1555033,,GLITRE NETT AS,50.0,0.328305808014027,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0022_50,nve_jn_0023_50
+nve/regionalnett_luft/1562546,,GLITRE NETT AS,50.0,2.623740191218102,regionalnett_luft,0.018867924528301886,,nve_junction,nve_junction,nve_jn_0055_50,nve_jn_0032_50
+nve/regionalnett_luft/1572870,,GLITRE NETT AS,50.0,1.3911682642941494,regionalnett_luft,0.10714285714285714,,nve_junction,new_nve,nve_jn_0009_50,
+nve/regionalnett_luft/1628088,,GLITRE NETT AS,50.0,1.3747745893014476,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0032_50,nve_jn_0024_50
+nve/regionalnett_luft/1638348,,GLITRE NETT AS,50.0,1.4098846020439657,regionalnett_luft,0.10344827586206896,,new_nve,nve_junction,,nve_jn_0009_50
+nve/regionalnett_luft/1676988,,GLITRE NETT AS,132.0,5.392277899962233,regionalnett_luft,0.10091743119266056,,existing,existing,st0029944_132kV,st0023343_132kV
+nve/regionalnett_luft/1678424,,GLITRE NETT AS,66.0,0.47284821339897076,regionalnett_luft,0.1,,nve_junction,nve_junction,nve_jn_0049_66,nve_jn_0048_66
+nve/regionalnett_luft/1700533,,GLITRE NETT AS,50.0,3.5950383455361425,regionalnett_luft,0.0,,nve_junction,nve_junction,nve_jn_0025_50,nve_jn_0024_50
+nve/regionalnett_luft/1711616,ÅSNES-VÅLER,ELVIA AS,66.0,15.726011695297148,regionalnett_luft,0.08253968253968254,1970.0,existing,unsnapped,st0029844_66kV,
+nve/regionalnett_luft/1711623,132 HAFSKJOLD-KJENNER-2,GLITRE ENERGI NETT AS,145.0,4.734936568929665,regionalnett_luft,0.07368421052631578,1966.0,nve_junction,nve_junction,nve_jn_0026_145,nve_jn_0027_145
+nve/regionalnett_luft/1711630,132 HAFSKJOLD-KJENNER-1,GLITRE ENERGI NETT AS,145.0,4.734936568929665,regionalnett_luft,0.07368421052631578,1966.0,nve_junction,nve_junction,nve_jn_0026_145,nve_jn_0027_145
+nve/regionalnett_luft/1711647,S 66 KONGSVINGER-NORSENGA,EIDSIVA NETT AS,66.0,3.095232251567299,regionalnett_luft,0.3387096774193548,1960.0,existing,existing,st0029884_66kV,st0028248_66kV
+nve/regionalnett_luft/1711656,ØRESVIK-TONNES,ARVA AS,145.0,12.461704564248965,regionalnett_luft,0.012,1989.0,unsnapped,unsnapped,,
+nve/regionalnett_luft/1711682,N 66 TJELDSUND - KANSTADBOTN,HÅLOGALAND KRAFT NETT AS,66.0,26.3279274971387,regionalnett_luft,0.21361058601134217,1957.0,existing,existing,st0023563_66kV,st0028177_66kV
+nve/regionalnett_luft/1711714,ULTVEDT - HAUG,RINGERIKS-KRAFT NETT AS,132.0,4.019537878728923,regionalnett_luft,0.08641975308641975,1976.0,existing,unsnapped,st0023378_132kV,
+nve/regionalnett_luft/1711719,132 LANGUM-HAFSKJOLD-1,GLITRE ENERGI NETT AS,145.0,9.830858448290565,regionalnett_luft,0.09137055837563451,1966.0,unsnapped,unsnapped,,
+nve/regionalnett_luft/1711723,132 KV LINJE LOMI-SULITJELMA,SKS PRODUKSJON AS,132.0,7.240598959172558,regionalnett_luft,0.17123287671232876,1978.0,unsnapped,existing,,st0023568_132kV
+nve/regionalnett_luft/1711753,KONNERUD- (FJELL) - TANGEN,GLITRE ENERGI NETT AS,50.0,0.5920418234700319,regionalnett_luft,0.0,2000.0,nve_junction,nve_junction,nve_jn_0033_50,nve_jn_0025_50
+nve/regionalnett_luft/1711754,,GLITRE ENERGI NETT AS,50.0,1.2664757988763626,regionalnett_luft,0.0,2000.0,nve_junction,nve_junction,nve_jn_0007_50,nve_jn_0033_50
+nve/regionalnett_luft/1711764,66 AVGREINING HOKKSUND L1,GLITRE ENERGI NETT AS,73.0,0.5159429274907095,regionalnett_luft,0.18181818181818182,1927.0,nve_junction,existing,nve_jn_0028_73,st0018691_66kV
+nve/regionalnett_luft/1711765,66 AVGREINING HOKKSUND L2,GLITRE ENERGI NETT AS,73.0,0.5159429274907095,regionalnett_luft,0.18181818181818182,1927.0,nve_junction,existing,nve_jn_0028_73,st0018691_66kV
+nve/regionalnett_luft/1711768,S 66HOKKSUND-SKOTSELV-2,GLITRE ENERGI NETT AS,66.0,0.1713834153400774,regionalnett_luft,0.25,1962.0,nve_junction,nve_junction,nve_jn_0029_66,nve_jn_0030_66
+nve/regionalnett_luft/1711771,S 66 HOKKSUND-SKOTSELV-1,EB NETT AS,66.0,0.1713834153400774,regionalnett_luft,0.25,1962.0,nve_junction,nve_junction,nve_jn_0029_66,nve_jn_0030_66
+nve/regionalnett_luft/1711789,S 66 KAGGEFOSS-BRAGERNES,GLITRE ENERGI NETT AS,50.0,29.761201089831623,regionalnett_luft,0.02857142857142857,1953.0,new_nve,new_nve,,
+nve/regionalnett_luft/1711792,S 66 KAGGEFOSS-SOLBERG,EB NETT AS,50.0,3.128202720501784,regionalnett_luft,0.0,1953.0,new_nve,new_nve,,
+nve/regionalnett_luft/1711794,S 66 KAGGEFOSS-SOLBERG,EB NETT AS,50.0,24.879005984251364,regionalnett_luft,0.02610441767068273,1953.0,nve_junction,nve_junction,nve_jn_0015_50,nve_jn_0031_50
+nve/regionalnett_luft/1711795,S 66 KAGGEFOSS-SOLBERG,EB NETT AS,50.0,1.4099801632084503,regionalnett_luft,0.10344827586206896,1953.0,nve_junction,new_nve,nve_jn_0009_50,
+nve/regionalnett_luft/1711798,S 66 LIE-SOLBERG-2,EB NETT AS,50.0,1.493150611294714,regionalnett_luft,0.0,1953.0,new_nve,nve_junction,,nve_jn_0009_50
+nve/regionalnett_luft/1711799,S 66 LIE-SOLBERG-2,EB NETT AS,50.0,1.4099801632084503,regionalnett_luft,0.10344827586206896,1953.0,nve_junction,new_nve,nve_jn_0009_50,
+nve/regionalnett_luft/1711800,LANGUM-HOLMESTRANDSVEIEN,GLITRE ENERGI NETT AS,50.0,1.375999061980184,regionalnett_luft,0.0,2000.0,nve_junction,nve_junction,nve_jn_0024_50,nve_jn_0032_50
+nve/regionalnett_luft/1711801,LANGUM-HOLMESTRANDSVEIEN,GLITRE ENERGI NETT AS,50.0,0.8215325786813,regionalnett_luft,0.0,2000.0,new_nve,nve_junction,,nve_jn_0033_50
+nve/regionalnett_luft/1711802,LANGUM-HOLMESTRANDSVEIEN,GLITRE ENERGI NETT AS,50.0,4.149835867286831,regionalnett_luft,0.0,2000.0,nve_junction,nve_junction,nve_jn_0033_50,nve_jn_0024_50
+nve/regionalnett_luft/1711803,S 66 LANGUM-KONNERUD,GLITRE ENERGI NETT AS,50.0,1.3828056945036329,regionalnett_luft,0.0,1962.0,nve_junction,nve_junction,nve_jn_0024_50,nve_jn_0032_50
+nve/regionalnett_luft/1711804,KONNERUD- (FJELL) - TANGEN,GLITRE ENERGI NETT AS,50.0,3.5670200710585127,regionalnett_luft,0.0,2000.0,nve_junction,nve_junction,nve_jn_0025_50,nve_jn_0024_50
+nve/regionalnett_luft/1711805,TANGEN-HOLMESTRANDSVEIEN,GLITRE ENERGI NETT AS,50.0,1.265114494833363,regionalnett_luft,0.0,2000.0,nve_junction,nve_junction,nve_jn_0033_50,nve_jn_0007_50
+nve/regionalnett_luft/1711806,TANGEN-HOLMESTRANDSVEIEN,GLITRE ENERGI NETT AS,50.0,0.8170399994588677,regionalnett_luft,0.0,2000.0,new_nve,nve_junction,,nve_jn_0033_50
+nve/regionalnett_luft/1711807,S 66 LIE-BRAGERNES-1,EB NETT AS,50.0,3.0223209984967765,regionalnett_luft,0.3770491803278688,1953.0,new_nve,nve_junction,,nve_jn_0008_50
+nve/regionalnett_luft/1711808,S 66 LIE-BRAGERNES-1,EB NETT AS,50.0,3.0227651142465275,regionalnett_luft,0.3770491803278688,1953.0,nve_junction,new_nve,nve_jn_0008_50,
+nve/regionalnett_luft/1711823,S 66 ELVERUM-T_LØVBERGSMOEN.H,ELVIA AS,66.0,4.989329746414315,regionalnett_luft,0.38,1966.0,nve_junction,nve_junction,nve_jn_0034_66,nve_jn_0035_66
+nve/regionalnett_luft/1711824,S 66 ELVERUM-T_LØVBERGSMOEN.L,ELVIA AS,66.0,4.989270531300487,regionalnett_luft,0.38,1962.0,nve_junction,nve_junction,nve_jn_0034_66,nve_jn_0035_66
+nve/regionalnett_luft/1711839,,VOSS ENERGI PRODUKSJON AS,50.0,10.631719416178775,regionalnett_luft,0.03286384976525822,1953.0,nve_junction,nve_junction,nve_jn_0036_50,nve_jn_0038_50
+nve/regionalnett_luft/1711840,,VOSS ENERGI PRODUKSJON AS,50.0,12.583221930642287,regionalnett_luft,0.01984126984126984,1961.0,nve_junction,nve_junction,nve_jn_0037_50,nve_jn_0038_50
+nve/regionalnett_luft/1711841,,VOSS ENERGI PRODUKSJON AS,50.0,12.583221930642287,regionalnett_luft,0.01984126984126984,1961.0,nve_junction,nve_junction,nve_jn_0037_50,nve_jn_0038_50
+nve/regionalnett_luft/1711842,,VOSS ENERGI PRODUKSJON AS,50.0,10.631719416178775,regionalnett_luft,0.03286384976525822,1953.0,nve_junction,nve_junction,nve_jn_0036_50,nve_jn_0038_50
+nve/regionalnett_luft/1711843,S 50 VOSS-BJØRKELID,VONETT AS,66.0,0.38300323247857315,regionalnett_luft,0.0,1962.0,nve_junction,unsnapped,nve_jn_0039_66,
+nve/regionalnett_luft/1711844,S 50 VOSS-BJØRKELID,VONETT AS,66.0,0.38010700659995544,regionalnett_luft,0.0,1962.0,unsnapped,nve_junction,,nve_jn_0039_66
+nve/regionalnett_luft/1711848,S50 MÆRINGEN-URDLAND TR.ST,VONETT AS,132.0,0.7708893595447123,regionalnett_luft,0.0,1979.0,nve_junction,nve_junction,nve_jn_0057_132,nve_jn_0040_50
+nve/regionalnett_luft/1711860,EID - ØKSENELVANE,LINJA AS,66.0,1.0881807707912583,regionalnett_luft,0.18181818181818182,1985.0,unsnapped,nve_junction,,nve_jn_0041_66
+nve/regionalnett_luft/1711861,EID - ØKSENELVANE,LINJA AS,66.0,1.0241697341222018,regionalnett_luft,0.0,1985.0,nve_junction,nve_junction,nve_jn_0041_66,nve_jn_0052_66
+nve/regionalnett_luft/1711866,ØKSENELVANE-NIBBEVATN,LINJA AS,66.0,10.711983755705926,regionalnett_luft,0.24186046511627907,1948.0,unsnapped,unsnapped,,
+nve/regionalnett_luft/1711868,SANDANE-REED,LINJA AS,66.0,0.3533106384295196,regionalnett_luft,0.25,1984.0,existing,existing,st0029926_66kV,st0029926_66kV
+nve/regionalnett_luft/1711877,S 50 BU-KLYVE,HARDANGER ENERGI AS,50.0,14.300884007191407,regionalnett_luft,0.0,1974.0,nve_junction,nve_junction,nve_jn_0042_50,nve_jn_0043_50
+nve/regionalnett_luft/1711878,S 66 KLYVE-SIMA,HARDANGER ENERGI AS,73.0,5.401711779552089,regionalnett_luft,0.0,1974.0,nve_junction,nve_junction,nve_jn_0044_50,nve_jn_0045_50
+nve/regionalnett_luft/1711904,132 FLESAKER-MJØNDALEN-2,GLITRE ENERGI NETT AS,145.0,10.053155491470504,regionalnett_luft,0.25742574257425743,1966.0,nve_junction,nve_junction,nve_jn_0054_145,nve_jn_0046_145
+nve/regionalnett_luft/1711905,132 FLESAKER-MJØNDALEN-1,GLITRE ENERGI NETT AS,145.0,10.053155491470502,regionalnett_luft,0.25742574257425743,1966.0,nve_junction,nve_junction,nve_jn_0046_145,nve_jn_0054_145
+nve/regionalnett_luft/1711907,S 132 LANGUM-HAFSKJOLD-2,GLITRE ENERGI NETT AS,132.0,9.830858448290565,regionalnett_luft,0.09137055837563451,1966.0,existing,existing,st0023342_132kV,st0023343_132kV
+nve/regionalnett_luft/1711908,132 MJØNDALEN-LANGUM-1,GLITRE ENERGI NETT AS,145.0,5.389797283539878,regionalnett_luft,0.10091743119266056,1966.0,nve_junction,nve_junction,nve_jn_0047_145,nve_jn_0061_50
+nve/regionalnett_luft/1711909,132 MJØNDALEN-LANGUM-2,GLITRE ENERGI NETT AS,145.0,5.38979728353988,regionalnett_luft,0.10091743119266056,1966.0,nve_junction,nve_junction,nve_jn_0061_50,nve_jn_0047_145
+nve/regionalnett_luft/1711913,S 66 TOFTE-TOFTE_VK,GLITRE ENERGI NETT AS,66.0,0.4716061666691409,regionalnett_luft,0.1,1970.0,nve_junction,nve_junction,nve_jn_0048_66,nve_jn_0049_66
+nve/regionalnett_luft/1711914,S 66 TOFTE-TOFTE_VK,GLITRE ENERGI NETT AS,66.0,0.4716061666691409,regionalnett_luft,0.1,1970.0,nve_junction,nve_junction,nve_jn_0048_66,nve_jn_0049_66
+nve/regionalnett_luft/1711915,TOFTE - HURUM FABRIKK,GLITRE ENERGI NETT AS,66.0,2.227202179274964,regionalnett_luft,0.0,2000.0,nve_junction,nve_junction,nve_jn_0050_66,nve_jn_0048_66
+nve/regionalnett_luft/1711916,TOFTE - HURUM FABRIKK,GLITRE ENERGI NETT AS,66.0,0.23469646180981868,regionalnett_luft,0.0,2000.0,unsnapped,nve_junction,,nve_jn_0050_66
+nve/regionalnett_luft/1711956,ØKSENELVANE-NIBBEVATN,LINJA AS,66.0,0.40889990991934416,regionalnett_luft,0.2222222222222222,2007.0,nve_junction,unsnapped,nve_jn_0051_66,
+nve/regionalnett_luft/1711957,ØKSENELVANE-NIBBEVATN,LINJA AS,66.0,1.1860476254130068,regionalnett_luft,0.0,1974.0,nve_junction,unsnapped,nve_jn_0051_66,
+nve/regionalnett_luft/1711976,RØRHOLT-DALSFOS AVGR-MAST215,VESTMAR NETT AS,66.0,2.9043009827932726,regionalnett_luft,0.06779661016949153,,unsnapped,unsnapped,,
+nve/regionalnett_luft/1711994,66 EID-ØKSENELVANE,LINJA AS,66.0,3.7346944377357225,regionalnett_luft,0.0,1953.0,nve_junction,nve_junction,nve_jn_0052_66,nve_jn_0053_66
+nve/regionalnett_luft/1711995,66 EID-ØKSENELVANE,LINJA AS,66.0,6.92676594192736,regionalnett_luft,0.17266187050359713,1953.0,nve_junction,existing,nve_jn_0053_66,st0028223_66kV
+nve/regionalnett_luft/1712015,LANGFJORD-SØMNA,HELGELANDSKRAFT AS,132.0,7.391614580048387,regionalnett_luft,0.3825503355704698,2003.0,unsnapped,unsnapped,,
+nve/regionalnett_luft/1712021,BREKKE - MAST 28,FORTUM DISTRIBUTION AS,50.0,5.697735774177354,regionalnett_luft,0.0,2001.0,unsnapped,unsnapped,,
+nve/regionalnett_luft/1712033,PETRABORG - KJENNER,GLITRE ENERGI NETT AS,55.0,27.483369431765016,regionalnett_luft,0.11252268602540835,1966.0,nve_junction,nve_junction,nve_jn_0026_145,nve_jn_0054_145
+nve/regionalnett_luft/1712048,S 66 LANGUM-KONNERUD,EB NETT AS,50.0,2.6225893230067516,regionalnett_luft,0.018867924528301886,1998.0,nve_junction,nve_junction,nve_jn_0055_50,nve_jn_0032_50
+nve/regionalnett_luft/1712049,LANGUM-KONNERUD,GLITRE ENERGI NETT AS,50.0,2.6223567642253713,regionalnett_luft,0.018867924528301886,2000.0,nve_junction,nve_junction,nve_jn_0055_50,nve_jn_0032_50
+nve/regionalnett_luft/1712075,S 50 URDLAND TR.ST-KJØNNAGARD TR.ST,VONETT AS,132.0,11.177922880114872,regionalnett_luft,0.0,1979.0,nve_junction,nve_junction,nve_jn_0056_50,nve_jn_0057_132
+nve/regionalnett_luft/1712109,KAGGEFOSS - BRAGERNES (HEIA) L4,GLITRE ENERGI NETT AS,50.0,3.0223209984967765,regionalnett_luft,0.3770491803278688,2000.0,new_nve,nve_junction,,nve_jn_0008_50
+nve/regionalnett_luft/1712113,HOLGERSMOEN - KAGGEFOSS,GLITRE ENERGI NETT AS,132.0,2.121139646806877,regionalnett_luft,0.3488372093023256,2005.0,existing,existing,st0023409_132kV,st0023409_132kV
+nve/regionalnett_luft/1712114,OFTEDAL - SKREGELI,SMÅKRAFT AS,66.0,0.4555542837709818,regionalnett_luft,0.3,2006.0,unsnapped,unsnapped,,
+nve/regionalnett_luft/1712155,S 66 T_LØVBERGSMOEN-RENA,ELVIA AS,73.0,12.15243813053606,regionalnett_luft,0.0,1954.0,nve_junction,nve_junction,nve_jn_0059_73,nve_jn_0058_73
+nve/regionalnett_luft/1712156,S 66 T_LØVBERGSMOEN-RENA,ELVIA AS,73.0,15.713352954405966,regionalnett_luft,0.06687898089171974,1954.0,nve_junction,nve_junction,nve_jn_0058_73,nve_jn_0034_66
+nve/regionalnett_luft/1712157,S 66 T_LØVBERGSMOEN-RENA,ELVIA AS,73.0,1.810893880859387,regionalnett_luft,0.02702702702702703,1954.0,nve_junction,existing,nve_jn_0059_73,st0031227_66kV
+nve/regionalnett_luft/1712192,DAUREMÅL - LUNDEN,SFE PRODUKSJON AS,72.0,1.6824184270855027,regionalnett_luft,0.20588235294117646,2006.0,unsnapped,existing,,st0023636_66kV
+nve/regionalnett_luft/1712194,132 HAFSKJOLD-KJENNER L2,GLITRE ENERGI NETT AS,132.0,4.7349365689296645,regionalnett_luft,0.07368421052631578,1966.0,existing,existing,st0012446_132kV,st0023342_132kV
+nve/regionalnett_luft/1712197,132 MJØNDALEN-LANGUM L2,GLITRE ENERGI NETT AS,132.0,5.389797283539878,regionalnett_luft,0.10091743119266056,1966.0,existing,existing,st0029944_132kV,st0023343_132kV
+nve/regionalnett_luft/1712200,132 HAFSKJOLD-KJENNER L1,GLITRE ENERGI NETT AS,132.0,4.734936568929665,regionalnett_luft,0.07368421052631578,1966.0,existing,existing,st0023342_132kV,st0012446_132kV
+nve/regionalnett_luft/1712211,132 FLESAKER-MJØNDALEN L1,GLITRE ENERGI NETT AS,132.0,10.053155491470504,regionalnett_luft,0.25742574257425743,1966.0,existing,existing,st0029944_132kV,st0023527_132kV
+nve/regionalnett_luft/1712212,132 FLESAKER-MJØNDALEN L2,GLITRE ENERGI NETT AS,132.0,10.053155491470504,regionalnett_luft,0.25742574257425743,1966.0,existing,existing,st0029944_132kV,st0023527_132kV
+nve/regionalnett_luft/1712220,50 AVGR.SOLBERG-LIE L3,GLITRE ENERGI NETT AS,50.0,2.8993619374044974,regionalnett_luft,0.05084745762711865,1953.0,new_nve,new_nve,,
+nve/regionalnett_luft/1712227,50 LANGUM-LIE L1,GLITRE ENERGI NETT AS,50.0,1.0149575144016834,regionalnett_luft,0.38095238095238093,1985.0,nve_junction,nve_junction,nve_jn_0060_50,nve_jn_0061_50
+nve/regionalnett_luft/1712237,132 MJØNDALEN-LANGUM L1,GLITRE ENERGI NETT AS,132.0,5.389797283539878,regionalnett_luft,0.10091743119266056,1966.0,existing,existing,st0029944_132kV,st0023343_132kV
+nve/regionalnett_luft/1712242,132 LANGUM-HAFSKJOLD L1,GLITRE ENERGI NETT AS,132.0,9.95430862465151,regionalnett_luft,0.105,1965.0,nve_junction,nve_junction,nve_jn_0062_132,nve_jn_0063_132
+nve/regionalnett_luft/1712246,50 GRAVFOSS-AVGR.SOLBERG L2,GLITRE ENERGI NETT AS,50.0,24.949474827370658,regionalnett_luft,0.026052104208416832,1936.0,nve_junction,nve_junction,nve_jn_0015_50,nve_jn_0064_50
+nve/regionalnett_luft/1712251,50 VOSS-MÆRINGEN,GLITRE ENERGI NETT AS,50.0,8.90478715441248,regionalnett_luft,0.0223463687150838,1960.0,nve_junction,nve_junction,nve_jn_0037_50,nve_jn_0065_50
+nve/regionalnett_luft/1712262,50 LANGUM-KONNERUD L6,GLITRE ENERGI NETT AS,50.0,1.3828056945036329,regionalnett_luft,0.0,1962.0,nve_junction,nve_junction,nve_jn_0024_50,nve_jn_0032_50
+nve/regionalnett_luft/1836367,Vrangfoss-Bolvik,LEDE AS,132.0,5.6064591752941855,regionalnett_luft,0.17699115044247787,2026.0,unsnapped,unsnapped,,
+nve/sjokabel/4,GRØNLAND TRAFOSTASJON,GLITRE ENERGI NETT AS,50.0,0.14617553382403936,sjokabel,0.0,,new_nve,new_nve,,
+nve/sjokabel/5,GRØNLAND - BRAGERNES K2 / SEKSJON 2,GLITRE ENERGI NETT AS,50.0,0.10347510335447654,sjokabel,0.0,1977.0,new_nve,new_nve,,
+nve/sjokabel/157,KVALSUNDET,HAMMERFEST ENERGI NETT AS,66.0,0.8277295089576691,sjokabel,0.0,1964.0,nve_junction,nve_junction,nve_jn_0066_66,nve_jn_0067_66
+nve/sjokabel/158,KVALSUNDET,HAMMERFEST ENERGI NETT AS,66.0,0.8277295089576691,sjokabel,0.0,1959.0,nve_junction,nve_junction,nve_jn_0066_66,nve_jn_0067_66
+nve/sjokabel/678,SH0734.017,TENSIO TN AS,73.0,0.5182848522842424,sjokabel,0.2727272727272727,1993.0,unsnapped,unsnapped,,
+nve/sjokabel/751,,TROLLFJORD NETT AS,132.0,0.0009627687251110525,sjokabel,0.0,,nve_junction,nve_junction,nve_jn_0068_132,nve_jn_0068_132
+nve/sjokabel/2815,,TROLLFJORD NETT AS,132.0,6.0385527429732715,sjokabel,0.10833333333333334,,unsnapped,unsnapped,,
+nve/sjokabel/4391,,TROLLFJORD NETT AS,132.0,1.6464551622559283,sjokabel,0.0,,unsnapped,unsnapped,,
+nve/sjokabel/8205,,GLITRE NETT AS,50.0,0.20415641582789842,sjokabel,0.0,,new_nve,new_nve,,
+nve/sjokabel/8206,,GLITRE NETT AS,50.0,0.1610270296646881,sjokabel,0.0,,new_nve,new_nve,,
+nve/sjokabel/8211,Askøy II-Jordal II,BKK AS,132.0,3.6277980062896247,sjokabel,0.1643835616438356,,unsnapped,unsnapped,,
+nve/sjokabel/8235,,LINJA AS,132.0,3.9817467225271295,sjokabel,0.2625,,unsnapped,unsnapped,,
+nve/sjokabel/8242,,INDRE HORDALAND KRAFTNETT AS,50.0,1.1721607354984693,sjokabel,0.0,,nve_junction,unsnapped,nve_jn_0045_50,
+nve/sjokabel/8280,,STATKRAFT ENERGI AS,132.0,1.5280788838497732,sjokabel,0.03225806451612903,,existing,nve_junction,st0023676_132kV,nve_jn_0069_132
+nve/sjokabel/8291,,STATKRAFT ENERGI AS,420.0,0.7651209939237512,sjokabel,0.0625,,nve_junction,existing,nve_jn_0070_420,st0023389_420kV
+nve/sjokabel/8300,,STATKRAFT ENERGI AS,132.0,0.46096785957015296,sjokabel,0.0,,nve_junction,existing,nve_jn_0071_132,st0023395_132kV
+nve/sjokabel/8376,,STATKRAFT ENERGI AS,132.0,1.5280788838497732,sjokabel,0.03225806451612903,,existing,nve_junction,st0023676_132kV,nve_jn_0069_132
+nve/sjokabel/8387,,STATKRAFT ENERGI AS,420.0,0.7651209939237512,sjokabel,0.0625,,nve_junction,existing,nve_jn_0070_420,st0023389_420kV
+nve/sjokabel/8396,,STATKRAFT ENERGI AS,132.0,0.46096785957015296,sjokabel,0.0,,nve_junction,existing,nve_jn_0071_132,st0023395_132kV
+nve/sjokabel/8472,,STATKRAFT ENERGI AS,132.0,1.5280788838497732,sjokabel,0.03225806451612903,,existing,nve_junction,st0023676_132kV,nve_jn_0069_132
+nve/sjokabel/8483,,STATKRAFT ENERGI AS,420.0,0.7651209939237512,sjokabel,0.0625,,nve_junction,existing,nve_jn_0070_420,st0023389_420kV
+nve/sjokabel/8492,,STATKRAFT ENERGI AS,132.0,0.46096785957015296,sjokabel,0.0,,nve_junction,existing,nve_jn_0071_132,st0023395_132kV
+nve/sjokabel/8568,,STATKRAFT ENERGI AS,132.0,1.5280788838497732,sjokabel,0.03225806451612903,,existing,nve_junction,st0023676_132kV,nve_jn_0069_132
+nve/sjokabel/8579,,STATKRAFT ENERGI AS,420.0,0.7651209939237512,sjokabel,0.0625,,nve_junction,existing,nve_jn_0070_420,st0023389_420kV
+nve/sjokabel/8588,,STATKRAFT ENERGI AS,132.0,0.46096785957015296,sjokabel,0.0,,nve_junction,existing,nve_jn_0071_132,st0023395_132kV
+nve/sjokabel/8664,,STATKRAFT ENERGI AS,132.0,1.5280788838497732,sjokabel,0.03225806451612903,,existing,nve_junction,st0023676_132kV,nve_jn_0069_132
+nve/sjokabel/8675,,STATKRAFT ENERGI AS,420.0,0.7651209939237512,sjokabel,0.0625,,nve_junction,existing,nve_jn_0070_420,st0023389_420kV
+nve/sjokabel/8684,,STATKRAFT ENERGI AS,132.0,0.46096785957015296,sjokabel,0.0,,nve_junction,existing,nve_jn_0071_132,st0023395_132kV
+nve/sjokabel/8732,OK23 SJØ,LNETT AS,52.0,0.6763433186106538,sjokabel,0.14285714285714285,1986.0,unsnapped,unsnapped,,
+nve/sjokabel/8741,RE_132HL02_02_2,MELLOM AS,132.0,2.257152116494227,sjokabel,0.1956521739130435,1978.0,unsnapped,unsnapped,,
+nve/sjokabel/8743,RE_132HL07_3,MELLOM AS,132.0,5.031674647073549,sjokabel,0.297029702970297,2005.0,unsnapped,unsnapped,,

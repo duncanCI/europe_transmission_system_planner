@@ -1,0 +1,27 @@
+{
+ "sizes": {
+  "buses": 75315,
+  "lines": 91094,
+  "transformers": 4753,
+  "links": 56
+ },
+ "consistency_strict": "PASS",
+ "sub_networks": 3847,
+ "largest_sub_buses": 52929,
+ "component_column_matches_passive_partition": "PASS (db components 3847 vs scipy 3847)",
+ "no_subnetwork_mixes_frequency": "PASS (0 mixed)",
+ "traction_sub_networks": 142,
+ "traction_buses": 1187,
+ "lpf_scope": ">=220 kV 50 Hz backbone, largest connected component",
+ "lpf_backbone_buses": 9955,
+ "lpf_largest_subnetwork": "PASS",
+ "lpf_balance": "PASS (gen 2000.00 vs load 2000.00)",
+ "kcl_max_residual_MW": "PASS (3.82e-10)",
+ "overloaded_branches_in_probe": 0,
+ "largest_traction_sub_buses": 438,
+ "lpf_traction_subnetwork": "PASS",
+ "no_dangling_line_buses": "PASS",
+ "no_self_loops": "PASS",
+ "positive_impedances": "PASS",
+ "transformer_r_nonzero": "PASS"
+}

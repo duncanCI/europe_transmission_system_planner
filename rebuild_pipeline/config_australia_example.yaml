@@ -1,0 +1,74 @@
+# Australia - a worked NON-EUROPE example. Nothing in the pipeline is
+# Europe-specific; everything that differs between regions is in this file.
+#
+# Treat the values here as a documented STARTING POINT, not a validated
+# configuration. Two things need a local decision before you trust an output:
+# the voltage floor and the layer voltage list (notes below). Run 03_validate.py
+# and compare the >=220 kV total against the TNSPs' own published circuit
+# lengths before quoting anything.
+region_name: australia
+
+# --- scope -----------------------------------------------------------------
+# Bbox rather than areas: the NEM does not map onto one admin area, and the
+# state areas would double-harvest the interconnectors. Covers the mainland,
+# Tasmania and the NEM interconnectors; excludes external territories.
+bboxes:
+  - [-44.0, 112.0, -9.0, 154.0]     # south, west, north, east
+scope_bbox: [-44.0, 112.0, -9.0, 154.0]
+
+# --- voltages --------------------------------------------------------------
+# Australian sub-transmission is 66 kV in NSW/VIC/TAS, 33 kV in parts of QLD
+# and SA, so a 66 kV floor captures transmission plus the top of
+# sub-transmission but silently drops the 33 kV networks. Drop the floor to 33
+# if you want them - expect the element count to roughly double and the
+# unmapped-feeder fragmentation to rise, because OSM coverage thins fast below
+# 66 kV outside the capitals.
+voltage_floor_kv: 66
+high_pass_floor_kv: 110
+
+# 275 kV (QLD/SA), 330 kV (NSW/Snowy), 500 kV (VIC), 220/220 kV (VIC/TAS),
+# 132 kV (TAS/QLD regional), 66 kV sub-transmission. 220 and 500 kV carry the
+# Victorian backbone; 330 kV carries NSW.
+standard_voltages_kv: [66, 110, 132, 220, 275, 330, 500]
+layer_voltages_kv: [66, 110, 132, 220, 275, 330, 500]
+layer_min_spans: 25
+
+# --- projection ------------------------------------------------------------
+metric_crs: EPSG:3577          # GDA94 / Australian Albers - the metre CRS here
+
+# --- countries -------------------------------------------------------------
+# One country, so a polygon join buys nothing and `is_cross_border` is
+# meaningless. If you want per-state attribution, supply a state polygon file
+# and set country_field to the state column - the pipeline treats the field as
+# an opaque label, so STATE_NAME works exactly like ISO_A2.
+country_source: none
+
+# --- frequency separation --------------------------------------------------
+# No 16.7 Hz traction anywhere in Australia: electrified rail runs 1.5 kV DC
+# (Melbourne, Brisbane, Perth) or 25 kV 50 Hz single-phase (Sydney, freight),
+# both of which are fed from the 50 Hz grid rather than being a separate
+# synchronous system. Traction separation off - and note the pipeline then
+# leaves every AC element at grid frequency, which is the correct answer here.
+traction:
+  enabled: false
+
+# --- Overpass --------------------------------------------------------------
+overpass:
+  endpoints:
+    - "https://overpass-api.de/api/interpreter"
+    - "https://overpass.kumi.systems/api/interpreter"
+    - "https://overpass.private.coffee/api/interpreter"
+  chunk_deg: 3.0                # sparser network than Europe, larger tiles are fine
+  timeout_s: 900
+  max_attempts: 6
+  polite_gap_s: 8
+  harvest_substations: true
+  harvest_dc_sweep: true        # picks up Basslink and Murraylink
+
+harvest_dir: harvest/australia
+out_dir: out/australia
+
+# Known DC assets are found by the DC sweep on their own tags; add an id here
+# only where OSM tags an HVDC cable as AC (Basslink 400 kV monopole and
+# Murraylink/Directlink are the ones to check after a first run).
+dc_reclassify_osm_ids: []

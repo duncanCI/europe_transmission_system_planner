@@ -1,0 +1,108 @@
+{
+ "v22": {
+  "ac_spans": 91094,
+  "buses": 75315,
+  "transformers": 4753,
+  "dc_links": 72,
+  "route_km": 750631.0,
+  "route_km_50hz": 734106.8,
+  "route_km_16_7hz": 16524.2,
+  "ge220_50hz_km": 282283.3,
+  "components_ac_tr": 3847,
+  "components_incl_dc": 3837,
+  "traction_km_by_country": {
+   "DE": 10199.2,
+   "AT": 2381.9,
+   "SE": 1913.6,
+   "CH": 1688.0,
+   "NO": 184.6,
+   "AT;DE": 66.3,
+   "CH;IT": 39.8,
+   "CH;DE": 36.2
+  },
+  "traction_spans": 1397,
+  "traction_buses": 1187,
+  "severed_buses": 235,
+  "by_frequency_source": {
+   "no_nonstandard_frequency_tag_in_scrape": 89382,
+   "osm_frequency_tag": 1380,
+   "osm_mixed_50_16.7_kept_50": 291,
+   "operator_inferred": 17,
+   "osm_frequency_tag_50": 11,
+   "nonstandard_frequency_tag_kept_50": 8,
+   "operator_railway_joint_kept_50": 4,
+   "osm_frequency_tag_16_7_overridden_ehv_gate": 1
+  },
+  "mixed_kept": 291,
+  "mixed_kept_km": 2988.7,
+  "circuit_dup_ambiguous_rows": 14,
+  "collapsed_rows": 489,
+  "length_recomputed": 125,
+  "length_conflicts": 5,
+  "joint_tag_flagged": 2,
+  "geo_flagged": 1,
+  "not_in_main_spans": 22241,
+  "traction_layers": {
+   "line_110kV_16_7Hz": 971,
+   "line_132kV_16_7Hz": 334,
+   "line_130kV_16_7Hz": 1,
+   "line_55kV_16_7Hz": 15,
+   "line_66kV_16_7Hz": 76
+  },
+  "top5_components_buses": [
+   52929,
+   6704,
+   3527,
+   502,
+   438
+  ]
+ },
+ "v23": {
+  "transformer_parameter_coverage": 4753,
+  "transformer_bands": {
+   "R1": 828,
+   "R2": 995,
+   "R3": 1247,
+   "R4": 137,
+   "R5": 807,
+   "R6": 739
+  },
+  "ratio_flagged_rows": 99,
+  "alt_snom_fallback_rows": 8,
+  "alt_snom_min_mean_max": [
+   37.0,
+   3654.0,
+   54040.0
+  ],
+  "dc_rated_links": 67,
+  "dc_unknown_links": 5,
+  "dc_gross_mw": 56066.0,
+  "dc_cleaned_mw": 52966.0,
+  "dc_excluded_fids": [
+   28,
+   29,
+   52
+  ],
+  "dc_status": {
+   "operational": 61,
+   "partially_operational": 1,
+   "planned": 1,
+   "under_construction": 6,
+   "unknown": 3
+  },
+  "dc_inferred_sources": 5,
+  "typing_rule_table_rows": 8,
+  "typing_rule_registered": true,
+  "patch_history": [
+   [
+    "v22",
+    "2026-08-18T03:30:00Z"
+   ],
+   [
+    "v23",
+    "2026-08-18T12:00:00Z"
+   ]
+  ],
+  "review": "adversarial review round 1 NO_GO (3 blockers fixed: Konti-Skan nameplates, R1 s_nom relabelled inferred, SACOI exclusion); round 2 GO, 23/25 rating spot-checks agreed, reproducibility digest-identical"
+ }
+}

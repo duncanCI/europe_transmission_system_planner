@@ -1,0 +1,100 @@
+# Europe (36 ENTSO-E countries incl. UK and Ireland) - reproduces the shipped
+# v20 build parameters. See README_pipeline.md for what each key does and
+# ../supporting/README_methodology.md for why each value is what it is.
+region_name: europe
+
+# --- scope -----------------------------------------------------------------
+# Area harvest, one country at a time, two voltage passes each - the reference
+# build's approach (README s6.1). Overpass resolves each ISO code to an admin
+# area. Areas are more robust than a continental bbox: no tile seams, and the
+# harvest is resumable per country.
+# Quoted deliberately: unquoted NO is boolean false in YAML 1.1, which would
+# silently drop Norway. Quote ISO codes in every config you write.
+areas: ["AL", "AT", "BA", "BE", "BG", "CH", "CZ", "DE", "DK", "EE", "ES", "FI",
+        "FR", "GB", "GR", "HR", "HU", "IE", "IT", "LT", "LU", "LV", "MD", "ME",
+        "MK", "NL", "NO", "PL", "PT", "RO", "RS", "SE", "SI", "SK", "UA", "XK"]
+
+# Post-harvest clip. The v22 patch had to delete 314 spans of overseas
+# territory (Canaries, Madeira, Azores, Reunion, Antilles, Guiana, New
+# Caledonia) that the administrative-area harvest pulled in. This bbox drops
+# them at build time instead.
+scope_bbox: [34.0, -12.0, 72.0, 45.0]     # south, west, north, east
+
+# --- voltages --------------------------------------------------------------
+# 50 kV, not 110 kV. Sub-transmission is not one voltage across Europe: 110 kV
+# in DE/PL/AT, but 63/90 kV in FR, 60 kV in PT/DK, 66 kV in ES/NO, 70 kV in BE,
+# 50/65 kV in CH. A 110 kV floor gave France 50,115 km against RTE's published
+# figures; at 50 kV it is 101,039 km. (README design decision 1.)
+voltage_floor_kv: 50
+high_pass_floor_kv: 100        # pass 1 >=100 kV, pass 2 floor..99 kV
+
+standard_voltages_kv: [50, 55, 60, 63, 65, 66, 70, 77, 90, 110, 120, 125, 130,
+                       132, 138, 145, 150, 154, 170, 200, 220, 225, 236, 275,
+                       300, 330, 380, 400, 420, 500, 750]
+# Voltages that get their own line_<kV> / site_<kV> layer. Everything else
+# lands in line_other_kV, so a stray tag cannot create a one-span layer.
+layer_voltages_kv: [50, 55, 60, 63, 65, 66, 70, 90, 110, 125, 130, 132, 150,
+                    154, 220, 225, 275, 300, 330, 380, 400, 420, 500, 750]
+layer_min_spans: 50
+
+# --- projection ------------------------------------------------------------
+metric_crs: EPSG:3035          # LAEA Europe: the metre CRS for distance gates
+
+# --- countries -------------------------------------------------------------
+# A polygon join is what makes `countries` (and therefore is_cross_border)
+# trustworthy on a conductor that crosses a border. Point any ISO-A2 polygon
+# file at it - Natural Earth admin-0 works. Set to osm_tag or none if you have
+# no boundary file, and accept the weaker provenance.
+country_source: polygons
+country_polygons: data/ne_10m_admin_0_countries.gpkg
+country_field: ISO_A2
+
+# --- frequency separation --------------------------------------------------
+# 16.7 Hz railway traction is a separate synchronous system welded to the
+# public grid only through converters. It gets its own line_<kV>_16_7Hz layers
+# and its shared buses are severed (v22). Classification precedence is OSM
+# frequency tag first, operator inference second - and the operator inference
+# is gated to <=132 kV in these countries only, because an EHV line owned by a
+# railway operator is a supply line, not traction.
+traction:
+  enabled: true
+  frequency_hz: 16.7
+  grid_frequency_hz: 50
+  frequency_tags: ["16.7", "16.67"]
+  max_voltage_kv: 132
+  countries: [DE, AT, CH, SE, NO]
+  operators: ["db energie", "db netz", "deutsche bahn", "oebb", "obb",
+              "sbb", "cff", "ffs", "rhb", "trafikverket", "bane nor",
+              "banenor", "jernbaneverket"]
+
+# --- Overpass --------------------------------------------------------------
+overpass:
+  endpoints:
+    - "https://overpass-api.de/api/interpreter"
+    - "https://overpass.kumi.systems/api/interpreter"
+    - "https://overpass.private.coffee/api/interpreter"
+  chunk_deg: 2.0
+  timeout_s: 900
+  max_attempts: 6
+  backoff_base_s: 20
+  backoff_max_s: 600
+  polite_gap_s: 8
+  harvest_substations: true
+  harvest_dc_sweep: true
+
+# Acceptance benchmark: published >=220 kV route-km per voltage (paper Table 8).
+# 03_validate.py reports per-voltage and total delta_pct against it. This is the one
+# check that says whether a fresh build is RIGHT rather than merely self-consistent -
+# every other check is internal.
+benchmark_csv: benchmark_europe_ge220kv.csv
+
+harvest_dir: harvest/europe
+out_dir: out/europe
+
+# OSM elements to force onto the DC layer. Both are cables OSM tags as AC; the
+# v21 patch caught them by name, not by tag, and they are listed here so a
+# rebuild does not silently reintroduce the same misclassification.
+# (Evidence: ../supporting/manual_corrections.csv.)
+dc_reclassify_osm_ids:
+  - "way/1385048215"    # Norfolk Vanguard/Boreas onshore HVDC, +/-320 kV
+  - "way/1389754043"    # Berwick Bank Cambois export cable, 525 kV envelope

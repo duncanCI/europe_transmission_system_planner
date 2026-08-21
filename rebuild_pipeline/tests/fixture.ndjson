@@ -1,0 +1,35 @@
+{"type":"way","id":101,"tags":{"power":"substation","name":"Alpha Substation","operator":"TestGrid","voltage":"400000;132000"},"geometry":[[0.9985726,50.9990954],[1.0014274,50.9990954],[1.0014274,51.0009046],[0.9985726,51.0009046],[0.9985726,50.9990954]]}
+{"type":"way","id":102,"tags":{"power":"substation","name":"Bravo Substation","operator":"TestGrid","voltage":"400000"},"geometry":[[1.1413135,50.9990954],[1.1441683,50.9990954],[1.1441683,51.0009046],[1.1413135,51.0009046],[1.1413135,50.9990954]]}
+{"type":"way","id":103,"tags":{"power":"substation","name":"Charlie Substation A","voltage":"132000"},"geometry":[[0.9992863,51.045142],[1.0007137,51.045142],[1.0007137,51.0456848],[0.9992863,51.0456848],[0.9992863,51.045142]]}
+{"type":"way","id":104,"tags":{"power":"substation","name":"Charlie Substation B","voltage":"132000"},"geometry":[[0.9992863,51.0467704],[1.0007137,51.0467704],[1.0007137,51.0473132],[0.9992863,51.0473132],[0.9992863,51.0467704]]}
+{"type":"way","id":105,"tags":{"power":"substation","name":"Delta Substation","voltage":"132000"},"geometry":[[0.9992863,51.0520174],[1.0007137,51.0520174],[1.0007137,51.052922],[0.9992863,51.052922],[0.9992863,51.0520174]]}
+{"type":"way","id":106,"tags":{"power":"substation","name":"Echo Substation","operator":"TestGrid","voltage":"400000"},"geometry":[[1.2840544,50.9990954],[1.2869092,50.9990954],[1.2869092,51.0009046],[1.2840544,51.0009046],[1.2840544,50.9990954]]}
+{"type":"way","id":201,"tags":{"power":"line","voltage":"400000","circuits":"1","name":"Foldback Circuit 1"},"geometry":[[1.0713705,51.0],[1.0999186,51.0],[1.1413135,51.0]]}
+{"type":"way","id":202,"tags":{"power":"line","voltage":"400000","circuits":"1","name":"Foldback Circuit 2"},"geometry":[[1.0713705,51.0],[1.0742253,51.0003619],[1.0999186,51.0003619],[1.1413135,51.0003619]]}
+{"type":"way","id":211,"tags":{"power":"line","voltage":"220000","circuits":"1"},"geometry":[[1.0028548,50.981907],[1.0285482,50.981907]]}
+{"type":"way","id":212,"tags":{"power":"line","voltage":"220000","circuits":"1"},"geometry":[[1.0285482,50.981907],[1.0570964,50.981907]]}
+{"type":"way","id":221,"tags":{"power":"line","voltage":"220000","circuits":"1","name":"Tee Spur"},"geometry":[[1.0428223,50.963814],[1.0428223,50.9817713]]}
+{"type":"way","id":231,"tags":{"power":"cable","location":"underground","voltage":"132000","circuits":"1"},"geometry":[[1.0007137,51.0],[1.0014274,51.0],[1.0085645,51.0]]}
+{"type":"way","id":232,"tags":{"power":"line","voltage":"132000","circuits":"1"},"geometry":[[1.0085645,51.0],[1.0214111,51.0],[1.0428223,51.0]]}
+{"type":"way","id":241,"tags":{"power":"line","voltage":"110000","circuits":"2","frequency":"16.7","operator":"DB Energie","name":"Bahnstromleitung Test"},"geometry":[[1.0,51.072372],[1.0285482,51.072372],[1.0570964,51.072372]]}
+{"type":"way","id":242,"tags":{"power":"line","voltage":"110000","circuits":"1"},"geometry":[[1.0,51.072372],[1.0,51.0633255]]}
+{"type":"way","id":243,"tags":{"power":"line","voltage":"110000","circuits":"1","operator":"DB Energie"},"geometry":[[1.0,51.0814185],[1.0285482,51.0814185]]}
+{"type":"way","id":251,"tags":{"power":"cable","voltage":"320000","frequency":"0","name":"Test HVDC Link"},"geometry":[[1.0,50.9728605],[1.0713705,50.9728605],[1.1427409,50.9728605]]}
+{"type":"way","id":261,"tags":{"power":"line","construction:power":"line","voltage":"400000","circuits":"1","construction":"yes","name":"New Build 400kV"},"geometry":[[1.0713705,51.018093],[1.1141927,51.018093]]}
+{"type":"way","id":271,"tags":{"power":"line","voltage":"400000;132000","cables":"6","ref":"4ZZ"},"geometry":[[1.0007137,51.0004523],[1.0285482,51.0271395]]}
+{"type":"way","id":303,"tags":{"power":"line","voltage":"220000","circuits":"1"},"geometry":[[1.0,50.945721],[1.0285482,50.945721]]}
+{"type":"way","id":304,"tags":{"power":"line","voltage":"220000","circuits":"1"},"geometry":[[1.0285482,50.945721],[1.0570964,50.945721]]}
+{"type":"relation","id":301,"tags":{"route":"power","voltage":"220000","circuits":"1","name":"Test Route 220kV"},"members":[{"type":"way","ref":303,"role":"","geometry":[[1.0,50.945721],[1.0285482,50.945721]]},{"type":"way","ref":304,"role":"","geometry":[[1.0285482,50.945721],[1.0570964,50.945721]]}]}
+{"type":"way","id":305,"tags":{"power":"line","voltage":"132000","circuits":"1"},"geometry":[[1.0,50.9366745],[1.0142741,50.9366745]]}
+{"type":"way","id":306,"tags":{"power":"line","voltage":"132000","circuits":"1"},"geometry":[[1.0285482,50.9366745],[1.0428223,50.9366745]]}
+{"type":"relation","id":302,"tags":{"route":"power","voltage":"132000","circuits":"1","name":"Broken Route 132kV"},"members":[{"type":"way","ref":305,"role":"","geometry":[[1.0,50.9366745],[1.0142741,50.9366745]]},{"type":"way","ref":306,"role":"","geometry":[[1.0285482,50.9366745],[1.0428223,50.9366745]]}]}
+{"type":"way","id":311,"tags":{"power":"line","voltage":"132000","circuits":"1"},"geometry":[[1.0,50.9185815],[1.0285482,50.9185815]]}
+{"type":"way","id":312,"tags":{"power":"line","voltage":"132000","circuits":"1"},"geometry":[[1.0289764,50.9185815],[1.0570964,50.9185815]]}
+{"type":"way","id":321,"tags":{"power":"line","voltage":"400000","circuits":"1","name":"Echo Circuit 1"},"geometry":[[1.2141114,51.0],[1.2426595,51.0],[1.2817848,51.0]]}
+{"type":"way","id":322,"tags":{"power":"line","voltage":"400000","circuits":"1","name":"Echo Circuit 2"},"geometry":[[1.2141114,50.9954768],[1.2426595,50.9963814],[1.2817848,51.0]]}
+{"type":"way","id":323,"tags":{"power":"line","voltage":"400000","circuits":"1","name":"Echo Yard Entry"},"geometry":[[1.2817848,51.0],[1.2847681,51.0]]}
+{"type":"way","id":324,"tags":{"power":"line","voltage":"400000","circuits":"1","name":"Echo Approach"},"geometry":[[1.2854818,50.9995477],[1.2886221,50.9995477]]}
+{"type":"way","id":325,"tags":{"power":"line","voltage":"400000","circuits":"1","name":"Echo Busbar Jumper"},"geometry":[[1.2847681,51.0001809],[1.2861955,51.0001809]]}
+{"type":"way","id":331,"tags":{"power":"line","voltage":"132000","circuits":"1","name":"Dissolve Target"},"geometry":[[1.4282227,51.0],[1.4567709,51.0],[1.4853191,51.0]]}
+{"type":"way","id":332,"tags":{"power":"line","voltage":"132000","circuits":"1","name":"U Jumper"},"geometry":[[1.4567709,51.0001357],[1.4567709,51.0010856],[1.4570564,51.0010856],[1.4570564,51.0001357]]}
+{"type":"way","id":341,"tags":{"power":"cable","location":"underground","voltage":"132000","circuits":"1"},"geometry":[[1.0,51.0470418],[1.0,51.0524697]]}

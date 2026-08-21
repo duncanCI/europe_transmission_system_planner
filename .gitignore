@@ -1,0 +1,51 @@
+# Public repo: code, docs and evidence only.
+
+# The dataset itself is published on Zenodo (DOI in README.md), not tracked here.
+# No LFS in this repo - setup_repo.sh guards against anything over 50 MB.
+europe_grid_topology.gpkg
+europe_grid_graph.gpkg
+*.gpkg
+
+# Internal working material, not part of the published method or evidence
+supporting/screen_v1/
+internal_pipeline/
+INTERNAL_REVIEW_OUTPUTS/
+INTERNAL_REVIEW_OUTPUTS.zip
+scenario_inputs/
+scenario_inputs.sh
+harvest_plants.py
+harvest_places.py
+campaign/
+authoritative_raw/
+REPO_AND_GATE.md
+*gate_drafts*
+ZENODO_DEPOSIT.md
+evidence_pack/
+
+# Staged for deletion, never in the repo
+_to_delete/
+
+# Pre-patch GeoPackage copies
+supporting/_backup_v20/
+supporting/_backup_v21/
+
+# Redundant archives of directories that are already tracked
+*.zip
+rebuild_pipeline.tar.gz
+
+# Build and OS noise
+.DS_Store
+__pycache__/
+*.pyc
+harvest/
+out/
+tests/fixture_out/
+tests/fixture_harvest/
+
+# Fork handoffs and certification records - internal, never in the repo
+CHATGPT_FORK_ARTEFACTS*/
+CERTIFICATION_*/
+# Accidental unnamed archive at root
+ziRzRSCH
+# Self-declared internal supporting material
+supporting/prior_art_assessment.json

@@ -1,0 +1,31 @@
+# Config for the synthetic fixture (tests/fixture.ndjson). Same keys as a real
+# region config; the scope is a small box around 1.0 E, 51.0 N.
+region_name: fixture
+voltage_floor_kv: 50
+high_pass_floor_kv: 100
+metric_crs: EPSG:3035          # metre CRS for the geometric predicates
+
+harvest_dir: tests/fixture_harvest
+out_dir: tests/fixture_out
+
+bboxes:
+  - [50.8, 0.8, 51.3, 1.6]     # south, west, north, east
+
+country_source: none           # the fixture has no boundary file
+
+standard_voltages_kv: [50, 60, 63, 66, 110, 132, 150, 220, 275, 300, 330, 380, 400, 500, 750]
+layer_voltages_kv:   [110, 132, 220, 320, 400]
+layer_min_spans: 1             # every voltage present gets its own layer in the fixture
+
+traction:
+  enabled: true
+  frequency_hz: 16.7
+  grid_frequency_hz: 50
+  frequency_tags: ["16.7", "16.67"]
+  max_voltage_kv: 132
+  countries: []                # no country gate in the fixture
+  operators: ["db energie"]
+
+overpass:
+  endpoints: ["https://overpass-api.de/api/interpreter"]
+  chunk_deg: 1.0

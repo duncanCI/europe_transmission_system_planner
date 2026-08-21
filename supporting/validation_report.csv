@@ -1,0 +1,40 @@
+metric,value
+schema_version,v23_2026-08-18
+ac_route_km_ge220_50hz_ours,282283.3
+ac_route_km_ge220_published,274153.0
+ac_route_km_ge220_delta_pct,3.0
+sub_transmission_50hz_route_km,451780.1
+traction_16_7hz_route_km,16524.2
+dc_matched,38.0
+dc_published_total,38.0
+dc_links_total,72.0
+n_components_ac_transformer,3847.0
+n_components_incl_dc,3837.0
+pct_route_km_continental,77.4
+pct_route_km_nordic,11.0
+pct_route_km_gb,3.9
+pct_route_km_ireland,1.2
+pct_ge220_km_in_continental,81.8
+unresolved_bus_refs,0.0
+self_loops,0.0
+buses_mixing_frequency,0.0
+countries_covered,36.0
+network_route_km_incl_connectors,756213.3
+connector_km_synthetic,5582.3
+under_construction_spans,682.0
+under_construction_km,3165.1
+spans_both_ends_named_substation_pct,29.6
+pypsa_acid_test,PASS (see acid_report_v23.json)
+transformer_parameter_coverage_pct,100.0
+transformer_rows_parameterised,4753.0
+transformer_typing_bands,6.0
+transformer_voltage_pairs_partitioned,142.0
+transformer_ratio_artifact_flagged_rows,99.0
+transformer_alt_snom_fallback_rows,8.0
+dc_links_rated,67.0
+dc_links_unknown_honest,5.0
+dc_p_nom_gross_mw,56066.0
+dc_p_nom_excl_flagged_mw,52966.0
+dc_inferred_source_labels,5.0
+v23_adversarial_review,GO after 2 rounds (3 blockers fixed; 23/25 rating spot-checks agreed)
+v23_reproducibility,digest-identical re-application verified by reviewer

@@ -1,0 +1,28 @@
+# Acceptance benchmark: published >=220 kV route-km per voltage, from Xiong,
+# Fioriti, Neumann, Riepin & Brown (2025), Scientific Data 12:277, Table 8 - the
+# dataset this build reproduces. Wire it in with `benchmark_csv:` and 03_validate.py
+# reports per-voltage and total delta_pct.
+#
+# What "passing" means. The accepted Europe v23 build sits at +3.0% overall, and the
+# excess is expected, not error: this build preserves conductor geometry where the
+# published workflow truncates every line at a 500 m station buffer, and OSM has
+# grown since the November 2024 snapshot the paper used. So a fresh Europe build
+# landing within roughly +/-5% overall, with no single voltage beyond about +10%,
+# reproduces the reference. Two known outliers to expect: 330 kV (+7.8% in the
+# accepted build, uninvestigated) and 500 kV (+86.9%, which is 236 km in absolute
+# terms - real Western Balkans and eastern Ukraine assets absent from the paper).
+#
+# Compare on length_conductor_m, which excludes synthetic connectors; the published
+# dataset has no equivalent of those.
+voltage_kv,published_km
+220,79130
+225,26012
+236,18
+275,4756
+300,4255
+330,18123
+380,34610
+400,98066
+420,4951
+500,230
+750,4002
