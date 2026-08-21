@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>European Grid Topology v23</title>
+<link rel="icon" href="data:,">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/pmtiles@3.2.1/dist/pmtiles.js"></script>
+<style>
+  :root { --paper:#f5f7f6; --ink:#172026; --muted:#59666c; --rule:#c9d1cf; --panel:rgba(245,247,246,.97); }
+  * { box-sizing:border-box; }
+  html,body { height:100%; margin:0; color:var(--ink); background:var(--paper);
+              font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+  body { display:grid; grid-template-rows:auto minmax(0,1fr); overflow:hidden; }
+  header { z-index:4; padding:10px 16px; border-bottom:1px solid var(--rule); background:var(--panel); }
+  h1 { margin:0; font:600 19px/1.2 Georgia,serif; }
+  .subtitle { color:var(--muted); font-size:12.5px; margin-top:2px; }
+  .subtitle a { color:#3b5f7a; }
+  #map { width:100%; height:100%; }
+  .panel { position:absolute; top:12px; left:12px; z-index:3; width:245px; background:var(--panel);
+           border:1px solid var(--rule); border-radius:8px; padding:10px 12px; font-size:12.5px;
+           max-height:calc(100% - 48px); overflow:auto; box-shadow:0 1px 4px rgba(0,0,0,.12); }
+  .panel h2 { margin:0 0 6px; font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  .row { display:flex; align-items:center; gap:7px; padding:2.5px 0; }
+  .row input { margin:0; accent-color:#3b5f7a; }
+  .swatch { width:22px; height:0; border-top:3px solid; flex:none; }
+  .swatch.dashed { border-top-style:dashed; }
+  .swatch.dot { width:9px; height:9px; border-radius:50%; border:none; }
+  .swatch.sq { width:9px; height:9px; border:none; }
+  details { margin-top:8px; border-top:1px solid var(--rule); padding-top:8px; }
+  details summary { cursor:pointer; font-weight:600; font-size:12px; }
+  details p { margin:6px 0; color:var(--muted); line-height:1.45; }
+  .maplibregl-popup-content { font:12px/1.4 -apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+                              max-height:290px; overflow:auto; min-width:230px; }
+  .maplibregl-popup-content table { border-collapse:collapse; width:100%; }
+  .maplibregl-popup-content td { padding:1.5px 6px 1.5px 0; vertical-align:top; }
+  .maplibregl-popup-content td:first-child { color:var(--muted); white-space:nowrap; }
+  .maplibregl-popup-content .ptitle { font-weight:700; margin-bottom:4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>European Grid Topology <span style="color:var(--muted);font-weight:400">v23</span></h1>
+  <div class="subtitle">
+    Screening-grade transmission topology derived from OpenStreetMap — not survey-grade, not an
+    asset register, not operational data. 36 countries, 50–750&nbsp;kV.
+    Dataset: <a href="https://doi.org/10.5281/zenodo.22043867">DOI 10.5281/zenodo.22043867</a> ·
+    <a href="https://github.com/duncanCI/europe_transmission_system_planner">method &amp; pipeline</a>
+  </div>
+</header>
+<div style="position:relative; min-height:0;">
+  <div id="map"></div>
+  <div class="panel">
+    <h2>AC lines by voltage</h2>
+    <div id="legend-lines"></div>
+    <h2 style="margin-top:10px">Other layers</h2>
+    <div id="legend-other"></div>
+    <details>
+      <summary>About this map</summary>
+      <p><b>Limits first:</b> this is a screening-grade topological dataset. Positions, voltages and
+         ratings carry per-value provenance (<code>sourced:</code>, <code>inferred:</code> or
+         <code>unknown</code>) shown verbatim in the popups. Do not use it as an asset register or
+         for operational decisions.</p>
+      <p>Data &copy; OpenStreetMap contributors, ODbL&nbsp;1.0. Method after Xiong et&nbsp;al. (2025),
+         with thanks to PyPSA-Eur and pandapower. Basemap by OpenFreeMap / OpenMapTiles.</p>
+      <p>Lines are simplified for display above zoom&nbsp;11; the GeoPackages on Zenodo hold full geometry.</p>
+    </details>
+  </div>
+</div>
+<script>
+const TILES = {
+  linework: "europe_grid_v23_linework.pmtiles",
+  points:   "europe_grid_v23_points.pmtiles",
+};
+
+const VOLTAGE_CLASSES = [
+  { label: "700 kV+",        color: "#4d2600", min: 700, width: 2.6 },
+  { label: "500–699 kV",     color: "#6a3d9a", min: 500, width: 2.4 },
+  { label: "350–499 kV",     color: "#e31a1c", min: 350, width: 2.2 },
+  { label: "250–349 kV",     color: "#ff7f00", min: 250, width: 1.9 },
+  { label: "200–249 kV",     color: "#33a02c", min: 200, width: 1.7 },
+  { label: "100–199 kV",     color: "#1f78b4", min: 100, width: 1.3 },
+  { label: "50–99 kV",       color: "#9aa0a6", min: 0,   width: 1.0 },
+];
+
+const protocol = new pmtiles.Protocol();
+maplibregl.addProtocol("pmtiles", protocol.tile);
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: "https://tiles.openfreemap.org/styles/positron",
+  center: [8.5, 52.5],
+  zoom: 4,
+  attributionControl: false,
+});
+map.addControl(new maplibregl.AttributionControl({
+  customAttribution: "Grid data &copy; OpenStreetMap contributors, ODbL 1.0 — " +
+    "<a href='https://doi.org/10.5281/zenodo.22043867'>DOI 10.5281/zenodo.22043867</a>",
+}));
+map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+new ResizeObserver(() => map.resize()).observe(document.getElementById("map"));
+
+function voltageColorExpr() {
+  const expr = ["case"];
+  for (const c of VOLTAGE_CLASSES) {
+    expr.push([">=", ["coalesce", ["get", "voltage_kv"], 0], c.min], c.color);
+  }
+  expr.push("#9aa0a6");
+  // "case" needs conditions in descending min order and a fallback; built above
+  return expr;
+}
+function voltageWidthExpr(scale) {
+  const expr = ["case"];
+  for (const c of VOLTAGE_CLASSES) {
+    expr.push([">=", ["coalesce", ["get", "voltage_kv"], 0], c.min], c.width * scale);
+  }
+  expr.push(0.8 * scale);
+  return expr;
+}
+
+const IS_TRACTION = ["all", ["has", "frequency_hz"],
+  ["<", ["coalesce", ["get", "frequency_hz"], 50], 40]];
+const NOT_TRACTION = ["!", IS_TRACTION];
+const UNDER_CONSTRUCTION = ["any",
+  ["==", ["coalesce", ["get", "under_construction"], false], true],
+  ["==", ["coalesce", ["get", "under_construction"], 0], 1]];
+
+let setupDone = false;
+function setup() {
+  if (setupDone) return;
+  setupDone = true;
+  map.addSource("linework", { type: "vector", url: "pmtiles://" + TILES.linework });
+  map.addSource("points",   { type: "vector", url: "pmtiles://" + TILES.points });
+
+  // AC lines, one styled layer per voltage class so the legend can toggle them
+  for (let i = 0; i < VOLTAGE_CLASSES.length; i++) {
+    const c = VOLTAGE_CLASSES[i];
+    const upper = i === 0 ? Infinity : VOLTAGE_CLASSES[i - 1].min;
+    const classFilter = ["all",
+      [">=", ["coalesce", ["get", "voltage_kv"], 0], c.min],
+      ...(isFinite(upper) ? [["<", ["coalesce", ["get", "voltage_kv"], 0], upper]] : []),
+      NOT_TRACTION,
+    ];
+    map.addLayer({
+      id: "ac_" + c.min, type: "line", source: "linework", "source-layer": "ac_lines",
+      filter: ["all", ...classFilter.slice(1), ["!", UNDER_CONSTRUCTION]],
+      paint: { "line-color": c.color,
+               "line-width": ["interpolate", ["linear"], ["zoom"], 4, c.width * 0.55, 8, c.width, 12, c.width * 2.2] },
+    });
+    map.addLayer({
+      id: "ac_uc_" + c.min, type: "line", source: "linework", "source-layer": "ac_lines",
+      filter: ["all", ...classFilter.slice(1), UNDER_CONSTRUCTION],
+      paint: { "line-color": c.color, "line-dasharray": [2.2, 1.6],
+               "line-width": ["interpolate", ["linear"], ["zoom"], 4, c.width * 0.55, 8, c.width, 12, c.width * 2.2] },
+    });
+  }
+
+  map.addLayer({
+    id: "traction", type: "line", source: "linework", "source-layer": "ac_lines",
+    filter: IS_TRACTION,
+    layout: { visibility: "none" },
+    paint: { "line-color": "#7d8a91", "line-dasharray": [1.4, 1.8],
+             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.5, 8, 1.0, 12, 2.0] },
+  });
+
+  map.addLayer({
+    id: "dc_links", type: "line", source: "linework", "source-layer": "dc_links",
+    paint: { "line-color": "#0e7490",
+             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 1.4, 8, 2.4, 12, 4.0] },
+  });
+
+  map.addLayer({
+    id: "sites", type: "circle", source: "points", "source-layer": "sites", minzoom: 5,
+    paint: { "circle-color": "#1f2937", "circle-opacity": 0.85,
+             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.2, 9, 3, 13, 6],
+             "circle-stroke-color": "#f5f7f6", "circle-stroke-width": 0.6 },
+  });
+
+  map.addLayer({
+    id: "transformers", type: "circle", source: "points", "source-layer": "transformers", minzoom: 8,
+    layout: { visibility: "none" },
+    paint: { "circle-color": "#b45309", "circle-opacity": 0.9,
+             "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 2, 13, 6] },
+  });
+
+  buildLegend();
+  wirePopups();
+}
+map.once("style.load", setup);
+map.once("load", setup);
+if (map.isStyleLoaded()) setup();
+
+function toggle(ids, on) {
+  for (const id of ids) map.setLayoutProperty(id, "visibility", on ? "visible" : "none");
+}
+
+function legendRow(parent, swatchHtml, label, ids, startOn) {
+  const row = document.createElement("label");
+  row.className = "row";
+  row.innerHTML = `<input type="checkbox" ${startOn ? "checked" : ""}>${swatchHtml}<span>${label}</span>`;
+  row.querySelector("input").addEventListener("change", e => toggle(ids, e.target.checked));
+  parent.appendChild(row);
+}
+
+function buildLegend() {
+  const lines = document.getElementById("legend-lines");
+  for (const c of VOLTAGE_CLASSES) {
+    legendRow(lines, `<span class="swatch" style="border-color:${c.color}"></span>`,
+              c.label, ["ac_" + c.min, "ac_uc_" + c.min], true);
+  }
+  const other = document.getElementById("legend-other");
+  legendRow(other, `<span class="swatch" style="border-color:#0e7490"></span>`, "DC links", ["dc_links"], true);
+  legendRow(other, `<span class="swatch dot" style="background:#1f2937"></span>`, "Substations / buses (z5+)", ["sites"], true);
+  legendRow(other, `<span class="swatch dot" style="background:#b45309"></span>`, "Transformers (z8+)", ["transformers"], false);
+  legendRow(other, `<span class="swatch dashed" style="border-color:#7d8a91"></span>`, "Railway traction 16.7 Hz", ["traction"], false);
+  const note = document.createElement("div");
+  note.style.cssText = "color:var(--muted); margin-top:6px;";
+  note.textContent = "Dashed lines: mapped as under construction.";
+  other.appendChild(note);
+}
+
+const POPUP_TITLES = {
+  ac_lines: f => (f.ref || f.line_label || "AC line"),
+  dc_links: f => (f.name || "DC link"),
+  sites: f => (f.station_name || f.bus_id || "Site"),
+  transformers: f => (f.station_name || "Transformer"),
+};
+
+function wirePopups() {
+  const clickable = map.getStyle().layers
+    .filter(l => l.source === "linework" || l.source === "points").map(l => l.id);
+  map.on("click", e => {
+    const feats = map.queryRenderedFeatures(e.point, { layers: clickable });
+    if (!feats.length) return;
+    const f = feats[0];
+    const props = f.properties;
+    const title = (POPUP_TITLES[f.sourceLayer] || (() => f.sourceLayer))(props);
+    const rows = Object.entries(props)
+      .filter(([, v]) => v !== null && v !== undefined && v !== "")
+      .map(([k, v]) => `<tr><td>${k}</td><td>${String(v)}</td></tr>`).join("");
+    new maplibregl.Popup({ maxWidth: "340px" })
+      .setLngLat(e.lngLat)
+      .setHTML(`<div class="ptitle">${title}</div><table>${rows}</table>`)
+      .addTo(map);
+  });
+  map.on("mousemove", e => {
+    const feats = map.queryRenderedFeatures(e.point, { layers: clickable });
+    map.getCanvas().style.cursor = feats.length ? "pointer" : "";
+  });
+}
+</script>
+</body>
+</html>

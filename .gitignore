@@ -49,3 +49,6 @@ CERTIFICATION_*/
 ziRzRSCH
 # Self-declared internal supporting material
 supporting/prior_art_assessment.json
+
+# Local Claude Code session config - machine-specific, not part of the dataset
+.claude/

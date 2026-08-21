@@ -17,6 +17,18 @@ Topologically connected geospatial model of the electricity transmission **and s
 
 750,631 route-km of AC network (734,107 km at 50 Hz + 16,524 km at 16.7 Hz traction, in separate layers); 936,251 circuit-km. 91,094 spans, 75,315 buses (bus = station x voltage x frequency), 4,753 transformers, 72 DC links. Transmission (>=220 kV, 50 Hz) 282,283 route-km, +3.0% against the published PyPSA-Eur dataset; 38 of 38 DC interconnectors. Components are real synchronous areas: Continental 77.4% of route-km, Nordic 11.0%, GB 3.9%, all-island Ireland 1.2%. Every transformer carries `s_nom_mva`/`x_pu`/`r_pu` (banded typing rule, per-band provenance) plus `s_nom_pypsa_eur_mva`; 67 of 72 DC links carry a sourced `p_nom_mw` (52,966 MW after excluding three flagged double-count rows), 5 honest unknowns.
 
+## Interactive map
+
+`docs/` is a self-contained web viewer for the dataset (MapLibre + PMTiles,
+no server-side anything): AC lines by voltage class, DC links, substations,
+transformers and the 16.7 Hz traction network, with every popup showing the
+`*_source` provenance columns verbatim. Serve it locally with
+`python webmap/serve_local.py` (plain `http.server` won't work - PMTiles needs
+byte-range requests), or enable GitHub Pages (main branch, `/docs` folder) to
+publish it. `webmap/build_tiles.py` regenerates the tiles from the two
+GeoPackages whenever the dataset versions forward. Line geometry in the tiles
+is simplified above zoom 10 for size; the GeoPackages hold full geometry.
+
 ## Quick start
 
 QGIS: open `europe_grid_topology.gpkg`, layers are per voltage; filter `frequency_hz = 50` for the public grid. PyPSA: load `ac_line_all` + `site_all` from the graph file as Lines/Buses, `transformer` and `dc_link` from the topology file (transformer `x_pu`/`r_pu` are per-unit on `s_nom_mva` - do not pair `x_pu` with `s_nom_pypsa_eur_mva` without recomputing); `supporting/_xfer/acid_test_pypsa.py` is a working end-to-end example (all checks PASS, `supporting/acid_report_v23.json`).
