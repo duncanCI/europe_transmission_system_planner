@@ -244,7 +244,7 @@ if (map.isStyleLoaded()) setup();
 const SOURCED_GEOM = ["sourced NESO line", "sourced NESO future circuit", "sourced NESO point"];
 const HORIZONS = { ntp: [2030, 2035, 2040], lev: [2035, 2040], hev: [2035, 2040] };
 const SCEN_LABEL = { ntp: "NT+", lev: "LEV", hev: "HEV" };
-const state = { year: 2030, scen: "ntp" };
+const state = { year: 2030, scen: "ntp", ddelta: false };
 
 function horizonFor(year, scen) {
   const hs = HORIZONS[scen];
@@ -297,6 +297,23 @@ function circleRadius(mwExpr, k) {
   return ["interpolate", ["linear"], ["zoom"],
           4, ["*", 0.5, base], 7, base, 10, ["*", 1.8, base]];
 }
+// Variant-difference view: demand circles sized by |variant − NT+| MW and
+// colored by sign — the economy variants' effect made visible rather than a
+// few-percent radius change. It is literally the TYNDP deltas.
+function demandDeltaExprs() {
+  const h = horizonFor(state.year, state.scen);
+  const radius = [], color = [];
+  for (const [c, scens] of Object.entries(TOTALS.demand_avg_mw)) {
+    const v = scens[state.scen] && scens[state.scen][h];
+    const n = scens.ntp && scens.ntp[h];
+    if (v == null || n == null) continue;
+    radius.push(c, ["*", ["get", "d_share"], Math.abs(v - n)]);
+    color.push(c, v >= n ? "#dc2626" : "#2563eb");
+  }
+  if (!radius.length) return null;
+  return { mw: ["match", ["get", "country"], ...radius, 0],
+           color: ["match", ["get", "country"], ...color, "#9ca3af"] };
+}
 
 function applyContextState() {
   const h = horizonFor(state.year, state.scen);
@@ -315,13 +332,27 @@ function applyContextState() {
     map.setFilter(id, [gf[0], gf[1], datedFilter("rest")]);
   }
   if (TOTALS) {
-    map.setPaintProperty("demand_places", "circle-radius", circleRadius(demandMWExpr(), 0.42));
+    const dd = state.ddelta && state.scen !== "ntp" ? demandDeltaExprs() : null;
+    map.setPaintProperty("demand_places", "circle-radius",
+      dd ? circleRadius(dd.mw, 1.4) : circleRadius(demandMWExpr(), 0.42));
+    map.setPaintProperty("demand_places", "circle-color", dd ? dd.color : "#0284c7");
+    map.setPaintProperty("demand_places", "circle-stroke-color", dd ? dd.color : "#0284c7");
     map.setPaintProperty("gen_plants", "circle-radius", circleRadius(genMWExpr(), 0.5));
+    if (map.getLayer("flex_batteries"))
+      map.setPaintProperty("flex_batteries", "circle-radius", circleRadius(genMWExpr(), 0.6));
     const r = (TOTALS.readout[state.scen] || {})[h];
-    document.getElementById("readout").textContent = r
+    const base = (TOTALS.readout.ntp || {})[h];
+    let text = r
       ? `Europe-wide: ~${r.demand_avg_gw.toLocaleString()} GW average demand · ` +
         `${r.generation_gw.toLocaleString()} GW installed capacity (${SCEN_LABEL[state.scen]} ${h})`
       : "";
+    if (r && base && state.scen !== "ntp") {
+      const pct = 100 * (r.demand_avg_gw - base.demand_avg_gw) / base.demand_avg_gw;
+      text += ` · demand ${pct >= 0 ? "+" : ""}${pct.toFixed(1)}% vs NT+ (capacity mix ≈ identical)`;
+    }
+    document.getElementById("readout").textContent = text;
+    const ddRow = document.getElementById("ddelta-row");
+    if (ddRow) ddRow.style.opacity = state.scen === "ntp" ? 0.4 : 1;
   }
 }
 
@@ -338,6 +369,18 @@ async function setupContext() {
   map.addSource("context", { type: "vector", url: "pmtiles://" + TILES.context });
 
   if (TOTALS) {
+    const groupColor = ["match", ["get", "group"],
+                        ...Object.entries(GROUP_COLORS).flat(), "#9ca3af"];
+    map.addLayer({ id: "plant_poly_gen", type: "fill", source: "context",
+      "source-layer": "plant_polys", minzoom: 7,
+      filter: ["!=", ["get", "group"], "battery"],
+      paint: { "fill-color": groupColor, "fill-opacity": 0.22,
+               "fill-outline-color": groupColor } });
+    map.addLayer({ id: "plant_poly_flex", type: "fill", source: "context",
+      "source-layer": "plant_polys", minzoom: 7, layout: { visibility: "none" },
+      filter: ["==", ["get", "group"], "battery"],
+      paint: { "fill-color": "#db2777", "fill-opacity": 0.25,
+               "fill-outline-color": "#db2777" } });
     map.addLayer({ id: "demand_places", type: "circle", source: "context",
       "source-layer": "places", minzoom: 4,
       paint: { "circle-color": "#0284c7", "circle-opacity": 0.28,
@@ -346,6 +389,7 @@ async function setupContext() {
                "circle-radius": circleRadius(demandMWExpr(), 0.42) } });
     map.addLayer({ id: "gen_plants", type: "circle", source: "context",
       "source-layer": "plants", minzoom: 4,
+      filter: ["!=", ["get", "group"], "battery"],
       paint: { "circle-color": ["match", ["get", "group"],
                  ...Object.entries(GROUP_COLORS).flat(), "#9ca3af"],
                "circle-opacity": 0.4,
@@ -353,6 +397,13 @@ async function setupContext() {
                  ...Object.entries(GROUP_COLORS).flat(), "#9ca3af"],
                "circle-stroke-opacity": 0.7, "circle-stroke-width": 0.8,
                "circle-radius": circleRadius(genMWExpr(), 0.5) } });
+    map.addLayer({ id: "flex_batteries", type: "circle", source: "context",
+      "source-layer": "plants", minzoom: 4, layout: { visibility: "none" },
+      filter: ["==", ["get", "group"], "battery"],
+      paint: { "circle-color": "#db2777", "circle-opacity": 0.5,
+               "circle-stroke-color": "#db2777", "circle-stroke-opacity": 0.8,
+               "circle-stroke-width": 1,
+               "circle-radius": circleRadius(genMWExpr(), 0.6) } });
   }
   const isLine = ["==", ["geometry-type"], "LineString"];
   const isPoint = ["==", ["geometry-type"], "Point"];
@@ -394,7 +445,24 @@ async function setupContext() {
     legendRow(dev, `<span class="swatch dot" style="background:#0284c7;opacity:.6"></span>`,
               "Demand at OSM places (avg MW, z4+)", ["demand_places"], true);
     legendRow(dev, `<span class="swatch dot" style="background:linear-gradient(120deg,#0d9488 30%,#f59e0b 30% 60%,#2563eb 60%)"></span>`,
-              "Generation at OSM plants (MW, z4+)", ["gen_plants"], true);
+              "Generation at OSM plants (MW, z4+)", ["gen_plants", "plant_poly_gen"], true);
+    legendRow(dev, `<span class="swatch dot" style="background:#db2777;opacity:.7"></span>`,
+              "Flexibility — batteries (TYNDP GW)", ["flex_batteries", "plant_poly_flex"], false);
+    const ddRow = document.createElement("label");
+    ddRow.className = "row"; ddRow.id = "ddelta-row";
+    ddRow.title = "Sizes demand circles by |variant − NT+| MW and colors by sign (red = higher than NT+, blue = lower). Needs LEV or HEV selected.";
+    ddRow.innerHTML = `<input type="checkbox"><span class="swatch dot" style="background:linear-gradient(90deg,#2563eb 50%,#dc2626 50%)"></span><span>Demand Δ vs NT+</span>`;
+    ddRow.querySelector("input").addEventListener("change", e => {
+      state.ddelta = e.target.checked;
+      if (state.ddelta) {          // Δ view needs the demand layer on
+        toggle(["demand_places"], true);
+        document.querySelectorAll("#legend-dev .row").forEach(r => {
+          if (r.textContent.includes("Demand at OSM places"))
+            r.querySelector("input").checked = true;
+        });
+      }
+      applyContextState(); });
+    dev.appendChild(ddRow);
     const tech = document.createElement("div");
     tech.style.cssText = "color:var(--muted); margin:3px 0 0 29px; line-height:1.5;";
     tech.innerHTML = ["wind_onshore|onshore wind", "wind_offshore|offshore wind",
@@ -470,6 +538,7 @@ const POPUP_TITLES = {
                             ? f.station_name : f.station_id) + " — TYNDP scenario"),
   places: f => (f.name || "Populated place"),
   plants: f => (f.name || "Power plant"),
+  plant_polys: f => (f.name || "Power plant site"),
 };
 
 function esc(s) {
@@ -489,14 +558,22 @@ function popupBody(f) {
   const h = horizonFor(state.year, state.scen);
   const selLabel = `${SCEN_LABEL[state.scen]} ${h}`;
   if (f.sourceLayer === "places" && TOTALS) {
-    const t = (TOTALS.demand_avg_mw[props.country] || {})[state.scen];
+    const scens = TOTALS.demand_avg_mw[props.country] || {};
+    const t = scens[state.scen];
     const mw = t && t[h] ? props.d_share * t[h] : null;
+    let vs = "";
+    const n = scens.ntp && scens.ntp[h];
+    if (state.scen !== "ntp" && t && t[h] && n) {
+      const d = props.d_share * (t[h] - n);
+      vs = `<tr><td>vs NT+</td><td>${t[h] >= n ? "+" : ""}${(100 * (t[h] - n) / n).toFixed(1)}% ` +
+           `(${d >= 0 ? "+" : ""}${Math.round(d).toLocaleString()} MW here)</td></tr>`;
+    }
     return `<tr><td>population</td><td>${(+props.population).toLocaleString()} (OSM)</td></tr>` +
-      `<tr><td>avg demand, ${selLabel}</td><td>${mw != null ? Math.round(mw).toLocaleString() + " MW" : "—"}</td></tr>` +
+      `<tr><td>avg demand, ${selLabel}</td><td>${mw != null ? Math.round(mw).toLocaleString() + " MW" : "—"}</td></tr>` + vs +
       `<tr><td>share of ${esc(props.country)} demand</td><td>${(props.d_share * 100).toFixed(2)}%</td></tr>` +
       `<tr><td>provenance</td><td>${INFER_NOTE}</td></tr>`;
   }
-  if (f.sourceLayer === "plants" && TOTALS) {
+  if ((f.sourceLayer === "plants" || f.sourceLayer === "plant_polys") && TOTALS) {
     const t = ((TOTALS.generation_capacity_mw[props.country] || {})[props.group] || {})[state.scen];
     const mw = t && t[h] ? props.g_share * t[h] : null;
     return `<tr><td>technology</td><td>${esc(props.group)}</td></tr>` +

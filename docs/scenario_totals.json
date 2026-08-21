@@ -5093,35 +5093,35 @@
   "hev": {
    "2035": {
     "demand_avg_gw": 575.3,
-    "generation_gw": 2910.3
+    "generation_gw": 2728.4
    },
    "2040": {
     "demand_avg_gw": 637.9,
-    "generation_gw": 3520.0
+    "generation_gw": 3268.0
    }
   },
   "lev": {
    "2035": {
     "demand_avg_gw": 492.3,
-    "generation_gw": 2910.3
+    "generation_gw": 2728.4
    },
    "2040": {
     "demand_avg_gw": 543.6,
-    "generation_gw": 3520.0
+    "generation_gw": 3268.0
    }
   },
   "ntp": {
    "2030": {
     "demand_avg_gw": 478.6,
-    "generation_gw": 2249.1
+    "generation_gw": 2134.0
    },
    "2035": {
     "demand_avg_gw": 535.0,
-    "generation_gw": 2930.8
+    "generation_gw": 2748.9
    },
    "2040": {
     "demand_avg_gw": 590.9,
-    "generation_gw": 3569.5
+    "generation_gw": 3317.5
    }
   }
  },

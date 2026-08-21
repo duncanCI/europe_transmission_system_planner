@@ -51,6 +51,8 @@ LAYERS = {
     "scenario_stations": "scenario_stations_public.geojson",
     "places": "places_public.geojson",
     "plants": "plants_public.geojson",
+    # present only once the plant-geometry harvest has run
+    "plant_polys": "plants_polygons_public.geojson",
 }
 
 
@@ -71,7 +73,11 @@ def main() -> int:
         "--minimum-zoom", "0", "--maximum-zoom", "10",
     ]
     for layer, fname in LAYERS.items():
-        cmd += ["-L", f"{layer}:{args.export_dir / fname}"]
+        path = args.export_dir / fname
+        if not path.exists():
+            print(f"skipping layer {layer}: {fname} not present")
+            continue
+        cmd += ["-L", f"{layer}:{path}"]
     subprocess.run(cmd, check=True)
 
     shutil.copyfile(args.export_dir / "scenario_totals.json",
