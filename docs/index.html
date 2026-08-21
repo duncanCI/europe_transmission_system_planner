@@ -118,6 +118,10 @@ const TILES = {
   context:  "europe_grid_v23_context.pmtiles",
 };
 
+// Access-request gate for the N-1 stress layer (Drive request-access flow).
+// Empty string hides the panel link.
+const GATED_STRESS_URL = "https://docs.google.com/document/d/1mn2D1xRuI22sjE3qA9rVcEdklHz_mp1cusu39YE_q3E/edit";
+
 const VOLTAGE_CLASSES = [
   { label: "700 kV+",        color: "#4d2600", min: 700, width: 2.6 },
   { label: "500–699 kV",     color: "#6a3d9a", min: 500, width: 2.4 },
@@ -402,6 +406,15 @@ async function setupContext() {
   note.style.cssText = "color:var(--muted); margin-top:6px;";
   note.textContent = "Project lines are schematic unless marked as sourced plan geometry — not route alignments. Promoter-stated years, not forecasts. Circle sizes: national TYNDP 2026 figures shared out by OSM population / plant patterns (inferred).";
   dev.appendChild(note);
+  if (GATED_STRESS_URL) {
+    const cta = document.createElement("a");
+    cta.href = GATED_STRESS_URL;
+    cta.target = "_blank"; cta.rel = "noopener";
+    cta.style.cssText = "display:block; margin-top:8px; padding:7px 9px; border:1px solid #7c3aed;" +
+      "border-radius:6px; color:#7c3aed; text-decoration:none; font-weight:600; text-align:center;";
+    cta.textContent = "Which corridors run out of headroom first? Request the N-1 stress layer →";
+    dev.appendChild(cta);
+  }
   document.getElementById("legend-dev-section").hidden = false;
 
   const slider = document.getElementById("yearslider");
