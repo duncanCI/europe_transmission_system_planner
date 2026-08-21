@@ -8,11 +8,10 @@ Topologically connected geospatial model of the electricity transmission **and s
 
 | Item | What it is |
 |---|---|
-| `europe_grid_topology.gpkg` | **The output.** 55 feature layers: `line_<kV>` 50-750 kV (+ `line_<kV>_16_7Hz` railway traction), `site_<kV>`, `junction_node`, `line_internal_to_station`, `dc_link`, `transformer`, `station_cluster`, `substation_footprint`; plus the `v23_typing_rule` provenance table and `patch_history`. v23, md5 `cb05c4108b0cb47d2fd22b81d5003daf`, 203.0 MB |
-| `europe_grid_graph.gpkg` | Companion flat graph for analysis: `ac_line_all`, `site_all`. v22 (untouched by v23), md5 `55ed89203d0dcfd5b8beaac1e272578b` |
+| `europe_grid_topology.gpkg` | **The output.** 55 feature layers: `line_<kV>` 50-750 kV (+ `line_<kV>_16_7Hz` railway traction), `site_<kV>`, `junction_node`, `line_internal_to_station`, `dc_link`, `transformer`, `station_cluster`, `substation_footprint`; plus the `v23_typing_rule` provenance table and `patch_history`. v23, md5 `cb05c4108b0cb47d2fd22b81d5003daf`, 203.0 MB. Published: DOI [10.5281/zenodo.22043867](https://doi.org/10.5281/zenodo.22043867) |
+| `europe_grid_graph.gpkg` | Companion flat graph for analysis: `ac_line_all`, `site_all`. v22 (untouched by v23), md5 `55ed89203d0dcfd5b8beaac1e272578b`. In the same Zenodo deposit as above |
 | `rebuild_pipeline/` | Script runner to recreate the topology from scratch for any region: harvest, build, validate, plus the acceptance benchmark. `config_europe.yaml` reproduces this build; `config_australia_example.yaml` is a worked non-Europe example. Reimplementation of the documented method - the original build scripts were not persisted. Start at `README_pipeline.md` |
 | `supporting/` | Everything else - methodology, evidence, validation, patches, backups. Index below |
-| `_to_delete/` | Files staged for deletion (the bridge cannot delete); empty it at your leisure |
 
 ## Headline numbers (v23)
 
@@ -57,8 +56,8 @@ Three habits keep results honest: check `*_source` columns before quoting any va
 | `scrape_PROVENANCE.md` | Provenance of the live OSM frequency scrape behind v22 |
 | `network_overview.png` | Static render of the network |
 | `_xfer/` | The applied patch scripts (v21/v22/v23), their evidence CSVs, and the acid test. `patch_v23.py` needs the two CSVs beside it |
-| `_backup_v20/`, `_backup_v21/` | Pre-patch copies of both GeoPackages |
-| `screen_v1/` | Structural congestion screen (2026-08-18): ranked corridors, interactive map, branch sensitivities, findings |
+| `_backup_v20/`, `_backup_v21/` | Pre-patch copies of both GeoPackages - local only, not in this repository |
+| `screen_v1/` | Structural congestion screen - internal working material, not in this repository |
 
 ## Rebuilding
 
@@ -76,4 +75,4 @@ The test suites are part of the deliverable: `fixture_test.py` (20 end-to-end ch
 
 ## Licence and provenance
 
-OpenStreetMap data, **ODbL 1.0**: attribution required, share-alike propagates to derived databases - resolve before any commercial use. Method after Xiong et al. (2025), https://doi.org/10.1038/s41597-025-04550-7. Electrical parameters are typed or researched, never asset-register values: use for connectivity and screening, not for load flow you intend to defend.
+OpenStreetMap data, **ODbL 1.0**: attribution required, and share-alike propagates to derived databases - satisfied here by publishing the database itself under ODbL 1.0 (DOI [10.5281/zenodo.22043867](https://doi.org/10.5281/zenodo.22043867)). Method after Xiong et al. (2025), https://doi.org/10.1038/s41597-025-04550-7. Electrical parameters are typed or researched, never asset-register values: use for connectivity and screening, not for load flow you intend to defend.

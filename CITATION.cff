@@ -13,8 +13,8 @@ authors:
     given-names: Duncan
     affiliation: Continuum Industries
 license: ODbL-1.0
-doi: DOI-TBD
-repository-code: "REPO-URL-TBD"
+doi: 10.5281/zenodo.22043867
+repository-code: "https://github.com/duncanCI/europe_transmssion_system_planner"
 keywords:
   - electricity transmission
   - grid topology
