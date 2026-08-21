@@ -14,7 +14,16 @@
   html,body { height:100%; margin:0; color:var(--ink); background:var(--paper);
               font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
   body { display:grid; grid-template-rows:auto minmax(0,1fr); overflow:hidden; }
-  header { z-index:4; padding:10px 16px; border-bottom:1px solid var(--rule); background:var(--panel); }
+  header { z-index:4; padding:10px 16px; border-bottom:1px solid var(--rule); background:var(--panel);
+           display:flex; justify-content:space-between; align-items:center; gap:18px; flex-wrap:wrap; }
+  .yearctl { font-size:12px; color:var(--muted); min-width:250px; }
+  .yearctl label { display:block; }
+  .yearctl output { color:#7c3aed; font-weight:700; font-variant-numeric:tabular-nums; }
+  .yearctl input[type=range] { width:250px; accent-color:#7c3aed; }
+  .scenrow { display:flex; gap:10px; align-items:center; }
+  .scenrow label { display:flex; gap:3px; align-items:center; }
+  .scenrow input { accent-color:#7c3aed; margin:0; }
+  .scenrow label.off { opacity:.4; }
   h1 { margin:0; font:600 19px/1.2 Georgia,serif; }
   .subtitle { color:var(--muted); font-size:12.5px; margin-top:2px; }
   .subtitle a { color:#3b5f7a; }
@@ -42,12 +51,26 @@
 </head>
 <body>
 <header>
-  <h1>European Grid Topology <span style="color:var(--muted);font-weight:400">v23</span></h1>
-  <div class="subtitle">
-    Screening-grade transmission topology derived from OpenStreetMap — not survey-grade, not an
-    asset register, not operational data. 36 countries, 50–750&nbsp;kV.
-    Dataset: <a href="https://doi.org/10.5281/zenodo.22043867">DOI 10.5281/zenodo.22043867</a> ·
-    <a href="https://github.com/duncanCI/europe_transmission_system_planner">method &amp; pipeline</a>
+  <div>
+    <h1>European Grid Topology <span style="color:var(--muted);font-weight:400">v23</span></h1>
+    <div class="subtitle">
+      Screening-grade transmission topology derived from OpenStreetMap — not survey-grade, not an
+      asset register, not operational data. 36 countries, 50–750&nbsp;kV, with planned developments
+      from public plans and TYNDP&nbsp;2026 scenario context.
+      Dataset: <a href="https://doi.org/10.5281/zenodo.22043867">DOI 10.5281/zenodo.22043867</a> ·
+      <a href="https://github.com/duncanCI/europe_transmission_system_planner">method &amp; pipeline</a>
+    </div>
+  </div>
+  <div class="yearctl" id="yearctl" hidden>
+    <label for="yearslider">Development year <output id="yearout">2030</output></label>
+    <input id="yearslider" type="range" min="2025" max="2040" step="1" value="2030">
+    <div class="scenrow">
+      <span id="horizonout" title="Scenario figures exist at 2030 (NT+ only), 2035 and 2040; the slider snaps to the nearest horizon">TYNDP horizon 2030</span>
+      <label title="National Trends+ — the ENTSO-E/ENTSOG TYNDP 2026 central policy scenario"><input type="radio" name="scen" value="ntp" checked> NT+</label>
+      <label title="Low Economy Variant — TYNDP 2026 demand-side economic variant, defined for 2035 and 2040"><input type="radio" name="scen" value="lev"> LEV</label>
+      <label title="High Economy Variant — TYNDP 2026 demand-side economic variant, defined for 2035 and 2040"><input type="radio" name="scen" value="hev"> HEV</label>
+    </div>
+    <div id="readout" style="font-size:11px; color:var(--muted); margin-top:1px;"></div>
   </div>
 </header>
 <div style="position:relative; min-height:0;">
@@ -57,12 +80,31 @@
     <div id="legend-lines"></div>
     <h2 style="margin-top:10px">Other layers</h2>
     <div id="legend-other"></div>
+    <div id="legend-dev-section" hidden>
+      <h2 style="margin-top:10px">Development &amp; scenarios</h2>
+      <div id="legend-dev"></div>
+    </div>
     <details>
       <summary>About this map</summary>
       <p><b>Limits first:</b> this is a screening-grade topological dataset. Positions, voltages and
          ratings carry per-value provenance (<code>sourced:</code>, <code>inferred:</code> or
          <code>unknown</code>) shown verbatim in the popups. Do not use it as an asset register or
          for operational decisions.</p>
+      <p><b>Planned developments</b> are compiled from public network development plans
+         (ENTSO-E TYNDP&nbsp;2026 project material and national/TSO plans — NESO "Beyond&nbsp;2030",
+         Terna PdS&nbsp;2025, RTE's project catalogue, MITECO's 2024 planning modification, and the
+         plan cited on each feature). Service years are promoter-stated, shown verbatim — not
+         forecasts, not delivery promises. Except where marked as sourced plan geometry, project
+         lines are straight schematics between matched public endpoint locations —
+         <b>not route alignments</b>.</p>
+      <p><b>Scenario circles</b> share national TYNDP&nbsp;2026 figures (&copy;&nbsp;ENTSO-E
+         TYNDP&nbsp;2026 Scenarios, CC&nbsp;BY&nbsp;4.0; NT+ = National Trends+, LEV/HEV = Low/High
+         Economy Variant) out to OSM populated places (demand, by population) and OSM power plants
+         (generation, by technology and rating). They are <code>inferred:</code> visualization
+         weights for screening context — not forecasts, not dispatch, and this map computes no
+         power flows. The economy variants alter demand; their installed-capacity mix is nearly
+         identical, so generation circles barely move between NT+/LEV/HEV — that is the scenarios,
+         not a bug.</p>
       <p>Data &copy; OpenStreetMap contributors, ODbL&nbsp;1.0. Method after Xiong et&nbsp;al. (2025),
          with thanks to PyPSA-Eur and pandapower. Basemap by OpenFreeMap / OpenMapTiles.</p>
       <p>Lines are simplified for display above zoom&nbsp;11; the GeoPackages on Zenodo hold full geometry.</p>
@@ -73,6 +115,7 @@
 const TILES = {
   linework: "europe_grid_v23_linework.pmtiles",
   points:   "europe_grid_v23_points.pmtiles",
+  context:  "europe_grid_v23_context.pmtiles",
 };
 
 const VOLTAGE_CLASSES = [
@@ -187,10 +230,191 @@ function setup() {
 
   buildLegend();
   wirePopups();
+  setupContext();
 }
 map.once("style.load", setup);
 map.once("load", setup);
 if (map.isStyleLoaded()) setup();
+
+// ---- Development & scenario context (year slider) ----
+const SOURCED_GEOM = ["sourced NESO line", "sourced NESO future circuit", "sourced NESO point"];
+const HORIZONS = { ntp: [2030, 2035, 2040], lev: [2035, 2040], hev: [2035, 2040] };
+const SCEN_LABEL = { ntp: "NT+", lev: "LEV", hev: "HEV" };
+const state = { year: 2030, scen: "ntp" };
+
+function horizonFor(year, scen) {
+  const hs = HORIZONS[scen];
+  let best = hs[0];
+  for (const h of hs) if (Math.abs(h - year) < Math.abs(best - year)) best = h;
+  return best;
+}
+
+function datedFilter(kind) {
+  const yr = ["all", ["has", "service_year_min"],
+              ["<=", ["get", "service_year_min"], state.year]];
+  return kind === "rest"
+    ? ["any", ["!", ["has", "service_year_min"]],
+       [">", ["get", "service_year_min"], state.year]]
+    : yr;
+}
+
+let TOTALS = null;
+const GROUP_COLORS = {
+  wind_onshore: "#0d9488", wind_offshore: "#155e75", solar: "#f59e0b",
+  hydro: "#2563eb", nuclear: "#7c3aed", gas: "#6b7280", coal: "#374151",
+  oil: "#78350f", bioenergy: "#65a30d", other_res: "#84cc16", battery: "#db2777",
+};
+
+function demandMWExpr() {
+  const h = horizonFor(state.year, state.scen);
+  const branches = [];
+  for (const [c, scens] of Object.entries(TOTALS.demand_avg_mw)) {
+    const v = scens[state.scen] && scens[state.scen][h];
+    if (v) branches.push(c, ["*", ["get", "d_share"], v]);
+  }
+  return ["match", ["get", "country"], ...branches, 0];
+}
+
+function genMWExpr() {
+  const h = horizonFor(state.year, state.scen);
+  const branches = [];
+  for (const [c, groups] of Object.entries(TOTALS.generation_capacity_mw)) {
+    for (const [g, scens] of Object.entries(groups)) {
+      const v = scens[state.scen] && scens[state.scen][h];
+      if (v) branches.push(c + "|" + g, ["*", ["get", "g_share"], v]);
+    }
+  }
+  return ["match", ["concat", ["get", "country"], "|", ["get", "group"]],
+          ...branches, 0];
+}
+
+function circleRadius(mwExpr, k) {
+  const base = ["min", 42, ["+", 0.8, ["*", k, ["sqrt", ["max", 0, mwExpr]]]]];
+  return ["interpolate", ["linear"], ["zoom"],
+          4, ["*", 0.5, base], 7, base, 10, ["*", 1.8, base]];
+}
+
+function applyContextState() {
+  const h = horizonFor(state.year, state.scen);
+  document.getElementById("horizonout").textContent = "TYNDP horizon " + h;
+  document.querySelectorAll(".scenrow label").forEach(l => {
+    const r = l.querySelector("input"); if (!r) return;
+    const ok = r.value === "ntp" || state.year >= 2033;
+    l.classList.toggle("off", !ok);
+  });
+  for (const id of ["proj_line_sourced", "proj_line_schematic", "proj_points"]) {
+    const gf = map.getFilter(id);
+    map.setFilter(id, [gf[0], gf[1], datedFilter("dated")]);
+  }
+  for (const id of ["proj_line_rest", "proj_point_rest"]) {
+    const gf = map.getFilter(id);
+    map.setFilter(id, [gf[0], gf[1], datedFilter("rest")]);
+  }
+  if (TOTALS) {
+    map.setPaintProperty("demand_places", "circle-radius", circleRadius(demandMWExpr(), 0.42));
+    map.setPaintProperty("gen_plants", "circle-radius", circleRadius(genMWExpr(), 0.5));
+    const r = (TOTALS.readout[state.scen] || {})[h];
+    document.getElementById("readout").textContent = r
+      ? `Europe-wide: ~${r.demand_avg_gw.toLocaleString()} GW average demand · ` +
+        `${r.generation_gw.toLocaleString()} GW installed capacity (${SCEN_LABEL[state.scen]} ${h})`
+      : "";
+  }
+}
+
+async function setupContext() {
+  try {
+    const head = await fetch(TILES.context, { headers: { Range: "bytes=0-127" } });
+    if (!head.ok) throw new Error("context tiles not published");
+    const tj = await fetch("scenario_totals.json");
+    if (tj.ok) TOTALS = await tj.json();
+  } catch (e) { return; }
+
+  map.addSource("context", { type: "vector", url: "pmtiles://" + TILES.context });
+
+  if (TOTALS) {
+    map.addLayer({ id: "demand_places", type: "circle", source: "context",
+      "source-layer": "places", minzoom: 4,
+      paint: { "circle-color": "#0284c7", "circle-opacity": 0.28,
+               "circle-stroke-color": "#0284c7", "circle-stroke-opacity": 0.6,
+               "circle-stroke-width": 1,
+               "circle-radius": circleRadius(demandMWExpr(), 0.42) } });
+    map.addLayer({ id: "gen_plants", type: "circle", source: "context",
+      "source-layer": "plants", minzoom: 4,
+      paint: { "circle-color": ["match", ["get", "group"],
+                 ...Object.entries(GROUP_COLORS).flat(), "#9ca3af"],
+               "circle-opacity": 0.4,
+               "circle-stroke-color": ["match", ["get", "group"],
+                 ...Object.entries(GROUP_COLORS).flat(), "#9ca3af"],
+               "circle-stroke-opacity": 0.7, "circle-stroke-width": 0.8,
+               "circle-radius": circleRadius(genMWExpr(), 0.5) } });
+  }
+  const isLine = ["==", ["geometry-type"], "LineString"];
+  const isPoint = ["==", ["geometry-type"], "Point"];
+  const sourcedGeom = ["match", ["get", "geometry_kind"], SOURCED_GEOM, true, false];
+
+  map.addLayer({ id: "proj_line_sourced", type: "line", source: "context",
+    "source-layer": "projects",
+    filter: ["all", ["all", isLine, sourcedGeom], datedFilter("dated")],
+    paint: { "line-color": "#7c3aed",
+             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 1.6, 8, 2.6, 12, 4.2] } });
+  map.addLayer({ id: "proj_line_schematic", type: "line", source: "context",
+    "source-layer": "projects",
+    filter: ["all", ["all", isLine, ["!", sourcedGeom]], datedFilter("dated")],
+    paint: { "line-color": "#7c3aed", "line-dasharray": [2.4, 1.8],
+             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 1.2, 8, 2.0, 12, 3.4] } });
+  map.addLayer({ id: "proj_points", type: "circle", source: "context",
+    "source-layer": "projects",
+    filter: ["all", ["all", isPoint], datedFilter("dated")],
+    paint: { "circle-color": "#7c3aed", "circle-opacity": 0.85,
+             "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 2, 8, 4, 12, 7],
+             "circle-stroke-color": "#f5f7f6", "circle-stroke-width": 0.8 } });
+  map.addLayer({ id: "proj_line_rest", type: "line", source: "context",
+    "source-layer": "projects", layout: { visibility: "none" },
+    filter: ["all", ["all", isLine], datedFilter("rest")],
+    paint: { "line-color": "#9ca3af", "line-dasharray": [1.6, 2.0], "line-opacity": 0.6,
+             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 1.0, 8, 1.6, 12, 2.6] } });
+  map.addLayer({ id: "proj_point_rest", type: "circle", source: "context",
+    "source-layer": "projects", layout: { visibility: "none" },
+    filter: ["all", ["all", isPoint], datedFilter("rest")],
+    paint: { "circle-color": "#9ca3af", "circle-opacity": 0.5,
+             "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 1.6, 8, 3, 12, 5] } });
+
+  const dev = document.getElementById("legend-dev");
+  legendRow(dev, `<span class="swatch dashed" style="border-color:#7c3aed"></span>`,
+            "Planned by selected year", ["proj_line_sourced", "proj_line_schematic", "proj_points"], true);
+  legendRow(dev, `<span class="swatch dashed" style="border-color:#9ca3af"></span>`,
+            "Later &amp; undated plans", ["proj_line_rest", "proj_point_rest"], false);
+  if (TOTALS) {
+    legendRow(dev, `<span class="swatch dot" style="background:#0284c7;opacity:.6"></span>`,
+              "Demand at OSM places (avg MW, z4+)", ["demand_places"], true);
+    legendRow(dev, `<span class="swatch dot" style="background:linear-gradient(120deg,#0d9488 30%,#f59e0b 30% 60%,#2563eb 60%)"></span>`,
+              "Generation at OSM plants (MW, z4+)", ["gen_plants"], true);
+    const tech = document.createElement("div");
+    tech.style.cssText = "color:var(--muted); margin:3px 0 0 29px; line-height:1.5;";
+    tech.innerHTML = ["wind_onshore|onshore wind", "wind_offshore|offshore wind",
+                      "solar|solar", "hydro|hydro", "nuclear|nuclear", "gas|gas"]
+      .map(s => { const [g, lab] = s.split("|");
+        return `<span style="color:${GROUP_COLORS[g]}">&#9679;</span>&nbsp;${lab}`; })
+      .join(" &nbsp;");
+    dev.appendChild(tech);
+  }
+  const note = document.createElement("div");
+  note.style.cssText = "color:var(--muted); margin-top:6px;";
+  note.textContent = "Project lines are schematic unless marked as sourced plan geometry — not route alignments. Promoter-stated years, not forecasts. Circle sizes: national TYNDP 2026 figures shared out by OSM population / plant patterns (inferred).";
+  dev.appendChild(note);
+  document.getElementById("legend-dev-section").hidden = false;
+
+  const slider = document.getElementById("yearslider");
+  document.getElementById("yearctl").hidden = false;
+  slider.addEventListener("input", () => {
+    state.year = +slider.value;
+    document.getElementById("yearout").textContent = slider.value;
+    applyContextState();
+  });
+  document.querySelectorAll("input[name=scen]").forEach(r =>
+    r.addEventListener("change", () => { state.scen = r.value; applyContextState(); }));
+  applyContextState();
+}
 
 function toggle(ids, on) {
   for (const id of ids) map.setLayoutProperty(id, "visibility", on ? "visible" : "none");
@@ -226,27 +450,77 @@ const POPUP_TITLES = {
   dc_links: f => (f.name || "DC link"),
   sites: f => (f.station_name || f.bus_id || "Site"),
   transformers: f => (f.station_name || "Transformer"),
+  projects: f => (f.name || "Planned development"),
+  scenario_stations: f => ((f.station_name && f.station_name !== "unknown"
+                            ? f.station_name : f.station_id) + " — TYNDP scenario"),
+  places: f => (f.name || "Populated place"),
+  plants: f => (f.name || "Power plant"),
 };
 
+function esc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function cell(v) {
+  const s = String(v);
+  return /^https?:\/\//.test(s)
+    ? `<a href="${esc(s)}" target="_blank" rel="noopener">${esc(s.length > 60 ? s.slice(0, 57) + "…" : s)}</a>`
+    : esc(s);
+}
+
+const INFER_NOTE = "inferred: national TYNDP 2026 figures (ENTSO-E, CC BY 4.0) shared out by OSM patterns — visualization weights, not forecasts";
+
+function popupBody(f) {
+  const props = f.properties;
+  const h = horizonFor(state.year, state.scen);
+  const selLabel = `${SCEN_LABEL[state.scen]} ${h}`;
+  if (f.sourceLayer === "places" && TOTALS) {
+    const t = (TOTALS.demand_avg_mw[props.country] || {})[state.scen];
+    const mw = t && t[h] ? props.d_share * t[h] : null;
+    return `<tr><td>population</td><td>${(+props.population).toLocaleString()} (OSM)</td></tr>` +
+      `<tr><td>avg demand, ${selLabel}</td><td>${mw != null ? Math.round(mw).toLocaleString() + " MW" : "—"}</td></tr>` +
+      `<tr><td>share of ${esc(props.country)} demand</td><td>${(props.d_share * 100).toFixed(2)}%</td></tr>` +
+      `<tr><td>provenance</td><td>${INFER_NOTE}</td></tr>`;
+  }
+  if (f.sourceLayer === "plants" && TOTALS) {
+    const t = ((TOTALS.generation_capacity_mw[props.country] || {})[props.group] || {})[state.scen];
+    const mw = t && t[h] ? props.g_share * t[h] : null;
+    return `<tr><td>technology</td><td>${esc(props.group)}</td></tr>` +
+      `<tr><td>OSM weight</td><td>${props.weight_mw} MW (${esc(props.rating)} rating)</td></tr>` +
+      `<tr><td>capacity, ${selLabel}</td><td>${mw != null ? Math.round(mw).toLocaleString() + " MW" : "—"}</td></tr>` +
+      `<tr><td>provenance</td><td>${INFER_NOTE}</td></tr>`;
+  }
+  if (f.sourceLayer === "scenario_stations") {
+    const rows = [];
+    for (const h of HORIZONS[state.scen]) {
+      const d = props[`d_${state.scen}_${h}`], g = props[`g_${state.scen}_${h}`];
+      rows.push(`<tr><td>${SCEN_LABEL[state.scen]} ${h}</td><td>` +
+        `${d != null ? Math.round(d).toLocaleString() + " MW avg demand" : "—"} · ` +
+        `${g != null ? Math.round(g).toLocaleString() + " MW capacity" : "—"}</td></tr>`);
+    }
+    rows.push(`<tr><td>provenance</td><td>inferred: national TYNDP 2026 figures (ENTSO-E, CC BY 4.0) ` +
+      `disaggregated by OSM population / plant patterns — visualization weights, not forecasts</td></tr>`);
+    return rows.join("");
+  }
+  return Object.entries(props)
+    .filter(([, v]) => v !== null && v !== undefined && v !== "")
+    .map(([k, v]) => `<tr><td>${esc(k)}</td><td>${cell(v)}</td></tr>`).join("");
+}
+
 function wirePopups() {
-  const clickable = map.getStyle().layers
-    .filter(l => l.source === "linework" || l.source === "points").map(l => l.id);
+  const clickable = () => map.getStyle().layers
+    .filter(l => ["linework", "points", "context"].includes(l.source)).map(l => l.id);
   map.on("click", e => {
-    const feats = map.queryRenderedFeatures(e.point, { layers: clickable });
+    const feats = map.queryRenderedFeatures(e.point, { layers: clickable() });
     if (!feats.length) return;
     const f = feats[0];
-    const props = f.properties;
-    const title = (POPUP_TITLES[f.sourceLayer] || (() => f.sourceLayer))(props);
-    const rows = Object.entries(props)
-      .filter(([, v]) => v !== null && v !== undefined && v !== "")
-      .map(([k, v]) => `<tr><td>${k}</td><td>${String(v)}</td></tr>`).join("");
+    const title = (POPUP_TITLES[f.sourceLayer] || (() => f.sourceLayer))(f.properties);
     new maplibregl.Popup({ maxWidth: "340px" })
       .setLngLat(e.lngLat)
-      .setHTML(`<div class="ptitle">${title}</div><table>${rows}</table>`)
+      .setHTML(`<div class="ptitle">${esc(title)}</div><table>${popupBody(f)}</table>`)
       .addTo(map);
   });
   map.on("mousemove", e => {
-    const feats = map.queryRenderedFeatures(e.point, { layers: clickable });
+    const feats = map.queryRenderedFeatures(e.point, { layers: clickable() });
     map.getCanvas().style.cursor = feats.length ? "pointer" : "";
   });
 }

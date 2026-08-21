@@ -29,6 +29,21 @@ publish it. `webmap/build_tiles.py` regenerates the tiles from the two
 GeoPackages whenever the dataset versions forward. Line geometry in the tiles
 is simplified above zoom 10 for size; the GeoPackages hold full geometry.
 
+The viewer also carries a development-and-scenario context layer
+(`webmap/build_context_tiles.py`): planned grid developments compiled from
+public network development plans (ENTSO-E TYNDP 2026 project material, NESO
+"Beyond 2030", Terna PdS 2025, RTE's project catalogue, MITECO's 2024
+planning modification, and the plan cited on each feature) behind a
+development-year slider, plus TYNDP 2026 scenario demand and generation
+(NT+ National Trends+, LEV/HEV Low/High Economy Variant; ENTSO-E, CC BY 4.0)
+shared out to OSM populated places and OSM power plants - and to >=220 kV
+backbone stations in the tiles - by population and plant patterns. Limits
+first: service years are
+promoter-stated, not forecasts; project lines are straight schematics between
+matched public endpoints unless marked as sourced plan geometry - never route
+alignments; scenario circles are `inferred:` visualization weights, and the
+map computes no power flows.
+
 ## Quick start
 
 QGIS: open `europe_grid_topology.gpkg`, layers are per voltage; filter `frequency_hz = 50` for the public grid. PyPSA: load `ac_line_all` + `site_all` from the graph file as Lines/Buses, `transformer` and `dc_link` from the topology file (transformer `x_pu`/`r_pu` are per-unit on `s_nom_mva` - do not pair `x_pu` with `s_nom_pypsa_eur_mva` without recomputing); `supporting/_xfer/acid_test_pypsa.py` is a working end-to-end example (all checks PASS, `supporting/acid_report_v23.json`).
