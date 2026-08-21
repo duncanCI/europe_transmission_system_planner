@@ -409,20 +409,22 @@ async function setupContext() {
   const isPoint = ["==", ["geometry-type"], "Point"];
   const sourcedGeom = ["match", ["get", "geometry_kind"], SOURCED_GEOM, true, false];
 
+  const projColor = ["case", ["==", ["coalesce", ["get", "is_dc"], false], true],
+                     "#0e7490", "#7c3aed"];
   map.addLayer({ id: "proj_line_sourced", type: "line", source: "context",
     "source-layer": "projects",
     filter: ["all", ["all", isLine, sourcedGeom], datedFilter("dated")],
-    paint: { "line-color": "#7c3aed",
+    paint: { "line-color": projColor,
              "line-width": ["interpolate", ["linear"], ["zoom"], 4, 1.6, 8, 2.6, 12, 4.2] } });
   map.addLayer({ id: "proj_line_schematic", type: "line", source: "context",
     "source-layer": "projects",
     filter: ["all", ["all", isLine, ["!", sourcedGeom]], datedFilter("dated")],
-    paint: { "line-color": "#7c3aed", "line-dasharray": [2.4, 1.8],
+    paint: { "line-color": projColor, "line-dasharray": [2.4, 1.8],
              "line-width": ["interpolate", ["linear"], ["zoom"], 4, 1.2, 8, 2.0, 12, 3.4] } });
   map.addLayer({ id: "proj_points", type: "circle", source: "context",
     "source-layer": "projects",
     filter: ["all", ["all", isPoint], datedFilter("dated")],
-    paint: { "circle-color": "#7c3aed", "circle-opacity": 0.85,
+    paint: { "circle-color": projColor, "circle-opacity": 0.85,
              "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 2, 8, 4, 12, 7],
              "circle-stroke-color": "#f5f7f6", "circle-stroke-width": 0.8 } });
   map.addLayer({ id: "proj_line_rest", type: "line", source: "context",
@@ -474,7 +476,7 @@ async function setupContext() {
   }
   const note = document.createElement("div");
   note.style.cssText = "color:var(--muted); margin-top:6px;";
-  note.textContent = "Project lines are schematic unless marked as sourced plan geometry — not route alignments. Promoter-stated years, not forecasts. Circle sizes: national TYNDP 2026 figures shared out by OSM population / plant patterns (inferred).";
+  note.textContent = "Project lines are schematic unless marked as sourced plan geometry — not route alignments. Promoter-stated years, not forecasts. Teal dash = DC / interconnector project, shown for context from public plans. Circle sizes: national TYNDP 2026 figures shared out by OSM population / plant patterns (inferred).";
   dev.appendChild(note);
   if (GATED_STRESS_URL) {
     const cta = document.createElement("a");
