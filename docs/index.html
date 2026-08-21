@@ -120,7 +120,7 @@ const TILES = {
 
 // Access-request gate for the N-1 stress layer (Drive request-access flow).
 // Empty string hides the panel link.
-const GATED_STRESS_URL = "https://docs.google.com/document/d/1mn2D1xRuI22sjE3qA9rVcEdklHz_mp1cusu39YE_q3E/edit";
+const GATED_STRESS_URL = "https://docs.google.com/document/d/1fPz6gYkn8CChMHwUsWhIDDpaKnrNgoACSK8L_pg_jtI/edit";
 
 const VOLTAGE_CLASSES = [
   { label: "700 kV+",        color: "#4d2600", min: 700, width: 2.6 },
@@ -329,9 +329,11 @@ async function setupContext() {
   try {
     const head = await fetch(TILES.context, { headers: { Range: "bytes=0-127" } });
     if (!head.ok) throw new Error("context tiles not published");
+  } catch (e) { return; }
+  try {
     const tj = await fetch("scenario_totals.json");
     if (tj.ok) TOTALS = await tj.json();
-  } catch (e) { return; }
+  } catch (e) { /* scenario circles degrade; project layers still load */ }
 
   map.addSource("context", { type: "vector", url: "pmtiles://" + TILES.context });
 
