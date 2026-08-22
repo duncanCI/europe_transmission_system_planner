@@ -26,8 +26,16 @@ layer is the exception and carries its own licence (see below).
                      around them - broad zones under study, NOT routes. This
                      is NOT open data: the scenario figures are CC BY 4.0 but
                      the project portfolio is ENTSO-E's, published here by
-                     permission granted 2026-08-22. See
+                     ENTSO-E's permission. See
                      LICENCE_AND_ATTRIBUTION.md before reusing it.
+
+  fr_sddr            RTE's SDDR 2025 works programme, from the Cart'Elec map
+                     built for the CNDP public debate. Classes: new build,
+                     adaptation/connection, like-for-like renewal, substation
+                     sites, and the Phase 1/2 reinforcement ZONES that RTE
+                     publishes without routes. Carries NO scheme name, year or
+                     voltage - the SDDR publishes no project register. (c) RTE
+                     / CNDP, NOT open data, held by permission.
 
   scenario_stations  One point per >=220 kV backbone station with TYNDP 2026
                      scenario demand and generation (NT+ 2030/35/40, LEV and
@@ -74,8 +82,9 @@ OUT = DOCS / "europe_grid_v23_context.pmtiles"
 NAME = "European Grid Topology v23 - development and scenario context"
 ATTRIBUTION = ("&copy; OpenStreetMap contributors ODbL 1.0; "
                "scenario figures: ENTSO-E TYNDP 2026 Scenarios (CC BY 4.0); "
-               "TYNDP 2026 project portfolio &copy; ENTSO-E, published with "
-               "permission (not open data - contact ENTSO-E to reuse)")
+               "TYNDP 2026 project portfolio &copy; ENTSO-E and SDDR 2025 "
+               "works &copy; RTE/CNDP, both published by permission "
+               "(not open data - contact the publisher to reuse)")
 
 # never-drop layers: every feature present at every zoom (0-10)
 FULL_LAYERS = {
@@ -85,6 +94,10 @@ FULL_LAYERS = {
     # GeoJSON simplification silently discards small features at low zoom,
     # which is exactly the defect this build path exists to avoid.
     "tyndp": "tyndp_projects_public.geojson",
+    # RTE SDDR 2025 works (RTE/CNDP, by permission). Never-drop, like the
+    # other planned layers: France is already the worst-covered large country
+    # and thinning it at zoom would compound that.
+    "fr_sddr": "fr_sddr_public.geojson",
 }
 # dense context layers: z4+ (viewer minzoom), -r1, size-guard backstop
 CONTEXT_LAYERS = {

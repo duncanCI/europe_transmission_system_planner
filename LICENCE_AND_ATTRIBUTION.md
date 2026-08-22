@@ -38,9 +38,8 @@ The vector layer `tyndp` inside `docs/europe_grid_v23_context.pmtiles` holds the
 (preliminary draft): transmission and storage projects with their published
 commissioning years, and the study corridors drawn around them. This is a **different
 artefact from the scenario figures above and is NOT open data** - ENTSO-E publishes it
-"all rights reserved". It appears here **with ENTSO-E's permission, granted
-2026-08-22**, and the credit form is "© ENTSO-E, TYNDP 2026 project portfolio,
-published with permission".
+"all rights reserved". It appears here **with ENTSO-E's permission**, and the credit
+form is "© ENTSO-E, TYNDP 2026 project portfolio, published with permission".
 
 Some portfolio attributes (voltage, technology, route length) carry
 `attrs_source: sourced:ENTSO-E TYNDP 2024 final plan detail`, meaning the value was

@@ -117,6 +117,17 @@
          forecasts, not delivery promises. Except where marked as sourced plan geometry, project
          lines are straight schematics between matched public endpoint locations —
          <b>not route alignments</b>.</p>
+      <p><b>Coverage of the planned layer is uneven, and in some countries badly so.</b> It reflects
+         which national plans have been harvested, not how much those countries are building. A
+         2026 audit against the current TSO plans put the shortfall at roughly 1,000 line-like
+         schemes across the 16 countries checked. The worst are <b>Greece</b> (the ΔΠΑ 2025-2034
+         lists ~95 project clusters; none are here yet), <b>Croatia</b>, <b>Lithuania</b>,
+         <b>Belgium</b> (four concurrent statutory plans, federal and regional, of which one is
+         reflected here), <b>Italy</b> (Terna's PdS 2025 has 232 interventi against the 67 shown),
+         <b>France</b> (RTE's SDDR 2025 publishes no project list at all, so only 13 schemes could
+         be extracted) and <b>Sweden</b> and <b>Norway</b>. Great Britain, Germany, Denmark, the
+         Netherlands, Hungary and Spain are the best covered. <b>Read a sparse country as "not yet harvested", never as
+         "not being built"</b> — and never compare countries on scheme counts from this map.</p>
       <p><b>ENTSO-E TYNDP&nbsp;2026 projects</b> are the pan-European portfolio, shown alongside the
          national plans and published here <b>with ENTSO-E's permission</b> (the portfolio is
          ENTSO-E's, not open data — see <code>LICENCE_AND_ATTRIBUTION.md</code>). Dashed cyan lines
@@ -132,6 +143,15 @@
          power flows. The economy variants alter demand; their installed-capacity mix is nearly
          identical, so generation circles barely move between NT+/LEV/HEV — that is the scenarios,
          not a bug.</p>
+      <p><b>Gas and hydrogen are shown separately</b>, because TYNDP tracks them separately and
+         they move in opposite directions. Great Britain's NT+ natural gas falls 35.1 &rarr; 8.7
+         &rarr; 6.5&nbsp;GW across 2030/35/40 while its hydrogen turbines rise 0.3 &rarr; 3.9
+         &rarr; 12.3&nbsp;GW: one fleet replacing another. Summed into a single "gas" bucket that
+         reads as a dip and a rebound, which is an artefact of the addition, not a forecast.
+         OpenStreetMap holds no hydrogen-turbine fleet to place that capacity on, so hydrogen GT
+         capacity is shared out over the <b>gas</b> sites (<code>inferred:</code> — hydrogen
+         turbines are largely conversions of, or co-located with, existing gas plant). That
+         placement affects only where circles sit; this map computes no flows.</p>
       <p><b>What the circles leave out.</b> The circles draw only places of &ge;5,000 population
          and plants of &ge;10&nbsp;MW OSM weight, so they carry <i>part</i> of each national total —
          49–96% of a country's demand, and as little as 0.26% of a given country-and-technology
@@ -166,7 +186,7 @@
 // state.lineScale while they are being built.
 const state = { lineScale: 1, year: 2030, scen: "ntp", ddelta: false };
 
-const TILE_VERSION = "20260822";
+const TILE_VERSION = "20260822c";
 const TILES = {
   linework: `europe_grid_v23_linework.pmtiles?v=${TILE_VERSION}`,
   points:   `europe_grid_v23_points.pmtiles?v=${TILE_VERSION}`,
@@ -337,7 +357,7 @@ function datedFilter(kind) {
 let TOTALS = null;
 const GROUP_COLORS = {
   wind_onshore: "#0d9488", wind_offshore: "#155e75", solar: "#f59e0b",
-  hydro: "#2563eb", nuclear: "#7c3aed", gas: "#6b7280", coal: "#374151",
+  hydro: "#2563eb", nuclear: "#7c3aed", gas: "#6b7280", hydrogen: "#0ea5e9", coal: "#374151",
   oil: "#78350f", bioenergy: "#65a30d", other_res: "#84cc16", battery: "#db2777",
 };
 
@@ -520,7 +540,7 @@ async function setupContext() {
              "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 1.6, 8, 3, 12, 5] } });
 
   // ENTSO-E TYNDP 2026 project portfolio, published here with ENTSO-E's
-  // permission (2026-08-22); see LICENCE_AND_ATTRIBUTION.md. It rides in the
+  // permission; see LICENCE_AND_ATTRIBUTION.md. It rides in the
   // context tileset's never-drop pass rather than a plain GeoJSON source:
   // MapLibre's own GeoJSON simplification silently discards small features at
   // low zoom (284 features rendered as 4 at z3), which is precisely the defect
@@ -549,11 +569,59 @@ async function setupContext() {
              "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 2.5, 8, 4.5, 12, 7],
              "circle-stroke-color": "#f5f7f6", "circle-stroke-width": 0.8 } });
 
+  // RTE SDDR 2025 works (RTE/CNDP, by permission). Same violet family as the
+  // other planned developments so it reads as one theme, but split by what the
+  // work actually is: new build solid and prominent, renewal faint because it
+  // adds no capacity, and the phases RTE publishes WITHOUT routes drawn as
+  // translucent zones so they can never be read as lines.
+  map.addLayer({ id: "fr_zones", type: "fill", source: "context",
+    "source-layer": "fr_sddr", filter: ["==", ["get", "class"], "zone"],
+    layout: { visibility: "none" },
+    paint: { "fill-color": "#7c3aed", "fill-opacity": 0.10 } });
+  map.addLayer({ id: "fr_zone_outline", type: "line", source: "context",
+    "source-layer": "fr_sddr", filter: ["==", ["get", "class"], "zone"],
+    layout: { visibility: "none" },
+    paint: { "line-color": "#7c3aed", "line-width": 1.2, "line-opacity": 0.7,
+             "line-dasharray": [3, 2] } });
+  map.addLayer({ id: "fr_renewal", type: "line", source: "context",
+    "source-layer": "fr_sddr", filter: ["==", ["get", "class"], "renewal"],
+    layout: { visibility: "none" },
+    paint: { "line-color": "#a78bfa", "line-opacity": 0.55,
+             "line-width": scaledWidth("fr_renewal", [[4,0.7],[8,1.2],[12,2.0]]) } });
+  map.addLayer({ id: "fr_adaptation", type: "line", source: "context",
+    "source-layer": "fr_sddr", filter: ["==", ["get", "class"], "adaptation"],
+    layout: { visibility: "none" },
+    paint: { "line-color": "#7c3aed", "line-dasharray": [2.4, 1.8],
+             "line-width": scaledWidth("fr_adaptation", [[4,1.0],[8,1.7],[12,2.8]]) } });
+  map.addLayer({ id: "fr_new", type: "line", source: "context",
+    "source-layer": "fr_sddr", filter: ["==", ["get", "class"], "new"],
+    layout: { visibility: "none" },
+    paint: { "line-color": "#5b21b6",
+             "line-width": scaledWidth("fr_new", [[4,1.6],[8,2.6],[12,4.2]]) } });
+  map.addLayer({ id: "fr_sites", type: "circle", source: "context",
+    "source-layer": "fr_sddr", filter: ["==", ["get", "class"], "site"],
+    minzoom: 6, layout: { visibility: "none" },
+    paint: { "circle-color": "#7c3aed", "circle-opacity": 0.7,
+             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 1.8, 12, 5],
+             "circle-stroke-color": "#f5f7f6", "circle-stroke-width": 0.6 } });
+
   const dev = document.getElementById("legend-dev");
   legendRow(dev, `<span class="swatch dashed" style="border-color:#7c3aed"></span>`,
             "Planned by selected year", ["proj_line_sourced", "proj_line_schematic", "proj_points"], true);
   legendRow(dev, `<span class="swatch dashed" style="border-color:#9ca3af"></span>`,
             "Later &amp; undated plans", ["proj_line_rest", "proj_point_rest"], false);
+  legendRow(dev, `<span class="swatch" style="border-color:#5b21b6"></span>`,
+            "France SDDR 2025 — new build", ["fr_new"], false,
+            "RTE's SDDR 2025 works, from the Cart'Elec map built for the CNDP public debate. New-build lines. RTE publishes no scheme names, commissioning years or voltages for these, so none are shown. © RTE/CNDP, by permission — not open data.");
+  legendRow(dev, `<span class="swatch dashed" style="border-color:#7c3aed"></span>`,
+            "France SDDR — adaptation &amp; sites", ["fr_adaptation", "fr_sites"], false,
+            "Reinforcement and connection works, plus the substation sites in the 2030 programme. © RTE/CNDP, by permission.");
+  legendRow(dev, `<span class="swatch" style="border-color:#a78bfa"></span>`,
+            "France SDDR — renewal only", ["fr_renewal"], false,
+            "Like-for-like renewal of existing circuits — RTE plans roughly 24,000 km of it. Adds no capacity, so it is drawn faint. © RTE/CNDP, by permission.");
+  legendRow(dev, `<span class="swatch sq" style="background:#7c3aed;opacity:.35;width:22px;height:10px"></span>`,
+            "France SDDR — phase zones", ["fr_zones", "fr_zone_outline"], false,
+            "Phase 1 and Phase 2 reinforcement ZONES. RTE publishes these deliberately without routes: a study area, never a line. © RTE/CNDP, by permission.");
   legendRow(dev, `<span class="swatch dashed" style="border-color:#06b6d4"></span>`,
             "TYNDP 2026 lines &amp; storage", ["tyndp_lines", "tyndp_points"], false,
             "ENTSO-E TYNDP 2026 project portfolio (preliminary draft), published with ENTSO-E's permission. Transmission projects as dashed cyan lines, storage as dots. Year-gated by the slider on ENTSO-E's commissioning year: at 2040 the layer also shows the 7 projects dated later, and the 21 with no published year are always shown rather than given a date ENTSO-E has not stated. Commissioning years are ENTSO-E's, not forecasts.");
@@ -748,6 +816,22 @@ function popupBody(f) {
   const props = f.properties;
   const h = horizonFor(state.year, state.scen);
   const selLabel = `${SCEN_LABEL[state.scen]} ${h}`;
+  if (f.sourceLayer === "fr_sddr") {
+    const rows = [
+      ["type", {new: "new-build line", adaptation: "reinforcement / connection works",
+                renewal: "like-for-like renewal of an existing circuit — adds no capacity",
+                site: "substation site in the 2030 works programme",
+                zone: "reinforcement ZONE — a study area, not a route"}[props.class] || props.class],
+      ["SDDR volet", props.volet],
+      ["region", props.region],
+      ["length", props.length_km ? props.length_km + " km" : null],
+      ["programme", props.horizon],
+      ["name / year / voltage", "not published — " + props.note],
+      ["source", props.source],
+      ["licence", props.licence],
+    ].filter(([, v]) => v !== null && v !== undefined && v !== "");
+    return rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${cell(v)}</td></tr>`).join("");
+  }
   if (f.sourceLayer === "tyndp") {
     const isArea = f.geometry && f.geometry.type.indexOf("Polygon") >= 0;
     const rows = [
