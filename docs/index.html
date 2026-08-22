@@ -101,6 +101,13 @@
          forecasts, not delivery promises. Except where marked as sourced plan geometry, project
          lines are straight schematics between matched public endpoint locations —
          <b>not route alignments</b>.</p>
+      <p><b>ENTSO-E TYNDP&nbsp;2026 projects</b> are the pan-European portfolio, shown alongside the
+         national plans and published here <b>with ENTSO-E's permission</b> (the portfolio is
+         ENTSO-E's, not open data — see <code>LICENCE_AND_ATTRIBUTION.md</code>). Dashed cyan lines
+         are transmission projects and dots are storage; translucent violet-blue fills are
+         <b>study corridors and areas — broad zones under study, not routes and not lines</b>.
+         Commissioning years are ENTSO-E's own and are gated by the year slider; they are not
+         forecasts or delivery promises.</p>
       <p><b>Scenario circles</b> share national TYNDP&nbsp;2026 figures (&copy;&nbsp;ENTSO-E
          TYNDP&nbsp;2026 Scenarios, CC&nbsp;BY&nbsp;4.0; NT+ = National Trends+, LEV/HEV = Low/High
          Economy Variant) out to OSM populated places (demand, by population) and OSM power plants
@@ -129,10 +136,15 @@
   </div>
 </div>
 <script>
+// PMTiles is read by HTTP range request, so a rebuilt archive invalidates
+// every byte offset a returning visitor has cached. Without a version stamp
+// the browser serves stale ranges from the old file and the source fails to
+// load entirely. Bump TILE_VERSION on every tile rebuild.
+const TILE_VERSION = "20260822";
 const TILES = {
-  linework: "europe_grid_v23_linework.pmtiles",
-  points:   "europe_grid_v23_points.pmtiles",
-  context:  "europe_grid_v23_context.pmtiles",
+  linework: `europe_grid_v23_linework.pmtiles?v=${TILE_VERSION}`,
+  points:   `europe_grid_v23_points.pmtiles?v=${TILE_VERSION}`,
+  context:  `europe_grid_v23_context.pmtiles?v=${TILE_VERSION}`,
 };
 
 // Access-request gate for the N-1 stress layer (Drive request-access flow).
@@ -161,7 +173,9 @@ const map = new maplibregl.Map({
 });
 map.addControl(new maplibregl.AttributionControl({
   customAttribution: "Grid data &copy; OpenStreetMap contributors, ODbL 1.0 — " +
-    "<a href='https://doi.org/10.5281/zenodo.22043867'>DOI 10.5281/zenodo.22043867</a>",
+    "<a href='https://doi.org/10.5281/zenodo.22043867'>DOI 10.5281/zenodo.22043867</a>" +
+    " · scenario figures &copy; ENTSO-E TYNDP 2026 Scenarios, CC BY 4.0" +
+    " · TYNDP 2026 project portfolio &copy; ENTSO-E, published with permission",
 }));
 map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
 new ResizeObserver(() => map.resize()).observe(document.getElementById("map"));
@@ -270,6 +284,10 @@ function horizonFor(year, scen) {
   return best;
 }
 
+function tyndpYearFilter() {
+  return ["any", ["!", ["has", "year"]], ["<=", ["get", "year"], state.year]];
+}
+
 function datedFilter(kind) {
   const yr = ["all", ["has", "service_year_min"],
               ["<=", ["get", "service_year_min"], state.year]];
@@ -347,6 +365,11 @@ function applyContextState() {
   for (const id of ["proj_line_rest", "proj_point_rest"]) {
     const gf = map.getFilter(id);
     map.setFilter(id, [gf[0], gf[1], datedFilter("rest")]);
+  }
+  for (const id of ["tyndp_lines", "tyndp_points", "tyndp_polys", "tyndp_poly_outline"]) {
+    if (!map.getLayer(id)) continue;
+    const gf = map.getFilter(id);
+    map.setFilter(id, [gf[0], gf[1], tyndpYearFilter()]);
   }
   if (TOTALS) {
     const dd = state.ddelta && state.scen !== "ntp" ? demandDeltaExprs() : null;
@@ -456,11 +479,47 @@ async function setupContext() {
     paint: { "circle-color": "#9ca3af", "circle-opacity": 0.5,
              "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 1.6, 8, 3, 12, 5] } });
 
+  // ENTSO-E TYNDP 2026 project portfolio, published here with ENTSO-E's
+  // permission (2026-08-22); see LICENCE_AND_ATTRIBUTION.md. It rides in the
+  // context tileset's never-drop pass rather than a plain GeoJSON source:
+  // MapLibre's own GeoJSON simplification silently discards small features at
+  // low zoom (284 features rendered as 4 at z3), which is precisely the defect
+  // the tiling contract exists to prevent.
+  map.addLayer({ id: "tyndp_polys", type: "fill", source: "context",
+    "source-layer": "tyndp",
+    filter: ["all", ["==", ["geometry-type"], "Polygon"], tyndpYearFilter()],
+    layout: { visibility: "none" },
+    paint: { "fill-color": "#6366f1", "fill-opacity": 0.14 } });
+  map.addLayer({ id: "tyndp_poly_outline", type: "line", source: "context",
+    "source-layer": "tyndp",
+    filter: ["all", ["==", ["geometry-type"], "Polygon"], tyndpYearFilter()],
+    layout: { visibility: "none" },
+    paint: { "line-color": "#6366f1", "line-width": 1.4, "line-opacity": 0.85 } });
+  map.addLayer({ id: "tyndp_lines", type: "line", source: "context",
+    "source-layer": "tyndp",
+    filter: ["all", ["==", ["geometry-type"], "LineString"], tyndpYearFilter()],
+    layout: { visibility: "none" },
+    paint: { "line-color": "#06b6d4", "line-dasharray": [4, 1.6],
+             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 1.6, 8, 2.6, 12, 4.0] } });
+  map.addLayer({ id: "tyndp_points", type: "circle", source: "context",
+    "source-layer": "tyndp",
+    filter: ["all", ["==", ["geometry-type"], "Point"], tyndpYearFilter()],
+    layout: { visibility: "none" },
+    paint: { "circle-color": "#06b6d4", "circle-opacity": 0.85,
+             "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 2.5, 8, 4.5, 12, 7],
+             "circle-stroke-color": "#f5f7f6", "circle-stroke-width": 0.8 } });
+
   const dev = document.getElementById("legend-dev");
   legendRow(dev, `<span class="swatch dashed" style="border-color:#7c3aed"></span>`,
             "Planned by selected year", ["proj_line_sourced", "proj_line_schematic", "proj_points"], true);
   legendRow(dev, `<span class="swatch dashed" style="border-color:#9ca3af"></span>`,
             "Later &amp; undated plans", ["proj_line_rest", "proj_point_rest"], false);
+  legendRow(dev, `<span class="swatch dashed" style="border-color:#06b6d4"></span>`,
+            "TYNDP 2026 lines &amp; storage", ["tyndp_lines", "tyndp_points"], false,
+            "ENTSO-E TYNDP 2026 project portfolio (preliminary draft), published with ENTSO-E's permission. Transmission projects as dashed cyan lines, storage as dots; year-gated by the slider. Commissioning years are ENTSO-E's, not forecasts.");
+  legendRow(dev, `<span class="swatch sq" style="background:#6366f1;opacity:.45;width:22px;height:10px"></span>`,
+            "TYNDP 2026 study corridors", ["tyndp_polys", "tyndp_poly_outline"], false,
+            "Translucent violet-blue FILLS are study corridors and areas from the TYNDP 2026 portfolio - broad zones under study, NOT routes and NOT lines.");
   if (TOTALS) {
     legendRow(dev, `<span class="swatch dot" style="background:#0284c7;opacity:.6"></span>`,
               "Demand at OSM places (avg MW, z4+)", ["demand_places"], true);
@@ -602,6 +661,27 @@ function popupBody(f) {
   const props = f.properties;
   const h = horizonFor(state.year, state.scen);
   const selLabel = `${SCEN_LABEL[state.scen]} ${h}`;
+  if (f.sourceLayer === "tyndp") {
+    const isArea = f.geometry && f.geometry.type.indexOf("Polygon") >= 0;
+    const rows = [
+      ["type", (props.kind || "project") +
+        (isArea ? " — study corridor/area, NOT a route" : "")],
+      ["commissioning", props.year || props.commissioningYear || "unknown"],
+      ["status", props.statusName],
+      ["voltage", props.voltage_kv ? props.voltage_kv + " kV" : null],
+      ["technology", props.technology],
+      ["route length", props.route_km ? props.route_km + " km" : null],
+      ["TSOs", props.tsos],
+      ["countries", props.countries],
+      ["PCI corridor", props.pciCorridor],
+      ["source", props.source],
+      ["attributes", props.attrs_source],
+      ["note", "&copy; ENTSO-E, published here with permission. Commissioning " +
+               "years are ENTSO-E's, not forecasts, and this map computes no " +
+               "power flows."],
+    ].filter(([, v]) => v !== null && v !== undefined && v !== "");
+    return rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${cell(v)}</td></tr>`).join("");
+  }
   if (f.sourceLayer === "places" && TOTALS) {
     const scens = TOTALS.demand_avg_mw[props.country] || {};
     const t = scens[state.scen];
@@ -667,7 +747,8 @@ function popupBody(f) {
 
 function wirePopups() {
   const clickable = () => map.getStyle().layers
-    .filter(l => ["linework", "points", "context"].includes(l.source)).map(l => l.id);
+    .filter(l => ["linework", "points", "context"].includes(l.source))
+    .map(l => l.id);
   map.on("click", e => {
     const feats = map.queryRenderedFeatures(e.point, { layers: clickable() });
     if (!feats.length) return;

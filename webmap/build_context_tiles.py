@@ -58,11 +58,18 @@ OUT = DOCS / "europe_grid_v23_context.pmtiles"
 
 NAME = "European Grid Topology v23 - development and scenario context"
 ATTRIBUTION = ("&copy; OpenStreetMap contributors ODbL 1.0; "
-               "scenario figures: ENTSO-E TYNDP 2026 Scenarios (CC BY 4.0)")
+               "scenario figures: ENTSO-E TYNDP 2026 Scenarios (CC BY 4.0); "
+               "TYNDP 2026 project portfolio &copy; ENTSO-E, published with "
+               "permission (not open data - contact ENTSO-E to reuse)")
 
 # never-drop layers: every feature present at every zoom (0-10)
 FULL_LAYERS = {
     "projects": "projects_public.geojson",
+    # ENTSO-E TYNDP 2026 portfolio (by permission). Tiled through the
+    # never-drop pass for the same reason as the projects: MapLibre's own
+    # GeoJSON simplification silently discards small features at low zoom,
+    # which is exactly the defect this build path exists to avoid.
+    "tyndp": "tyndp_projects_public.geojson",
 }
 # dense context layers: z4+ (viewer minzoom), -r1, size-guard backstop
 CONTEXT_LAYERS = {

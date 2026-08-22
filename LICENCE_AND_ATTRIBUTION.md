@@ -27,11 +27,26 @@ national demand and generation figures from the **ENTSO-E TYNDP 2026 scenarios**
 is permitted on that basis, and the credit form is "© ENTSO-E TYNDP 2026 Scenarios,
 CC BY 4.0".
 
-Two limits on what those figures are. They are national totals: anything shown below
+One limit on what those figures are: they are national totals. Anything shown below
 national level in the web map is `inferred:`, shared out by OSM patterns as a
-visualisation weight, and is not a forecast. And this covers the **scenario figures
-only** - the TYNDP project portfolio is not open data, is not redistributed here, and
-is not a source of any layer in this repository.
+visualisation weight, and is not a forecast.
+
+### TYNDP 2026 project portfolio - separate licence, published by permission
+
+`docs/tyndp_projects_2026.geojson` holds the **ENTSO-E TYNDP 2026 project portfolio**
+(preliminary draft): transmission and storage projects with their published
+commissioning years, and the study corridors drawn around them. This is a **different
+artefact from the scenario figures above and is NOT open data** - ENTSO-E publishes it
+"all rights reserved". It appears here **with ENTSO-E's permission, granted
+2026-08-22**, and the credit form is "© ENTSO-E, TYNDP 2026 project portfolio,
+published with permission".
+
+That permission covers this repository and its web map. It does not relicense the
+portfolio: anyone wanting to reuse it should approach ENTSO-E
+(tyndp@entsoe.eu) rather than treat it as ODbL or CC BY material like the rest of this
+repository. The project geometries and commissioning years are ENTSO-E's own; where
+this repository's own planned-development layer cites a TYNDP investment number, that
+number is quoted verbatim from a national plan, not taken from the portfolio.
 
 ## Method attribution
 
