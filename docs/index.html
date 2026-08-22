@@ -124,9 +124,12 @@
          lists ~95 project clusters; none are here yet), <b>Croatia</b>, <b>Lithuania</b>,
          <b>Belgium</b> (four concurrent statutory plans, federal and regional, of which one is
          reflected here), <b>Italy</b> (Terna's PdS 2025 has 232 interventi against the 67 shown),
-         <b>France</b> (RTE's SDDR 2025 publishes no project list at all, so only 13 schemes could
-         be extracted) and <b>Sweden</b> and <b>Norway</b>. Great Britain, Germany, Denmark, the
-         Netherlands, Hungary and Spain are the best covered. <b>Read a sparse country as "not yet harvested", never as
+         <b>Sweden</b>. Great Britain, Germany, Denmark, the Netherlands, Hungary and Spain are the
+         best covered from national plans. <b>France</b> and <b>Norway</b> are covered a different
+         way, because neither TSO publishes a project list: France through RTE's SDDR works
+         geometry (2,427 features, by permission) and Norway through NVE's licensing register
+         (1,490 lines not yet built). Those two layers carry no commissioning years, so they sit
+         outside the year slider — the slider governs the dated national-plan schemes only. <b>Read a sparse country as "not yet harvested", never as
          "not being built"</b> — and never compare countries on scheme counts from this map.</p>
       <p><b>ENTSO-E TYNDP&nbsp;2026 projects</b> are the pan-European portfolio, shown alongside the
          national plans and published here <b>with ENTSO-E's permission</b> (the portfolio is
@@ -186,7 +189,7 @@
 // state.lineScale while they are being built.
 const state = { lineScale: 1, year: 2030, scen: "ntp", ddelta: false };
 
-const TILE_VERSION = "20260822c";
+const TILE_VERSION = "20260822d";
 const TILES = {
   linework: `europe_grid_v23_linework.pmtiles?v=${TILE_VERSION}`,
   points:   `europe_grid_v23_points.pmtiles?v=${TILE_VERSION}`,
@@ -605,11 +608,32 @@ async function setupContext() {
              "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 1.8, 12, 5],
              "circle-stroke-color": "#f5f7f6", "circle-stroke-width": 0.6 } });
 
+  // Norway, from NVE's open licensing register. No commissioning years exist
+  // for these, so they are coloured by how far through consenting they are —
+  // consented and awaiting build vs still in licensing — which is the honest
+  // substitute for a date and arguably more informative than one.
+  map.addLayer({ id: "no_licensing", type: "line", source: "context",
+    "source-layer": "no_nve", filter: ["==", ["get", "class"], "in licensing"],
+    layout: { visibility: "none" },
+    paint: { "line-color": "#0d9488", "line-opacity": 0.6, "line-dasharray": [2.2, 1.8],
+             "line-width": scaledWidth("no_licensing", [[4,0.9],[8,1.5],[12,2.6]]) } });
+  map.addLayer({ id: "no_consented", type: "line", source: "context",
+    "source-layer": "no_nve", filter: ["==", ["get", "class"], "consented"],
+    layout: { visibility: "none" },
+    paint: { "line-color": "#0f766e",
+             "line-width": scaledWidth("no_consented", [[4,1.4],[8,2.3],[12,3.8]]) } });
+
   const dev = document.getElementById("legend-dev");
   legendRow(dev, `<span class="swatch dashed" style="border-color:#7c3aed"></span>`,
             "Planned by selected year", ["proj_line_sourced", "proj_line_schematic", "proj_points"], true);
   legendRow(dev, `<span class="swatch dashed" style="border-color:#9ca3af"></span>`,
             "Later &amp; undated plans", ["proj_line_rest", "proj_point_rest"], false);
+  legendRow(dev, `<span class="swatch" style="border-color:#0f766e"></span>`,
+            "Norway — consented, not built", ["no_consented"], false,
+            "Lines NVE has licensed but that are not yet built, from NVE's open licensing register — the only Norwegian source with geometry, since Statnett publishes no project list. NVE states a licensing stage, not a commissioning year, so no service year is shown or inferred. © NVE, open data.");
+  legendRow(dev, `<span class="swatch dashed" style="border-color:#0d9488"></span>`,
+            "Norway — still in licensing", ["no_licensing"], false,
+            "Notified, in consultation, or under assessment at NVE. The concession stage is carried verbatim from NVE's published domain. © NVE, open data.");
   legendRow(dev, `<span class="swatch" style="border-color:#5b21b6"></span>`,
             "France SDDR 2025 — new build", ["fr_new"], false,
             "RTE's SDDR 2025 works, from the Cart'Elec map built for the CNDP public debate. New-build lines. RTE publishes no scheme names, commissioning years or voltages for these, so none are shown. © RTE/CNDP, by permission — not open data.");
@@ -763,6 +787,8 @@ function styleKeyRow(color, dashed, text) {
 
 const POPUP_TITLES = {
   tyndp: p => p.name || "ENTSO-E TYNDP 2026 project",
+  no_nve: p => p.name || "Norwegian network project (NVE)",
+  fr_sddr: p => (p.region ? `RTE SDDR — ${p.region}` : "RTE SDDR 2025 works"),
   ac_lines: f => (f.ref || f.line_label || "AC line"),
   dc_links: f => (f.name || "DC link"),
   sites: f => (f.station_name || f.bus_id || "Site"),
@@ -816,6 +842,19 @@ function popupBody(f) {
   const props = f.properties;
   const h = horizonFor(state.year, state.scen);
   const selLabel = `${SCEN_LABEL[state.scen]} ${h}`;
+  if (f.sourceLayer === "no_nve") {
+    const rows = [
+      ["asset", props.asset],
+      ["consenting stage", props.stage],
+      ["developer", props.developer],
+      ["NVE case", props.case],
+      ["case title", props.case_title],
+      ["commissioning year", "not published by NVE — " + props.note],
+      ["source", props.source],
+      ["licence", props.licence],
+    ].filter(([, v]) => v !== null && v !== undefined && v !== "");
+    return rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${cell(v)}</td></tr>`).join("");
+  }
   if (f.sourceLayer === "fr_sddr") {
     const rows = [
       ["type", {new: "new-build line", adaptation: "reinforcement / connection works",

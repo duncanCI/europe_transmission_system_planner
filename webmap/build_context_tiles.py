@@ -98,6 +98,9 @@ FULL_LAYERS = {
     # other planned layers: France is already the worst-covered large country
     # and thinning it at zoom would compound that.
     "fr_sddr": "fr_sddr_public.geojson",
+    # NVE's licensing register (Norway, open data). Statnett publishes no
+    # project list, so this is the only Norwegian source with geometry.
+    "no_nve": "no_nve_public.geojson",
 }
 # dense context layers: z4+ (viewer minzoom), -r1, size-guard backstop
 CONTEXT_LAYERS = {
