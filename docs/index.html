@@ -38,6 +38,17 @@
   .swatch.dashed { border-top-style:dashed; }
   .swatch.dot { width:9px; height:9px; border-radius:50%; border:none; }
   .swatch.sq { width:9px; height:9px; border:none; }
+  .displayctl { margin-top:10px; border-top:1px solid var(--rule); padding-top:8px;
+                color:var(--muted); font-size:12px; }
+  .displayctl label { display:block; }
+  .displayctl output { color:#3b5f7a; font-weight:700; font-variant-numeric:tabular-nums; }
+  .displayctl input[type=range] { width:100%; accent-color:#3b5f7a; }
+  .stylekey { margin-top:8px; color:var(--muted); line-height:1.5;
+              border-top:1px solid var(--rule); padding-top:7px; }
+  .stylekey > summary { cursor:pointer; font-weight:600; font-size:12px;
+                        color:var(--ink); list-style-position:outside; }
+  .stylekey .k { display:flex; align-items:center; gap:7px; padding:1.5px 0; }
+  .stylekey .k span:last-child { flex:1; }
   details { margin-top:8px; border-top:1px solid var(--rule); padding-top:8px; }
   details summary { cursor:pointer; font-weight:600; font-size:12px; }
   details p { margin:6px 0; color:var(--muted); line-height:1.45; }
@@ -80,6 +91,10 @@
     <div id="legend-lines"></div>
     <h2 style="margin-top:10px">Other layers</h2>
     <div id="legend-other"></div>
+    <div class="displayctl">
+      <label for="linescale">Line thickness <output id="scaleout">1.0&times;</output></label>
+      <input id="linescale" type="range" min="0.5" max="3" step="0.1" value="1">
+    </div>
     <div id="legend-dev-section" hidden>
       <h2 style="margin-top:10px">Development &amp; scenarios</h2>
       <div id="legend-dev"></div>
@@ -140,6 +155,10 @@
 // every byte offset a returning visitor has cached. Without a version stamp
 // the browser serves stale ranges from the old file and the source fails to
 // load entirely. Bump TILE_VERSION on every tile rebuild.
+// Declared before anything can call setup(): the line layers read
+// state.lineScale while they are being built.
+const state = { lineScale: 1, year: 2030, scen: "ntp", ddelta: false };
+
 const TILE_VERSION = "20260822";
 const TILES = {
   linework: `europe_grid_v23_linework.pmtiles?v=${TILE_VERSION}`,
@@ -225,13 +244,15 @@ function setup() {
       id: "ac_" + c.min, type: "line", source: "linework", "source-layer": "ac_lines",
       filter: ["all", ...classFilter.slice(1), ["!", UNDER_CONSTRUCTION]],
       paint: { "line-color": c.color,
-               "line-width": ["interpolate", ["linear"], ["zoom"], 4, c.width * 0.55, 8, c.width, 12, c.width * 2.2] },
+               "line-width": scaledWidth("ac_" + c.min,
+                 [[4, c.width * 0.55], [8, c.width], [12, c.width * 2.2]]) },
     });
     map.addLayer({
       id: "ac_uc_" + c.min, type: "line", source: "linework", "source-layer": "ac_lines",
       filter: ["all", ...classFilter.slice(1), UNDER_CONSTRUCTION],
       paint: { "line-color": c.color, "line-dasharray": [2.2, 1.6],
-               "line-width": ["interpolate", ["linear"], ["zoom"], 4, c.width * 0.55, 8, c.width, 12, c.width * 2.2] },
+               "line-width": scaledWidth("ac_uc_" + c.min,
+                 [[4, c.width * 0.55], [8, c.width], [12, c.width * 2.2]]) },
     });
   }
 
@@ -240,13 +261,13 @@ function setup() {
     filter: IS_TRACTION,
     layout: { visibility: "none" },
     paint: { "line-color": "#7d8a91", "line-dasharray": [1.4, 1.8],
-             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.5, 8, 1.0, 12, 2.0] },
+             "line-width": scaledWidth("traction", [[4,0.5],[8,1.0],[12,2.0]]) },
   });
 
   map.addLayer({
     id: "dc_links", type: "line", source: "linework", "source-layer": "dc_links",
     paint: { "line-color": "#0e7490",
-             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 1.4, 8, 2.4, 12, 4.0] },
+             "line-width": scaledWidth("dc_links", [[4,1.4],[8,2.4],[12,4.0]]) },
   });
 
   map.addLayer({
@@ -264,6 +285,7 @@ function setup() {
   });
 
   buildLegend();
+  wireDisplayControls();
   wirePopups();
   setupContext();
 }
@@ -275,7 +297,6 @@ if (map.isStyleLoaded()) setup();
 const SOURCED_GEOM = ["sourced NESO line", "sourced NESO future circuit", "sourced NESO point"];
 const HORIZONS = { ntp: [2030, 2035, 2040], lev: [2035, 2040], hev: [2035, 2040] };
 const SCEN_LABEL = { ntp: "NT+", lev: "LEV", hev: "HEV" };
-const state = { year: 2030, scen: "ntp", ddelta: false };
 
 function horizonFor(year, scen) {
   const hs = HORIZONS[scen];
@@ -456,12 +477,12 @@ async function setupContext() {
     "source-layer": "projects",
     filter: ["all", ["all", isLine, sourcedGeom], datedFilter("dated")],
     paint: { "line-color": projColor,
-             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 1.6, 8, 2.6, 12, 4.2] } });
+             "line-width": scaledWidth("proj_line_sourced", [[4,1.6],[8,2.6],[12,4.2]]) } });
   map.addLayer({ id: "proj_line_schematic", type: "line", source: "context",
     "source-layer": "projects",
     filter: ["all", ["all", isLine, ["!", sourcedGeom]], datedFilter("dated")],
     paint: { "line-color": projColor, "line-dasharray": [2.4, 1.8],
-             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 1.2, 8, 2.0, 12, 3.4] } });
+             "line-width": scaledWidth("proj_line_schematic", [[4,1.2],[8,2.0],[12,3.4]]) } });
   map.addLayer({ id: "proj_points", type: "circle", source: "context",
     "source-layer": "projects",
     filter: ["all", ["all", isPoint], datedFilter("dated")],
@@ -472,7 +493,7 @@ async function setupContext() {
     "source-layer": "projects", layout: { visibility: "none" },
     filter: ["all", ["all", isLine], datedFilter("rest")],
     paint: { "line-color": "#9ca3af", "line-dasharray": [1.6, 2.0], "line-opacity": 0.6,
-             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 1.0, 8, 1.6, 12, 2.6] } });
+             "line-width": scaledWidth("proj_line_rest", [[4,1.0],[8,1.6],[12,2.6]]) } });
   map.addLayer({ id: "proj_point_rest", type: "circle", source: "context",
     "source-layer": "projects", layout: { visibility: "none" },
     filter: ["all", ["all", isPoint], datedFilter("rest")],
@@ -500,7 +521,7 @@ async function setupContext() {
     filter: ["all", ["==", ["geometry-type"], "LineString"], tyndpYearFilter()],
     layout: { visibility: "none" },
     paint: { "line-color": "#06b6d4", "line-dasharray": [4, 1.6],
-             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 1.6, 8, 2.6, 12, 4.0] } });
+             "line-width": scaledWidth("tyndp_lines", [[4,1.6],[8,2.6],[12,4.0]]) } });
   map.addLayer({ id: "tyndp_points", type: "circle", source: "context",
     "source-layer": "tyndp",
     filter: ["all", ["==", ["geometry-type"], "Point"], tyndpYearFilter()],
@@ -590,6 +611,35 @@ function legendRow(parent, swatchHtml, label, ids, startOn) {
   parent.appendChild(row);
 }
 
+// Every line layer registers the base widths it was built from, so the
+// thickness slider can rescale the whole map without each layer having to
+// know about the others.
+const LINE_BASES = {};
+function scaledWidth(id, stops) {
+  LINE_BASES[id] = stops;
+  return widthExpr(stops);
+}
+function widthExpr(stops) {
+  const k = state.lineScale;
+  return ["interpolate", ["linear"], ["zoom"],
+          ...stops.flatMap(([z, w]) => [z, w * k])];
+}
+function applyLineScale() {
+  for (const [id, stops] of Object.entries(LINE_BASES)) {
+    if (map.getLayer(id)) map.setPaintProperty(id, "line-width", widthExpr(stops));
+  }
+  const out = document.getElementById("scaleout");
+  if (out) out.textContent = state.lineScale.toFixed(1) + "\u00d7";
+}
+function wireDisplayControls() {
+  const sl = document.getElementById("linescale");
+  if (!sl) return;
+  sl.addEventListener("input", () => {
+    state.lineScale = +sl.value;
+    applyLineScale();
+  });
+}
+
 function buildLegend() {
   const lines = document.getElementById("legend-lines");
   for (const c of VOLTAGE_CLASSES) {
@@ -601,10 +651,26 @@ function buildLegend() {
   legendRow(other, `<span class="swatch dot" style="background:#1f2937"></span>`, "Substations / buses (z5+)", ["sites"], true);
   legendRow(other, `<span class="swatch dot" style="background:#b45309"></span>`, "Transformers (z8+)", ["transformers"], false);
   legendRow(other, `<span class="swatch dashed" style="border-color:#7d8a91"></span>`, "Railway traction 16.7 Hz", ["traction"], false);
-  const note = document.createElement("div");
-  note.style.cssText = "color:var(--muted); margin-top:6px;";
-  note.textContent = "Dashed lines: mapped as under construction.";
-  other.appendChild(note);
+  // Dashed means different things on different layers, which is confusing
+  // without an explicit key. Spell each one out.
+  const key = document.createElement("details");
+  key.className = "stylekey";
+  key.innerHTML =
+    `<summary>Line styles: solid vs dashed</summary>` +
+    styleKeyRow("#33a02c", false, "<b>Solid</b>, voltage colour — existing circuit, in service") +
+    styleKeyRow("#33a02c", true,  "<b>Dashed</b>, voltage colour — tagged under construction in OpenStreetMap") +
+    styleKeyRow("#7c3aed", false, "<b>Solid</b> violet — planned scheme drawn with published plan geometry") +
+    styleKeyRow("#7c3aed", true,  "<b>Dashed</b> violet — planned scheme as a straight schematic between matched endpoints; <b>not a route</b>") +
+    styleKeyRow("#06b6d4", true,  "<b>Dashed</b> cyan — ENTSO-E TYNDP 2026 project") +
+    styleKeyRow("#7d8a91", true,  "<b>Dashed</b> grey, thin — 16.7 Hz railway traction, a separate network") +
+    `<div style="margin-top:5px">Line thickness is a display setting only — it never encodes ` +
+    `capacity. Voltage is the colour.</div>`;
+  other.appendChild(key);
+}
+
+function styleKeyRow(color, dashed, text) {
+  const style = `border-top:3px ${dashed ? "dashed" : "solid"} ${color}; width:26px; flex:none;`;
+  return `<div class="k"><span style="${style}"></span><span>${text}</span></div>`;
 }
 
 const POPUP_TITLES = {
@@ -749,8 +815,18 @@ function wirePopups() {
   const clickable = () => map.getStyle().layers
     .filter(l => ["linework", "points", "context"].includes(l.source))
     .map(l => l.id);
+  // A 1-2 px line is hard to hit. Try the exact point first so a deliberate
+  // click still wins, then widen to a small box around the cursor.
+  const HIT_PX = 7;
+  const pick = (pt) => {
+    const layers = clickable();
+    const exact = map.queryRenderedFeatures(pt, { layers });
+    if (exact.length) return exact;
+    const box = [[pt.x - HIT_PX, pt.y - HIT_PX], [pt.x + HIT_PX, pt.y + HIT_PX]];
+    return map.queryRenderedFeatures(box, { layers });
+  };
   map.on("click", e => {
-    const feats = map.queryRenderedFeatures(e.point, { layers: clickable() });
+    const feats = pick(e.point);
     if (!feats.length) return;
     const f = feats[0];
     const title = (POPUP_TITLES[f.sourceLayer] || (() => f.sourceLayer))(f.properties);
@@ -760,8 +836,7 @@ function wirePopups() {
       .addTo(map);
   });
   map.on("mousemove", e => {
-    const feats = map.queryRenderedFeatures(e.point, { layers: clickable() });
-    map.getCanvas().style.cursor = feats.length ? "pointer" : "";
+    map.getCanvas().style.cursor = pick(e.point).length ? "pointer" : "";
   });
 }
 </script>
