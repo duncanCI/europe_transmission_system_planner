@@ -3,9 +3,10 @@
 context layers behind the map's year slider.
 
 Tile layers built from the sanitised public export (a set of GeoJSON files)
-produced by internal compilation tooling. Everything in them is public-plan
-fact with per-feature citations; attribute values - including the
-sourced:/inferred:/unknown provenance prefixes - pass through verbatim.
+produced by internal compilation tooling. Attribute values - including the
+sourced:/inferred:/unknown provenance prefixes - pass through verbatim. Most
+layers are public-plan or OSM fact with per-feature citations; the `tyndp`
+layer is the exception and carries its own licence (see below).
 
   projects           Planned grid developments compiled from public national
                      and TSO network development plans (NESO "Beyond 2030",
@@ -18,6 +19,15 @@ sourced:/inferred:/unknown provenance prefixes - pass through verbatim.
                      plan geometry (geometry_kind says so) or a straight
                      schematic between matched public endpoint locations -
                      never a route alignment.
+
+  tyndp              ENTSO-E TYNDP 2026 project portfolio (preliminary draft):
+                     transmission and storage projects with ENTSO-E's own
+                     commissioning years, plus the study corridors drawn
+                     around them - broad zones under study, NOT routes. This
+                     is NOT open data: the scenario figures are CC BY 4.0 but
+                     the project portfolio is ENTSO-E's, published here by
+                     permission granted 2026-08-22. See
+                     LICENCE_AND_ATTRIBUTION.md before reusing it.
 
   scenario_stations  One point per >=220 kV backbone station with TYNDP 2026
                      scenario demand and generation (NT+ 2030/35/40, LEV and
@@ -32,8 +42,13 @@ scenario_totals.json (copied to docs/ by this script), so scenario and
 horizon switching needs no tile rebuild.
 
 Tiling contract (fixes the "schemes vanish when you zoom out" defect):
-projects are the CONTENT of the year slider, so they are tiled with no
-feature dropping at any zoom (a raised per-tile byte budget instead). The
+projects and the TYNDP portfolio are the CONTENT of the year slider, so they
+are tiled with no RATE or SIZE dropping at any zoom (a raised per-tile byte
+budget instead of --drop-densest-as-needed). Note the residual limit: a
+feature shorter than one tile coordinate unit still collapses geometrically,
+which costs a few percent at z0-z1 only (projects 2,971 of 3,026; tyndp 266 of
+284) and nothing from z2 up, where counts exceed the source through
+tile-boundary duplication. The
 dense context point/polygon layers start at z4 - matching the viewer's layer
 minzooms - with -r1 keeping every point and dropping only as a last-resort
 tile-size guard. The two runs are merged with tile-join. Everything runs in a

@@ -33,13 +33,19 @@ visualisation weight, and is not a forecast.
 
 ### TYNDP 2026 project portfolio - separate licence, published by permission
 
-`docs/tyndp_projects_2026.geojson` holds the **ENTSO-E TYNDP 2026 project portfolio**
+The vector layer `tyndp` inside `docs/europe_grid_v23_context.pmtiles` holds the
+**ENTSO-E TYNDP 2026 project portfolio**
 (preliminary draft): transmission and storage projects with their published
 commissioning years, and the study corridors drawn around them. This is a **different
 artefact from the scenario figures above and is NOT open data** - ENTSO-E publishes it
 "all rights reserved". It appears here **with ENTSO-E's permission, granted
 2026-08-22**, and the credit form is "© ENTSO-E, TYNDP 2026 project portfolio,
 published with permission".
+
+Some portfolio attributes (voltage, technology, route length) carry
+`attrs_source: sourced:ENTSO-E TYNDP 2024 final plan detail`, meaning the value was
+matched from ENTSO-E's **TYNDP 2024** final plan where the 2026 draft did not state it.
+Both cycles are ENTSO-E's and covered by the same permission and the same credit.
 
 That permission covers this repository and its web map. It does not relicense the
 portfolio: anyone wanting to reuse it should approach ENTSO-E

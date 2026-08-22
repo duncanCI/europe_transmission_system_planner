@@ -67,7 +67,8 @@
     <div class="subtitle">
       Screening-grade transmission topology derived from OpenStreetMap — not survey-grade, not an
       asset register, not operational data. 36 countries, 50–750&nbsp;kV, with planned developments
-      from public plans and TYNDP&nbsp;2026 scenario context.
+      from national and TSO plans, the ENTSO-E TYNDP&nbsp;2026 project portfolio (by permission)
+      and TYNDP&nbsp;2026 scenario context.
       Dataset: <a href="https://doi.org/10.5281/zenodo.22043867">DOI 10.5281/zenodo.22043867</a> ·
       <a href="https://github.com/duncanCI/europe_transmission_system_planner">method &amp; pipeline</a>
     </div>
@@ -142,6 +143,12 @@
          default (the median of sourced OSM ratings for that technology) as a separate, clearly
          labelled row — never as an OSM figure. Battery storage is the separate <b>Flexibility</b>
          layer and is excluded from the generation-capacity readout.</p>
+      <p><b>Licensing in one line:</b> the data is OpenStreetMap-derived and carries
+         ODbL&nbsp;1.0; the code is MIT; the ENTSO-E TYNDP&nbsp;2026 <i>scenario figures</i> are
+         CC&nbsp;BY&nbsp;4.0; the ENTSO-E TYNDP&nbsp;2026 <i>project portfolio</i> is ENTSO-E's and
+         is <b>not open data</b> — it appears here by permission, so approach ENTSO-E
+         (<code>tyndp@entsoe.eu</code>) for your own reuse of it. Full terms:
+         <a href="https://github.com/duncanCI/europe_transmission_system_planner/blob/main/LICENCE_AND_ATTRIBUTION.md">LICENCE_AND_ATTRIBUTION.md</a>.</p>
       <p>Data &copy; OpenStreetMap contributors, ODbL&nbsp;1.0. Method after Xiong et&nbsp;al. (2025),
          with thanks to PyPSA-Eur and pandapower. Basemap by OpenFreeMap / OpenMapTiles.</p>
       <p>Line tiles stop at zoom&nbsp;10 and their geometry is simplified for size at every level,
@@ -305,8 +312,17 @@ function horizonFor(year, scen) {
   return best;
 }
 
+const SLIDER_MAX = 2040;
 function tyndpYearFilter() {
-  return ["any", ["!", ["has", "year"]], ["<=", ["get", "year"], state.year]];
+  // Three cases the portfolio actually contains: a commissioning year the
+  // slider can reach; 7 projects dated past the slider's last year, which
+  // would otherwise be unreachable, so the top of the slider means "2040 and
+  // later"; and 21 with no published year at all, which always show because
+  // hiding them would imply a date ENTSO-E has not given.
+  return ["any",
+          ["!", ["has", "year"]],
+          ["<=", ["get", "year"], state.year],
+          ...(state.year >= SLIDER_MAX ? [[">", ["get", "year"], SLIDER_MAX]] : [])];
 }
 
 function datedFilter(kind) {
@@ -332,6 +348,9 @@ function demandMWExpr() {
     const v = scens[state.scen] && scens[state.scen][h];
     if (v) branches.push(c, ["*", ["get", "d_share"], v]);
   }
+  // a match with no label/output pair is invalid and takes the layer down;
+  // an empty branch list means the scenario/horizon has no national totals
+  if (!branches.length) return 0;
   return ["match", ["get", "country"], ...branches, 0];
 }
 
@@ -537,7 +556,7 @@ async function setupContext() {
             "Later &amp; undated plans", ["proj_line_rest", "proj_point_rest"], false);
   legendRow(dev, `<span class="swatch dashed" style="border-color:#06b6d4"></span>`,
             "TYNDP 2026 lines &amp; storage", ["tyndp_lines", "tyndp_points"], false,
-            "ENTSO-E TYNDP 2026 project portfolio (preliminary draft), published with ENTSO-E's permission. Transmission projects as dashed cyan lines, storage as dots; year-gated by the slider. Commissioning years are ENTSO-E's, not forecasts.");
+            "ENTSO-E TYNDP 2026 project portfolio (preliminary draft), published with ENTSO-E's permission. Transmission projects as dashed cyan lines, storage as dots. Year-gated by the slider on ENTSO-E's commissioning year: at 2040 the layer also shows the 7 projects dated later, and the 21 with no published year are always shown rather than given a date ENTSO-E has not stated. Commissioning years are ENTSO-E's, not forecasts.");
   legendRow(dev, `<span class="swatch sq" style="background:#6366f1;opacity:.45;width:22px;height:10px"></span>`,
             "TYNDP 2026 study corridors", ["tyndp_polys", "tyndp_poly_outline"], false,
             "Translucent violet-blue FILLS are study corridors and areas from the TYNDP 2026 portfolio - broad zones under study, NOT routes and NOT lines.");
@@ -603,9 +622,10 @@ function toggle(ids, on) {
   for (const id of ids) map.setLayoutProperty(id, "visibility", on ? "visible" : "none");
 }
 
-function legendRow(parent, swatchHtml, label, ids, startOn) {
+function legendRow(parent, swatchHtml, label, ids, startOn, title) {
   const row = document.createElement("label");
   row.className = "row";
+  if (title) row.title = title;
   row.innerHTML = `<input type="checkbox" ${startOn ? "checked" : ""}>${swatchHtml}<span>${label}</span>`;
   row.querySelector("input").addEventListener("change", e => toggle(ids, e.target.checked));
   parent.appendChild(row);
@@ -674,6 +694,7 @@ function styleKeyRow(color, dashed, text) {
 }
 
 const POPUP_TITLES = {
+  tyndp: p => p.name || "ENTSO-E TYNDP 2026 project",
   ac_lines: f => (f.ref || f.line_label || "AC line"),
   dc_links: f => (f.name || "DC link"),
   sites: f => (f.station_name || f.bus_id || "Site"),
@@ -742,7 +763,7 @@ function popupBody(f) {
       ["PCI corridor", props.pciCorridor],
       ["source", props.source],
       ["attributes", props.attrs_source],
-      ["note", "&copy; ENTSO-E, published here with permission. Commissioning " +
+      ["note", "\u00a9 ENTSO-E, published here with permission. Commissioning " +
                "years are ENTSO-E's, not forecasts, and this map computes no " +
                "power flows."],
     ].filter(([, v]) => v !== null && v !== undefined && v !== "");

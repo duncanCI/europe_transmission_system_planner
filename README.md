@@ -39,7 +39,9 @@ The viewer also carries a development-and-scenario context layer
 public national and TSO network development plans (NESO
 "Beyond 2030", Terna PdS 2025, RTE's project catalogue, MITECO's 2024
 planning modification, and the plan cited on each feature) behind a
-development-year slider, plus TYNDP 2026 scenario demand and generation
+development-year slider, the ENTSO-E TYNDP 2026 project portfolio (by
+permission; transmission and storage projects plus study corridors, which
+are zones under study and not routes), plus TYNDP 2026 scenario demand and generation
 (NT+ National Trends+, LEV/HEV Low/High Economy Variant; ENTSO-E, CC BY 4.0)
 shared out to OSM populated places and OSM power plants - and to >=220 kV
 backbone stations in the tiles - by population and plant patterns. Limits
@@ -53,7 +55,7 @@ map computes no power flows.
 
 QGIS: open `europe_grid_topology.gpkg`, layers are per voltage; filter `frequency_hz = 50` for the public grid. PyPSA: load `ac_line_all` + `site_all` from the graph file as Lines/Buses, `transformer` and `dc_link` from the topology file (transformer `x_pu`/`r_pu` are per-unit on `s_nom_mva` - do not pair `x_pu` with `s_nom_pypsa_eur_mva` without recomputing); `supporting/_xfer/acid_test_pypsa.py` is a working end-to-end example (all checks PASS, `supporting/acid_report_v23.json`).
 
-Licensing in one line: the **data** is derived from OpenStreetMap and carries **ODbL 1.0**; the **code** in this repository is **MIT** (`LICENSE`). `LICENCE_AND_ATTRIBUTION.md` is the full statement, including the third-party sources and how to credit them.
+Licensing, briefly: the **grid data** is derived from OpenStreetMap and carries **ODbL 1.0**; the **code** is **MIT** (`LICENSE`); the ENTSO-E TYNDP 2026 **scenario figures** are **CC BY 4.0**. One layer is different: the ENTSO-E TYNDP 2026 **project portfolio** (`tyndp` in the context tiles) is **not open data** - it is ENTSO-E's and appears here by permission granted 2026-08-22, so approach ENTSO-E (tyndp@entsoe.eu) for your own reuse of it. `LICENCE_AND_ATTRIBUTION.md` is the full statement.
 
 Three habits keep results honest: check `*_source` columns before quoting any value (`inferred:` and `unknown` mean what they say); never `SUM(p_nom_mw)` over `dc_link` without excluding rows flagged `exclude_from_capacity_sums`; quote lengths from `length_conductor_m`, not drawn geometry.
 
