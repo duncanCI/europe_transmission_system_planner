@@ -86,12 +86,16 @@
     </div>
     <details>
       <summary>About this map</summary>
-      <p><b>Limits first:</b> this is a screening-grade topological dataset. Positions, voltages and
-         ratings carry per-value provenance (<code>sourced:</code>, <code>inferred:</code> or
-         <code>unknown</code>) shown verbatim in the popups. Do not use it as an asset register or
-         for operational decisions.</p>
-      <p><b>Planned developments</b> are compiled from public network development plans
-         (ENTSO-E TYNDP&nbsp;2026 project material and national/TSO plans — NESO "Beyond&nbsp;2030",
+      <p><b>Limits first:</b> this is a screening-grade topological dataset. Per-value provenance
+         travels only with the values that carry a <code>*_source</code> column — line labels,
+         circuit counts, frequency, DC link ratings and transformer parameters — and those source
+         values are shown verbatim in the popups. Positions, voltages and AC line ratings have no
+         provenance column. Every AC line rating in the dataset is a typed value inferred from
+         voltage and circuit count (a standard conductor type applied by rule), not a measured or
+         operator-published rating. Do not use it as an asset register, as investment evidence, or for
+         operational decisions.</p>
+      <p><b>Planned developments</b> are compiled from public national and TSO network development
+         plans (NESO "Beyond&nbsp;2030",
          Terna PdS&nbsp;2025, RTE's project catalogue, MITECO's 2024 planning modification, and the
          plan cited on each feature). Service years are promoter-stated, shown verbatim — not
          forecasts, not delivery promises. Except where marked as sourced plan geometry, project
@@ -105,9 +109,22 @@
          power flows. The economy variants alter demand; their installed-capacity mix is nearly
          identical, so generation circles barely move between NT+/LEV/HEV — that is the scenarios,
          not a bug.</p>
+      <p><b>What the circles leave out.</b> The circles draw only places of &ge;5,000 population
+         and plants of &ge;10&nbsp;MW OSM weight, so they carry <i>part</i> of each national total —
+         49–96% of a country's demand, and as little as 0.26% of a given country-and-technology
+         capacity where the fleet is mostly sub-10&nbsp;MW sites (Greek solar). Shares are deliberately <b>not</b> renormalised onto the circles that
+         survive the cutoff: that would keep the national sum right by labelling a 10&nbsp;MW site
+         with gigawatts. Where a coverage figure can be computed, the popup states it; a few country-and-technology combinations have no TYNDP total to be a fraction of, and say so rather than guess. Read the circles as
+         where capacity and demand sit, never as a national total. Plant weights keep their own
+         provenance too: where OSM publishes no rating the popup says so and shows the assumed
+         default (the median of sourced OSM ratings for that technology) as a separate, clearly
+         labelled row — never as an OSM figure. Battery storage is the separate <b>Flexibility</b>
+         layer and is excluded from the generation-capacity readout.</p>
       <p>Data &copy; OpenStreetMap contributors, ODbL&nbsp;1.0. Method after Xiong et&nbsp;al. (2025),
          with thanks to PyPSA-Eur and pandapower. Basemap by OpenFreeMap / OpenMapTiles.</p>
-      <p>Lines are simplified for display above zoom&nbsp;11; the GeoPackages on Zenodo hold full geometry.</p>
+      <p>Line tiles stop at zoom&nbsp;10 and their geometry is simplified for size at every level,
+         including z10; the viewer overzooms above that, so no further detail appears. The
+         GeoPackages on Zenodo hold full geometry.</p>
     </details>
   </div>
 </div>
@@ -344,7 +361,8 @@ function applyContextState() {
     const base = (TOTALS.readout.ntp || {})[h];
     let text = r
       ? `Europe-wide: ~${r.demand_avg_gw.toLocaleString()} GW average demand · ` +
-        `${r.generation_gw.toLocaleString()} GW installed capacity (${SCEN_LABEL[state.scen]} ${h})`
+        `${r.generation_gw.toLocaleString()} GW installed generation capacity, ` +
+        `battery storage excluded (${SCEN_LABEL[state.scen]} ${h})`
       : "";
     if (r && base && state.scen !== "ntp") {
       const pct = 100 * (r.demand_avg_gw - base.demand_avg_gw) / base.demand_avg_gw;
@@ -484,7 +502,7 @@ async function setupContext() {
     cta.target = "_blank"; cta.rel = "noopener";
     cta.style.cssText = "display:block; margin-top:8px; padding:7px 9px; border:1px solid #7c3aed;" +
       "border-radius:6px; color:#7c3aed; text-decoration:none; font-weight:600; text-align:center;";
-    cta.textContent = "Which corridors run out of headroom first? Request the N-1 stress layer →";
+    cta.textContent = "Screening-grade N-1 stress screen — post-fault headroom per GW of scenario-shaped transfer (PTDF/LODF, typed ratings), not a loading forecast. Request access →";
     dev.appendChild(cta);
   }
   document.getElementById("legend-dev-section").hidden = false;
@@ -555,6 +573,31 @@ function cell(v) {
 
 const INFER_NOTE = "inferred: national TYNDP 2026 figures (ENTSO-E, CC BY 4.0) shared out by OSM patterns — visualization weights, not forecasts";
 
+// Display cutoffs drop the small places and plants, so the circles on screen
+// carry only part of each national total (0.49-0.96 of demand; as little as
+// 0.003 of a country's solar). Shares are NOT renormalised onto the survivors
+// - that would label a 10 MW site with gigawatts - so every popup states the
+// coverage the circles actually carry.
+function coverageRow(kind, country, group) {
+  const dc = TOTALS && TOTALS.display_coverage;
+  if (!dc) return "";
+  const frac = kind === "demand"
+    ? (dc.demand || {})[country]
+    : ((dc.generation || {})[country] || {})[group];
+  if (frac == null) return "";
+  const cut = kind === "demand"
+    ? `places \u2265 ${(+dc.min_place_population).toLocaleString()} population`
+    : `plants \u2265 ${dc.min_plant_mw} MW OSM weight`;
+  const what = kind === "demand"
+    ? `${esc(country)} demand`
+    : `${esc(country)} ${esc(group)} capacity`;
+  const rest = kind === "demand" ? "smaller places" : "smaller plants";
+  return `<tr><td>displayed coverage</td><td>circles shown here carry ` +
+    `${(frac * 100).toFixed(frac < 0.1 ? 2 : 1)}% of ${what} (${cut}); the ` +
+    `rest sits in ${rest} this map does not draw and is not added to ` +
+    `the circles shown</td></tr>`;
+}
+
 function popupBody(f) {
   const props = f.properties;
   const h = horizonFor(state.year, state.scen);
@@ -573,14 +616,28 @@ function popupBody(f) {
     return `<tr><td>population</td><td>${(+props.population).toLocaleString()} (OSM)</td></tr>` +
       `<tr><td>avg demand, ${selLabel}</td><td>${mw != null ? Math.round(mw).toLocaleString() + " MW" : "—"}</td></tr>` + vs +
       `<tr><td>share of ${esc(props.country)} demand</td><td>${(props.d_share * 100).toFixed(2)}%</td></tr>` +
+      coverageRow("demand", props.country) +
       `<tr><td>provenance</td><td>${INFER_NOTE}</td></tr>`;
   }
   if ((f.sourceLayer === "plants" || f.sourceLayer === "plant_polys") && TOTALS) {
     const t = ((TOTALS.generation_capacity_mw[props.country] || {})[props.group] || {})[state.scen];
     const mw = t && t[h] ? props.g_share * t[h] : null;
+    // props.rating is the provenance CLASS of the OSM electricity rating, not
+    // a rating: "sourced" = weight_mw is what OSM publishes for this plant;
+    // "unknown" = OSM publishes none and weight_mw is an assumed default.
+    // Never print an assumed default as though OSM had published it.
+    const ratedRow = props.rating === "sourced"
+      ? `<tr><td>OSM capacity</td><td>${props.weight_mw} MW ` +
+        `(sourced: OSM <code>plant:output:electricity</code>)</td></tr>`
+      : `<tr><td>OSM capacity</td><td>unknown — OSM publishes no rating for ` +
+        `this plant</td></tr>` +
+        `<tr><td>assumed weight</td><td>${props.weight_mw} MW (inferred: ` +
+        `median of sourced OSM ratings for ${esc(props.group)} — a sharing-out ` +
+        `default, not this plant's capacity)</td></tr>`;
     return `<tr><td>technology</td><td>${esc(props.group)}</td></tr>` +
-      `<tr><td>OSM weight</td><td>${props.weight_mw} MW (${esc(props.rating)} rating)</td></tr>` +
+      ratedRow +
       `<tr><td>capacity, ${selLabel}</td><td>${mw != null ? Math.round(mw).toLocaleString() + " MW" : "—"}</td></tr>` +
+      coverageRow("generation", props.country, props.group) +
       `<tr><td>provenance</td><td>${INFER_NOTE}</td></tr>`;
   }
   if (f.sourceLayer === "scenario_stations") {
@@ -595,9 +652,17 @@ function popupBody(f) {
       `disaggregated by OSM population / plant patterns — visualization weights, not forecasts</td></tr>`);
     return rows.join("");
   }
-  return Object.entries(props)
+  const generic = Object.entries(props)
     .filter(([, v]) => v !== null && v !== undefined && v !== "")
     .map(([k, v]) => `<tr><td>${esc(k)}</td><td>${cell(v)}</td></tr>`).join("");
+  // [REDACTED] is the publisher's own redaction in the cited document (Ofgem /
+  // promoter), carried through verbatim - this map removes nothing.
+  if (Object.values(props).some(v => typeof v === "string" && v.includes("[REDACTED]"))) {
+    return generic + `<tr><td>note</td><td>[REDACTED] is redacted in the cited source document ` +
+      `itself (an Ofgem / promoter redaction, carried through verbatim) — this project removed ` +
+      `nothing.</td></tr>`;
+  }
+  return generic;
 }
 
 function wirePopups() {

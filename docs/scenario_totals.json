@@ -586,6 +586,332 @@
    }
   }
  },
+ "display_coverage": {
+  "demand": {
+   "AL": 0.8778,
+   "AT": 0.5897,
+   "BA": 0.6667,
+   "BE": 0.918,
+   "BG": 0.898,
+   "CH": 0.6387,
+   "CZ": 0.5938,
+   "DE": 0.8206,
+   "DK": 0.7585,
+   "EE": 0.8862,
+   "ES": 0.8566,
+   "FI": 0.9114,
+   "FR": 0.6138,
+   "GB": 0.9638,
+   "GR": 0.7731,
+   "HR": 0.4942,
+   "HU": 0.6838,
+   "IE": 0.913,
+   "IT": 0.7996,
+   "LT": 0.6464,
+   "LU": 0.5313,
+   "LV": 0.8908,
+   "MD": 0.7921,
+   "ME": 0.7434,
+   "MK": 0.9316,
+   "NI": 0.9354,
+   "NL": 0.8464,
+   "NO": 0.8295,
+   "PL": 0.7326,
+   "PT": 0.6826,
+   "RO": 0.5313,
+   "RS": 0.6509,
+   "SE": 0.8819,
+   "SI": 0.569,
+   "SK": 0.5609,
+   "UA": 0.6516
+  },
+  "generation": {
+   "AL": {
+    "hydro": 0.926,
+    "solar": 0.7901
+   },
+   "AT": {
+    "battery": 0.82,
+    "gas": 0.999,
+    "hydro": 0.9157,
+    "oil": 1.0,
+    "other_res": 0.9635,
+    "solar": 0.0683,
+    "wind_onshore": 0.941
+   },
+   "BA": {
+    "coal": 1.0,
+    "hydro": 0.9688,
+    "solar": 0.2256,
+    "wind_onshore": 1.0
+   },
+   "BE": {
+    "battery": 0.9891,
+    "bioenergy": 0.961,
+    "gas": 1.0,
+    "hydro": 0.9715,
+    "nuclear": 1.0,
+    "other_res": 0.9485,
+    "solar": 0.1339,
+    "wind_onshore": 0.9587
+   },
+   "BG": {
+    "battery": 1.0,
+    "coal": 1.0,
+    "gas": 0.9992,
+    "hydro": 0.9384,
+    "nuclear": 1.0,
+    "other_res": 1.0,
+    "solar": 0.236,
+    "wind_onshore": 0.9341
+   },
+   "CH": {
+    "bioenergy": 0.389,
+    "hydro": 0.9682,
+    "nuclear": 1.0,
+    "other_res": 0.829,
+    "solar": 0.015,
+    "wind_onshore": 0.6928
+   },
+   "CZ": {
+    "battery": 1.0,
+    "coal": 1.0,
+    "gas": 0.9958,
+    "hydro": 0.842,
+    "nuclear": 1.0,
+    "other_res": 1.0,
+    "solar": 0.0532,
+    "wind_onshore": 0.9624
+   },
+   "DE": {
+    "battery": 0.9237,
+    "coal": 0.9993,
+    "gas": 0.996,
+    "hydro": 0.8455,
+    "oil": 0.9931,
+    "other_res": 0.9722,
+    "solar": 0.2557,
+    "wind_onshore": 0.9463
+   },
+   "DK": {
+    "battery": 0.9709,
+    "bioenergy": 0.9411,
+    "gas": 0.9533,
+    "oil": 0.9999,
+    "solar": 0.8713,
+    "wind_offshore": 1.0,
+    "wind_onshore": 0.8725
+   },
+   "EE": {
+    "battery": 1.0,
+    "bioenergy": 0.9876,
+    "gas": 1.0,
+    "other_res": 1.0,
+    "wind_onshore": 0.9023
+   },
+   "ES": {
+    "battery": 1.0,
+    "gas": 0.9989,
+    "hydro": 0.9045,
+    "nuclear": 1.0,
+    "other_res": 0.9993,
+    "solar": 0.6601,
+    "wind_onshore": 0.9816
+   },
+   "FI": {
+    "battery": 0.9825,
+    "bioenergy": 0.9529,
+    "gas": 0.9982,
+    "hydro": 0.9108,
+    "nuclear": 1.0,
+    "other_res": 0.9514,
+    "solar": 0.5746,
+    "wind_onshore": 0.9909
+   },
+   "FR": {
+    "battery": 0.977,
+    "gas": 0.9837,
+    "hydro": 0.9267,
+    "nuclear": 1.0,
+    "oil": 0.9855,
+    "other_res": 0.824,
+    "solar": 0.4946,
+    "wind_onshore": 0.8471
+   },
+   "GB": {
+    "battery": 0.9936,
+    "gas": 0.9951,
+    "hydro": 0.92,
+    "nuclear": 1.0,
+    "other_res": 0.938,
+    "solar": 0.5588,
+    "wind_offshore": 1.0,
+    "wind_onshore": 0.9475
+   },
+   "GR": {
+    "gas": 1.0,
+    "hydro": 0.9886,
+    "oil": 1.0,
+    "other_res": 1.0,
+    "solar": 0.0026,
+    "wind_onshore": 0.9807
+   },
+   "HR": {
+    "battery": 1.0,
+    "coal": 1.0,
+    "gas": 1.0,
+    "hydro": 0.9735,
+    "oil": 1.0,
+    "other_res": 1.0,
+    "wind_onshore": 0.9687
+   },
+   "HU": {
+    "battery": 0.9677,
+    "bioenergy": 0.9349,
+    "gas": 0.9993,
+    "hydro": 0.7099,
+    "nuclear": 1.0,
+    "oil": 0.9898,
+    "other_res": 0.934,
+    "solar": 0.3108,
+    "wind_onshore": 0.9641
+   },
+   "IE": {
+    "battery": 0.9749,
+    "gas": 0.9968,
+    "hydro": 0.9599,
+    "oil": 0.9969,
+    "other_res": 0.9601,
+    "solar": 0.881,
+    "wind_onshore": 0.9186
+   },
+   "IT": {
+    "battery": 1.0,
+    "gas": 1.0,
+    "hydro": 0.8623,
+    "oil": 1.0,
+    "other_res": 0.9958,
+    "solar": 0.0284,
+    "wind_onshore": 0.9932
+   },
+   "LT": {
+    "battery": 0.9979,
+    "gas": 1.0,
+    "hydro": 0.9753,
+    "other_res": 1.0,
+    "solar": 0.4696,
+    "wind_onshore": 0.9673
+   },
+   "LU": {
+    "hydro": 0.987,
+    "wind_onshore": 0.7572
+   },
+   "LV": {
+    "gas": 0.9993,
+    "hydro": 0.8875,
+    "other_res": 1.0,
+    "solar": 0.2849,
+    "wind_onshore": 0.9895
+   },
+   "MD": {
+    "coal": 1.0,
+    "gas": 1.0,
+    "hydro": 1.0
+   },
+   "ME": {
+    "coal": 1.0,
+    "hydro": 0.9643,
+    "wind_onshore": 1.0
+   },
+   "MK": {
+    "coal": 1.0,
+    "gas": 1.0,
+    "hydro": 0.9422,
+    "solar": 0.1786
+   },
+   "NL": {
+    "battery": 0.9115,
+    "bioenergy": 0.9805,
+    "gas": 1.0,
+    "nuclear": 1.0,
+    "other_res": 0.9975,
+    "solar": 0.631,
+    "wind_onshore": 0.9599
+   },
+   "NO": {
+    "gas": 1.0,
+    "hydro": 0.9346,
+    "wind_onshore": 0.9957
+   },
+   "PL": {
+    "battery": 0.9868,
+    "bioenergy": 0.8619,
+    "coal": 0.9989,
+    "gas": 0.9926,
+    "hydro": 0.869,
+    "other_res": 0.844,
+    "solar": 0.1619,
+    "wind_onshore": 0.991
+   },
+   "PT": {
+    "gas": 0.9883,
+    "hydro": 0.9548,
+    "other_res": 0.9323,
+    "solar": 0.4726,
+    "wind_onshore": 0.9461
+   },
+   "RO": {
+    "coal": 1.0,
+    "gas": 0.9976,
+    "hydro": 0.9298,
+    "nuclear": 1.0,
+    "solar": 0.388,
+    "wind_onshore": 0.9789
+   },
+   "RS": {
+    "coal": 1.0,
+    "gas": 0.9866,
+    "hydro": 0.9839,
+    "other_res": 1.0,
+    "solar": 0.2867,
+    "wind_onshore": 0.9342
+   },
+   "SE": {
+    "battery": 1.0,
+    "gas": 0.9921,
+    "hydro": 0.8747,
+    "nuclear": 1.0,
+    "other_res": 0.9827,
+    "solar": 0.2081,
+    "wind_onshore": 0.9933
+   },
+   "SI": {
+    "coal": 1.0,
+    "gas": 1.0,
+    "hydro": 0.918,
+    "nuclear": 1.0,
+    "other_res": 1.0
+   },
+   "SK": {
+    "coal": 1.0,
+    "gas": 1.0,
+    "hydro": 0.9573,
+    "nuclear": 1.0
+   },
+   "UA": {
+    "coal": 1.0,
+    "gas": 1.0,
+    "hydro": 0.9702,
+    "nuclear": 1.0,
+    "other_res": 1.0,
+    "solar": 0.4791,
+    "wind_onshore": 0.9323
+   }
+  },
+  "min_place_population": 5000,
+  "min_plant_mw": 10.0,
+  "note": "fraction of the national TYNDP total carried by the circles this map displays; the remainder sits in OSM places and plants below the display cutoffs and is not redistributed onto the circles shown"
+ },
  "generation_capacity_mw": {
   "AL": {
    "gas": {

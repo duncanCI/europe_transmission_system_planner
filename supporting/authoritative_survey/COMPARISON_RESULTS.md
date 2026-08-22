@@ -80,8 +80,8 @@ wanted later. One line per folder on disk:
 | BE - NGI Top10Vector | keep ours | subset, voltage is an undecoded 1-6 code |
 | LU - INSPIRE cadastre | eyeball in QGIS | 15% mutual disagreement on 644 km - too small to automate, too big to ignore |
 | IT Veneto / Basilicata / Bolzano / Arezzo | keep ours | regional files covering 41-51% of their own region's HV grid, mostly voltage-less; no action |
-| CH - Sachplan corridors | not topology - **feed the register** | 74 facilities + 158 federal planning measures = future-corridor pipeline, compelling-event material |
-| GB - NESO ETYS boundaries | not topology - keep for the screen | 34 study boundaries to label congestion-screen corridors the way NESO does |
+| CH - Sachplan corridors | not topology - planned-corridor source | 74 facilities + 158 federal planning measures = future-corridor pipeline, planned-corridor material |
+| GB - NESO ETYS boundaries | not topology - congestion-screening reference | 34 study boundaries to label congestion-screen corridors the way NESO does |
 | CH anlagen / ES CNIG / SI / GB SSEN / NL Liander | not fetched (portal sessions / wrong layer ids) | fixes in download_round2.sh, none blocks anything |
 
 Net: one merge (Norway), two side-products (CH Sachplan -> register, ETYS ->

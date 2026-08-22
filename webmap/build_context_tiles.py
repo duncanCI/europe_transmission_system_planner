@@ -2,18 +2,19 @@
 """Build docs/europe_grid_v23_context.pmtiles - the temporal and scenario
 context layers behind the map's year slider.
 
-Two tile layers, built from the sanitised public export (two GeoJSON files)
+Tile layers built from the sanitised public export (a set of GeoJSON files)
 produced by internal compilation tooling. Everything in them is public-plan
 fact with per-feature citations; attribute values - including the
 sourced:/inferred:/unknown provenance prefixes - pass through verbatim.
 
-  projects           Planned grid developments compiled from public network
-                     development plans: ENTSO-E TYNDP 2026 project material
-                     and national/TSO plans (NESO "Beyond 2030", Terna PdS
-                     2025, RTE's project catalogue, MITECO's 2024 planning
-                     modification, and the plans cited per feature in
-                     source_doc/source_url). Promoter-stated service windows
-                     with verbatim date language. Geometry is either sourced
+  projects           Planned grid developments compiled from public national
+                     and TSO network development plans (NESO "Beyond 2030",
+                     Terna PdS 2025, RTE's project catalogue, MITECO's 2024
+                     planning modification, and the plans cited per feature
+                     in source_doc/source_url; TYNDP investment numbers are
+                     quoted only where a national plan states them verbatim).
+                     Promoter-stated service windows with verbatim date
+                     language. Geometry is either sourced
                      plan geometry (geometry_kind says so) or a straight
                      schematic between matched public endpoint locations -
                      never a route alignment.
@@ -28,8 +29,16 @@ sourced:/inferred:/unknown provenance prefixes - pass through verbatim.
 The demand (places) and generation (plants) layers carry static national
 shares; the viewer multiplies them by the national totals in
 scenario_totals.json (copied to docs/ by this script), so scenario and
-horizon switching needs no tile rebuild. -r1 keeps every point at every zoom
-(the tile-size guard still thins the very lowest zooms if needed).
+horizon switching needs no tile rebuild.
+
+Tiling contract (fixes the "schemes vanish when you zoom out" defect):
+projects are the CONTENT of the year slider, so they are tiled with no
+feature dropping at any zoom (a raised per-tile byte budget instead). The
+dense context point/polygon layers start at z4 - matching the viewer's layer
+minzooms - with -r1 keeping every point and dropping only as a last-resort
+tile-size guard. The two runs are merged with tile-join. Everything runs in a
+temp cwd under bare filenames because tippecanoe stamps its full command line
+into the published tile metadata (generator_options).
 
 Usage:
     python webmap/build_context_tiles.py --export-dir path/to/public_export
@@ -40,20 +49,43 @@ from __future__ import annotations
 import argparse
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DOCS = REPO_ROOT / "docs"
 OUT = DOCS / "europe_grid_v23_context.pmtiles"
 
-LAYERS = {
+NAME = "European Grid Topology v23 - development and scenario context"
+ATTRIBUTION = ("&copy; OpenStreetMap contributors ODbL 1.0; "
+               "scenario figures: ENTSO-E TYNDP 2026 Scenarios (CC BY 4.0)")
+
+# never-drop layers: every feature present at every zoom (0-10)
+FULL_LAYERS = {
     "projects": "projects_public.geojson",
+}
+# dense context layers: z4+ (viewer minzoom), -r1, size-guard backstop
+CONTEXT_LAYERS = {
     "scenario_stations": "scenario_stations_public.geojson",
     "places": "places_public.geojson",
     "plants": "plants_public.geojson",
     # present only once the plant-geometry harvest has run
     "plant_polys": "plants_polygons_public.geojson",
 }
+
+
+def layer_args(layers: dict[str, str], export_dir: Path, tmp: Path) -> list[str]:
+    out: list[str] = []
+    for layer, fname in layers.items():
+        path = export_dir / fname
+        if not path.exists():
+            print(f"skipping layer {layer}: {fname} not present")
+            continue
+        link = tmp / fname
+        if not link.exists():
+            link.symlink_to(path.resolve())
+        out += ["-L", f"{layer}:{fname}"]
+    return out
 
 
 def main() -> int:
@@ -63,22 +95,30 @@ def main() -> int:
     args = ap.parse_args()
 
     DOCS.mkdir(parents=True, exist_ok=True)
-    cmd = [
-        "tippecanoe", "-o", str(OUT), "--force", "--quiet",
-        "--name", "European Grid Topology v23 - development and scenario context",
-        "--attribution",
-        "&copy; OpenStreetMap contributors ODbL 1.0; "
-        "scenario figures: ENTSO-E TYNDP 2026 Scenarios (CC BY 4.0)",
-        "--drop-densest-as-needed", "-r1",
-        "--minimum-zoom", "0", "--maximum-zoom", "10",
-    ]
-    for layer, fname in LAYERS.items():
-        path = args.export_dir / fname
-        if not path.exists():
-            print(f"skipping layer {layer}: {fname} not present")
-            continue
-        cmd += ["-L", f"{layer}:{path}"]
-    subprocess.run(cmd, check=True)
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        subprocess.run([
+            "tippecanoe", "-o", "full.pmtiles", "--force", "--quiet",
+            "--name", NAME, "--attribution", ATTRIBUTION,
+            "-r1",   # no point rate-dropping: every project at every zoom
+            "--maximum-tile-bytes", "2500000",
+            "--minimum-zoom", "0", "--maximum-zoom", "10",
+            *layer_args(FULL_LAYERS, args.export_dir, tmp),
+        ], check=True, cwd=tmp)
+        subprocess.run([
+            "tippecanoe", "-o", "ctx.pmtiles", "--force", "--quiet",
+            "--name", NAME, "--attribution", ATTRIBUTION,
+            "-r1", "--drop-densest-as-needed",
+            "--maximum-tile-bytes", "2000000",
+            "--minimum-zoom", "4", "--maximum-zoom", "10",
+            *layer_args(CONTEXT_LAYERS, args.export_dir, tmp),
+        ], check=True, cwd=tmp)
+        subprocess.run([
+            "tile-join", "-o", "merged.pmtiles", "--force", "-pk",
+            "--name", NAME, "--attribution", ATTRIBUTION,
+            "full.pmtiles", "ctx.pmtiles",
+        ], check=True, cwd=tmp)
+        shutil.move(str(tmp / "merged.pmtiles"), OUT)
 
     shutil.copyfile(args.export_dir / "scenario_totals.json",
                     DOCS / "scenario_totals.json")

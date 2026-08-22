@@ -9,12 +9,13 @@ title: >-
 version: v23
 date-released: "2026-08-19"
 authors:
-  - family-names: "<surname>"
+  - family-names: "Cameron-Steel"
     given-names: Duncan
+    email: duncan@continuum.industries
     affiliation: Continuum Industries
 license: ODbL-1.0
 doi: 10.5281/zenodo.22043867
-repository-code: "https://github.com/duncanCI/europe_transmssion_system_planner"
+repository-code: "https://github.com/duncanCI/europe_transmission_system_planner"
 keywords:
   - electricity transmission
   - grid topology
@@ -26,8 +27,7 @@ keywords:
 references:
   - type: article
     title: >-
-      A crowdsourced dataset of the European electricity transmission grid
-      built on OpenStreetMap
+      Modelling the high-voltage grid using open data for Europe and beyond
     authors:
       - family-names: Xiong
         given-names: Bobby
@@ -44,4 +44,5 @@ references:
     journal: Scientific Data
     notes: >-
       The build method follows this paper; this dataset extends it with a
-      50 kV voltage floor, frequency separation and cell-level provenance.
+      50 kV voltage floor, frequency separation, and per-value provenance on
+      typed and derived attributes.

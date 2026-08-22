@@ -6,8 +6,7 @@
 OpenStreetMap, harvested 2026-08-14 via Overpass. They are therefore governed by the
 **Open Database Licence 1.0 (ODbL)**: https://opendatacommons.org/licenses/odbl/1-0/
 
-Three obligations follow, and they apply to a gated download exactly as they apply to
-a public one:
+Three obligations follow:
 
 1. **Attribute.** Any distribution, screenshot, map, report or slide derived from
    these files must credit OpenStreetMap contributors. The standard form is
@@ -19,10 +18,20 @@ a public one:
 3. **Keep it open.** You may not apply technical measures that restrict a
    recipient's rights under the licence.
 
-**What that means for an email gate.** A form in front of the download is a lead
-capture, not a control. Once a recipient has the file they may lawfully redistribute
-it under ODbL, and you cannot licence that away. Gate it to know who is interested,
-not on the assumption that it stays with them.
+## The scenario figures are ENTSO-E's
+
+`docs/scenario_totals.json` and the scenario fields carried in the context tiles hold
+national demand and generation figures from the **ENTSO-E TYNDP 2026 scenarios**
+(National Trends+, and the Low and High Economy Variants), published by ENTSO-E under
+**CC BY 4.0**: https://creativecommons.org/licenses/by/4.0/. Redistributing them here
+is permitted on that basis, and the credit form is "© ENTSO-E TYNDP 2026 Scenarios,
+CC BY 4.0".
+
+Two limits on what those figures are. They are national totals: anything shown below
+national level in the web map is `inferred:`, shared out by OSM patterns as a
+visualisation weight, and is not a forecast. And this covers the **scenario figures
+only** - the TYNDP project portfolio is not open data, is not redistributed here, and
+is not a source of any layer in this repository.
 
 ## Method attribution
 
@@ -44,13 +53,17 @@ Transformer parameters cite pandapower v3.1.2 standard types
 
 ## The code in this repository
 
-`rebuild_pipeline/` is our own work, written against the documented method. It
-carries no licence grant in this repository because the repository is private. If
-any of it is ever published, pick a licence first: MIT keeps it compatible with the
-upstream workflow it reimplements.
+`rebuild_pipeline/` is our own work, written against the documented method. The code
+in this repository is released under the **MIT Licence** (see `LICENSE` in the
+repository root), which keeps it compatible with the upstream workflow it
+reimplements. That grant covers the code only. The data the pipeline harvests and
+builds is a derived database of OpenStreetMap and stays under **ODbL 1.0**, with the
+obligations set out above: an MIT licence on the code does not relicense the data.
 
 ## What is NOT open
 
-Nothing in `supporting/screen_v1/` should leave the company. It maps screened
-corridors to internal register and account identifiers. It is internal
-supporting material.
+Some of the working material behind this build is internal and is deliberately not
+part of this repository, the published dataset or any of the licences above. It is
+not distributed, and `.gitignore` keeps it out of the tracked tree. What is published
+here - the pipeline, the documentation and the published dataset (DOI [10.5281/zenodo.22043867](https://doi.org/10.5281/zenodo.22043867)) - is covered
+by the terms set out in this file, and nothing else should be assumed to be.

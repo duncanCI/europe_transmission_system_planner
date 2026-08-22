@@ -1,14 +1,16 @@
 # European Grid Topology Dataset
 
-Topologically connected geospatial model of the electricity transmission **and sub-transmission** network across 36 ENTSO-E countries including UK and Ireland, at 50 kV and above, built from OpenStreetMap after the method of Xiong, Fioriti, Neumann, Riepin & Brown (2025), *Scientific Data* 12:277 - then corrected, frequency-separated, electrically parameterised and PyPSA-proven over versions v20 to v23 (August 2026).
+**Limits first: this is a screening-grade topological dataset - not survey-grade, not an asset register, not operational data, and not investment evidence.**
 
-> **Positioning, corrected 2026-08-19.** A prior-art check (`supporting/PRIOR_ART_FINDINGS.md`) found that two claimed differentiators did not survive scrutiny. The upstream PyPSA-Eur workflow already preserves conductor geometry and places buses inside substation polygons, and it has shipped a 63-750 kV configuration since August 2025. What is genuinely unpublished is this artefact: no open, pan-European, topologically connected grid model at 50-150 kV with preserved geometry and cell-level provenance exists elsewhere, and every PyPSA-Eur prebuilt release to date is 220 kV and above. Claim that, and nothing more.
+Topologically connected geospatial model of the electricity transmission **and sub-transmission** network across 36 ENTSO-E countries including UK and Ireland, at 50 kV and above, built from OpenStreetMap after the method of Xiong, Fioriti, Neumann, Riepin & Brown (2025), *Scientific Data* 12:277 - then corrected, frequency-separated, electrically parameterised and PyPSA-loadable over versions v20 to v23 (August 2026), where "PyPSA-loadable" means a scoped acid test: linear power flow solves on the largest >=220 kV 50 Hz backbone component only (9,955 buses, balanced synthetic injections). That is a structural check, not a validated electrical model.
+
+> **Positioning, corrected 2026-08-19.** A prior-art check (`supporting/PRIOR_ART_FINDINGS.md`) found that two claimed differentiators did not survive scrutiny. The upstream PyPSA-Eur workflow already preserves conductor geometry and places buses inside substation polygons, and it has shipped a 63-750 kV configuration since August 2025. What is genuinely unpublished is this artefact: no open, pan-European, topologically connected grid model at 50-150 kV with preserved geometry and per-value provenance on its typed and derived attributes exists elsewhere, and every PyPSA-Eur prebuilt release to date is 220 kV and above. Claim that, and nothing more.
 
 ## What is in this folder
 
 | Item | What it is |
 |---|---|
-| `europe_grid_topology.gpkg` | **The output.** 55 feature layers: `line_<kV>` 50-750 kV (+ `line_<kV>_16_7Hz` railway traction), `site_<kV>`, `junction_node`, `line_internal_to_station`, `dc_link`, `transformer`, `station_cluster`, `substation_footprint`; plus the `v23_typing_rule` provenance table and `patch_history`. v23, md5 `cb05c4108b0cb47d2fd22b81d5003daf`, 203.0 MB. Published: DOI [10.5281/zenodo.22043867](https://doi.org/10.5281/zenodo.22043867) |
+| `europe_grid_topology.gpkg` | **The output.** 60 feature layers: `line_<kV>` 50-750 kV (+ `line_<kV>_16_7Hz` railway traction), `site_<kV>`, `junction_node`, `line_internal_to_station`, `dc_link`, `transformer`, `station_cluster`, `substation_footprint`; plus the `v23_typing_rule` provenance table and `patch_history`. v23, md5 `cb05c4108b0cb47d2fd22b81d5003daf`, 203.0 MB. Published: DOI [10.5281/zenodo.22043867](https://doi.org/10.5281/zenodo.22043867) |
 | `europe_grid_graph.gpkg` | Companion flat graph for analysis: `ac_line_all`, `site_all`. v22 (untouched by v23), md5 `55ed89203d0dcfd5b8beaac1e272578b`. In the same Zenodo deposit as above |
 | `rebuild_pipeline/` | Script runner to recreate the topology from scratch for any region: harvest, build, validate, plus the acceptance benchmark. `config_europe.yaml` reproduces this build; `config_australia_example.yaml` is a worked non-Europe example. Reimplementation of the documented method - the original build scripts were not persisted. Start at `README_pipeline.md` |
 | `supporting/` | Everything else - methodology, evidence, validation, patches, backups. Index below |
@@ -19,19 +21,22 @@ Topologically connected geospatial model of the electricity transmission **and s
 
 ## Interactive map
 
-`docs/` is a self-contained web viewer for the dataset (MapLibre + PMTiles,
-no server-side anything): AC lines by voltage class, DC links, substations,
+`docs/` is a static web viewer for the dataset (MapLibre + PMTiles, no
+server-side anything; the page loads the MapLibre and PMTiles libraries from a
+CDN and its basemap from OpenFreeMap, so it needs network access): AC lines by voltage class, DC links, substations,
 transformers and the 16.7 Hz traction network, with every popup showing the
 `*_source` provenance columns verbatim. Serve it locally with
 `python webmap/serve_local.py` (plain `http.server` won't work - PMTiles needs
 byte-range requests), or enable GitHub Pages (main branch, `/docs` folder) to
 publish it. `webmap/build_tiles.py` regenerates the tiles from the two
-GeoPackages whenever the dataset versions forward. Line geometry in the tiles
-is simplified above zoom 10 for size; the GeoPackages hold full geometry.
+GeoPackages whenever the dataset versions forward. Line tiles stop at zoom
+10 and their geometry is simplified for size at every level, including z10;
+the viewer overzooms above that, so no further detail appears. The
+GeoPackages hold full geometry.
 
 The viewer also carries a development-and-scenario context layer
 (`webmap/build_context_tiles.py`): planned grid developments compiled from
-public network development plans (ENTSO-E TYNDP 2026 project material, NESO
+public national and TSO network development plans (NESO
 "Beyond 2030", Terna PdS 2025, RTE's project catalogue, MITECO's 2024
 planning modification, and the plan cited on each feature) behind a
 development-year slider, plus TYNDP 2026 scenario demand and generation
@@ -48,6 +53,8 @@ map computes no power flows.
 
 QGIS: open `europe_grid_topology.gpkg`, layers are per voltage; filter `frequency_hz = 50` for the public grid. PyPSA: load `ac_line_all` + `site_all` from the graph file as Lines/Buses, `transformer` and `dc_link` from the topology file (transformer `x_pu`/`r_pu` are per-unit on `s_nom_mva` - do not pair `x_pu` with `s_nom_pypsa_eur_mva` without recomputing); `supporting/_xfer/acid_test_pypsa.py` is a working end-to-end example (all checks PASS, `supporting/acid_report_v23.json`).
 
+Licensing in one line: the **data** is derived from OpenStreetMap and carries **ODbL 1.0**; the **code** in this repository is **MIT** (`LICENSE`). `LICENCE_AND_ATTRIBUTION.md` is the full statement, including the third-party sources and how to credit them.
+
 Three habits keep results honest: check `*_source` columns before quoting any value (`inferred:` and `unknown` mean what they say); never `SUM(p_nom_mw)` over `dc_link` without excluding rows flagged `exclude_from_capacity_sums`; quote lengths from `length_conductor_m`, not drawn geometry.
 
 > **Which length to quote against a TSO's own figures: circuit-km.** Route-km is
@@ -63,7 +70,7 @@ Three habits keep results honest: check `*_source` columns before quoting any va
 
 | Version | Date | What changed |
 |---|---|---|
-| v20 | 2026-08-17 | Full build from a 2026-08-14 OSM harvest: geometry-preserving topology, 50 kV floor, bus-in-site placement (see `supporting/README_methodology.md`, the deep method document - 13 sections, 14 design decisions, pitfalls table) |
+| v20 | 2026-08-17 | Full build from a 2026-08-14 OSM harvest: geometry-preserving topology, 50 kV floor, bus-in-site placement (see `supporting/README_methodology.md`, the deep method document - 12 sections, design decisions and a pitfalls table) |
 | v21 | 2026-08-18 | Five provable misclassifications fixed against primary sources (`supporting/manual_corrections.csv`) |
 | v22 | 2026-08-18 | Frequency separation (16.7 Hz traction split out, validated against SBB/Trafikverket lengths), scope prune, duplicate-circuit collapse, PyPSA-consistent components; acid test passes end to end |
 | v23 | 2026-08-18 | Transformer electrical parameters + per-link DC ratings, every value sourced or labelled inferred/unknown; twice adversarially reviewed (README_methodology section 13) |
@@ -84,7 +91,7 @@ Three habits keep results honest: check `*_source` columns before quoting any va
 | `network_overview.png` | Static render of the network |
 | `_xfer/` | The applied patch scripts (v21/v22/v23), their evidence CSVs, and the acid test. `patch_v23.py` needs the two CSVs beside it |
 | `_backup_v20/`, `_backup_v21/` | Pre-patch copies of both GeoPackages - local only, not in this repository |
-| `screen_v1/` | Structural congestion screen - internal working material, not in this repository |
+| _(internal working material)_ | Some working material behind this build is internal, is not part of this repository or the published dataset, and is kept out of the tracked tree by `.gitignore` |
 
 ## Rebuilding
 

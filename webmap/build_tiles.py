@@ -3,9 +3,9 @@
 
 Reads the published dataset (europe_grid_topology.gpkg, europe_grid_graph.gpkg),
 exports the four map layers as GeoJSONSeq, and runs tippecanoe twice to produce
-docs/europe_grid_v23_linework.pmtiles (AC lines + DC links, z0-11) and
+docs/europe_grid_v23_linework.pmtiles (AC lines + DC links, z0-10) and
 docs/europe_grid_v23_points.pmtiles (sites + transformers, z4-11). The viewer
-overzooms beyond z11. Attribute values - including `*_source` columns and
+overzooms beyond the tiled maximum. Attribute values - including `*_source` columns and
 `unknown` - are passed through verbatim; the map never invents a value.
 
 Requires: geopandas/pyogrio (any recent version) and tippecanoe on PATH
@@ -20,6 +20,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -55,7 +56,7 @@ LAYERS = {
         [
             "bus_id", "station_name", "node_type", "voltage_kv",
             "station_voltages_kv", "operator", "countries", "frequency_hz",
-            "n_lines",
+            "frequency_source", "n_lines",
         ],
     ),
     "transformers": (
@@ -68,10 +69,13 @@ LAYERS = {
     ),
 }
 
-# output file -> (layers included, minzoom, maxzoom)
+# output file -> (droppable layers, never-drop layers, minzoom, maxzoom).
+# never-drop layers (the 72 DC links) are tiled in a separate pass with no
+# feature dropping, then merged with tile-join: the size-guard flags on the
+# dense AC pass were silently thinning DC links at low zooms (66/72 at z0).
 RUNS = {
-    "europe_grid_v23_linework.pmtiles": (["ac_lines", "dc_links"], "0", "10"),
-    "europe_grid_v23_points.pmtiles": (["sites", "transformers"], "4", "11"),
+    "europe_grid_v23_linework.pmtiles": (["ac_lines"], ["dc_links"], "0", "10"),
+    "europe_grid_v23_points.pmtiles": (["sites", "transformers"], [], "4", "11"),
 }
 
 
@@ -93,16 +97,21 @@ def main() -> int:
             gdf = gpd.read_file(src, layer=layer, columns=cols)
             path = tmp / f"{name}.geojsonl"
             gdf.to_file(path, driver="GeoJSONSeq")
-            exports[name] = path
+            exports[name] = f"{name}.geojsonl"
             print(f"exported {name}: {len(gdf)} features")
 
         DOCS.mkdir(parents=True, exist_ok=True)
-        for out_name, (layer_names, minz, maxz) in RUNS.items():
+        common = [
+            "--name", "European Grid Topology v23",
+            "--attribution", "&copy; OpenStreetMap contributors, ODbL 1.0",
+        ]
+        # tippecanoe records its full command line in the tile metadata
+        # (generator_options), which ships to the public web. Everything runs
+        # in the temp cwd under bare filenames so no local path is published.
+        for out_name, (drop_layers, keep_layers, minz, maxz) in RUNS.items():
             out = DOCS / out_name
             cmd = [
-                "tippecanoe", "-o", str(out), "--force", "--quiet",
-                "--name", "European Grid Topology v23",
-                "--attribution", "&copy; OpenStreetMap contributors, ODbL 1.0",
+                "tippecanoe", "-o", out_name, "--force", "--quiet", *common,
                 "--drop-densest-as-needed",
                 "--coalesce-densest-as-needed",
                 "--extend-zooms-if-still-dropping",
@@ -110,9 +119,25 @@ def main() -> int:
                 "--minimum-zoom", minz,
                 "--maximum-zoom", maxz,
             ]
-            for name in layer_names:
+            for name in drop_layers:
                 cmd += ["-L", f"{name}:{exports[name]}"]
-            subprocess.run(cmd, check=True)
+            subprocess.run(cmd, check=True, cwd=tmp)
+            if keep_layers:
+                cmd = [
+                    "tippecanoe", "-o", f"keep_{out_name}", "--force",
+                    "--quiet", *common, "-r1",
+                    "--maximum-tile-bytes", "2500000",
+                    "--minimum-zoom", minz, "--maximum-zoom", maxz,
+                ]
+                for name in keep_layers:
+                    cmd += ["-L", f"{name}:{exports[name]}"]
+                subprocess.run(cmd, check=True, cwd=tmp)
+                subprocess.run([
+                    "tile-join", "-o", f"merged_{out_name}", "--force", "-pk",
+                    *common, out_name, f"keep_{out_name}",
+                ], check=True, cwd=tmp)
+                (tmp / f"merged_{out_name}").replace(tmp / out_name)
+            shutil.move(str(tmp / out_name), out)
             size_mb = out.stat().st_size / 1e6
             print(f"wrote {out.name} ({size_mb:.1f} MB)")
             if size_mb > 45:
