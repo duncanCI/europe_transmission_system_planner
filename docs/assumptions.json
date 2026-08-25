@@ -69,7 +69,7 @@
    "topic": "Topology",
    "assumption": "A multi-circuit corridor is one branch record carrying the SUM of the circuits' ratings and their parallel reactance. Its outage removes every circuit at once.",
    "basis": "That is how the v23 topology builds ac_line_all: s_nom = sqrt(3) x U x I x n_circuits. 20,360 of 73,234 in-scope spans (27.8%) have two or more circuits.",
-   "bias": "BOTH directions. The intact corridor is optimistic (full multi-circuit rating on one record); its contingency is pessimistic (a common-tower double-circuit outage, more severe than a single-circuit N-1). Check n_circuits before quoting."
+   "bias": "OPTIMISTIC for the number the map paints, which the earlier wording got backwards. Measured after matching on country, voltage and length: a collapsed corridor carries 1.78x the headroom of the same line drawn as separate circuits, because it cannot lose a single circuit at all - only all of them, which then disperses into the mesh. Whether a corridor is collapsed is an OpenStreetMap drawing convention, not a grid property, and its prevalence is national: 5% of Norway's multi-circuit backbone, 8% of France's, against 45% of GB's and 56% of Finland's. Collapsed and split corridors are NOT comparable with each other. Separately, the corridor outage is a common-structure event (TPL-001 P7), not N-1."
   },
   {
    "id": "scope-monitor",
