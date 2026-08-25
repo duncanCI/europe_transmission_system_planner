@@ -1,0 +1,159 @@
+{
+ "note": "Assumptions that are ours, not a publisher's. Each states its basis and which way it biases the result.",
+ "assumptions": [
+  {
+   "id": "endpoint-synchronous-area",
+   "topic": "Planned endpoints",
+   "assumption": "A planned AC branch may not join two synchronous areas. Candidate terminal pairings that cross one are rejected and the circuit's full rating is renormalised onto the pairings that remain.",
+   "basis": "Ireland, GB, the Nordic area and Continental Europe are coupled only by HVDC. An AC branch across one of those interfaces fuses two areas into a single connected component and rewrites the PTDFs of everything in both. Three real schemes were doing this before the guard.",
+   "bias": "A scheme whose every pairing crosses is dropped, which understates plan relief for that scheme. Counted as area_repair_failed."
+  },
+  {
+   "id": "endpoint-placeholder-names",
+   "topic": "Planned endpoints",
+   "assumption": "Stations whose recorded name is the literal string 'unknown' take no part in name matching.",
+   "basis": "5,175 of 29,063 substations (18%) carry that placeholder, all normalising to one token, so any endpoint text drifting towards it could match an arbitrary one of them anywhere in Europe. The provenance rule forbids turning an unknown into a plausible value. They remain available as geometric terminals.",
+   "bias": "18 schemes that previously entered the model on an arbitrary busbar no longer enter as branches. Understates plan relief; the alternative was a wrong circuit."
+  },
+  {
+   "id": "endpoint-cross-border",
+   "topic": "Planned endpoints",
+   "assumption": "An endpoint may match a station in another country only if the two share a land border and the normalised text is at least four characters.",
+   "basis": "Genuine interconnector schemes name a station across the border, so the path is needed. Unconstrained it accepted any globally unique name: 'M50 [sheet 1-TID r327]' reduced to 'm', matched Swiss station M07 and drew a Dublin ducting project as a 1,295 km Alps-to-Ireland line at match score 100.",
+   "bias": "None known. Every real interconnector in the register still matches."
+  },
+  {
+   "id": "endpoint-length-ceiling",
+   "topic": "Planned endpoints",
+   "assumption": "A scheme's two endpoints may not be further apart than the ceiling for its voltage class (250/285/520/730/1080 km for the 90-149/150-219/220-349/350-499/500+ kV classes). Beyond it the weaker-scored endpoint is discarded and the scheme keeps only its better-matched end.",
+   "basis": "Derived from this dataset's own existing network - the 99.9th-percentile single-span route length per class, tripled to allow a genuine multi-span corridor. A name match can be wrong INSIDE one country, where the adjacency rule cannot help: 'Coslada - Villaverde Bajo 220 kV' (both in Madrid) was drawn 1,582 km long.",
+   "bias": "A genuinely long domestic corridor loses one endpoint and is modelled as a point. Understates plan relief in that case."
+  },
+  {
+   "id": "endpoint-voltage-level",
+   "topic": "Planned endpoints",
+   "assumption": "A planned AC branch may not join two busbars whose nominal voltages differ by more than 10%. 380/400 and 420/400 kV are one system; 330/220 and 275/220 are not.",
+   "basis": "Such a branch shorts two nominal levels without the transformer that really couples them, and pypsa derives x_pu from bus0's v_nom alone, so identical ohms differ by (380/220)^2 = 3.0x depending which terminal sorted first. 336 planned branches were doing this.",
+   "bias": "Conservative: the pairing is dropped and the rating renormalised onto same-level candidates."
+  },
+  {
+   "id": "renewal-one-circuit",
+   "topic": "Renewals",
+   "assumption": "One RTE renewal work uprates exactly one existing French circuit - the most probable candidate span by w_start x w_end - and never a planned or foreign one.",
+   "basis": "A renewal replaces one conductor. Uplifting the whole candidate cross-product meant 471 works uprated 249 distinct spans, up to 8 circuits per work, roughly doubling credited French thermal capability - including a Spanish planned sub-branch raised by a French work.",
+   "bias": "Where a work genuinely re-conductors several spans, only one is credited. Understates French capability."
+  },
+  {
+   "id": "external-one-span-per-pair",
+   "topic": "France and Norway",
+   "assumption": "An external corridor contributes at most one AC branch per bus pair per run.",
+   "basis": "The NVE licensing register and RTE Cart'Elec publish one licensed line as many features - '420 kV Lyse-Fagrafjell' alone is 36 - and the loader never fed its own output back into the parallel-circuit guard. 711 candidates became 924 branches on 369 pairs, worst case 33 parallel circuits totalling 27,810 MVA for a 3,000 MVA double circuit.",
+   "bias": "A genuine double circuit is modelled as one. Understates plan relief on those corridors."
+  },
+  {
+   "id": "external-voltage-conservative",
+   "topic": "France and Norway",
+   "assumption": "Where the source publishes no voltage, the branch takes the LOWER of its two ends' highest-weighted terminal voltages.",
+   "basis": "RTE Cart'Elec states no voltage at all. Taking the maximum across every candidate handed the branch the largest rating any candidate could justify - a 225 kV corridor typed 400 kV carries 1,787 MVA instead of about 500.",
+   "bias": "Conservative. May under-rate a genuine 400 kV work."
+  },
+  {
+   "id": "scope-component-floor",
+   "topic": "Scope",
+   "assumption": "Only connected components of at least 50 buses are screened. Every run report carries the count of buses, lines and transformers this excludes.",
+   "basis": "Screening a severed OSM fragment standalone produces nonsense. At the 90 kV floor this excludes roughly 5,700 of 73,234 AC lines (7.8%), which was previously happening with no count published anywhere.",
+   "bias": "Those branches are absent from the screen entirely. Islands above the floor (Sardinia, Corsica) ARE screened, and now carry their own area label rather than being pooled under 'Continental'."
+  },
+  {
+   "id": "multi-circuit-collapse",
+   "topic": "Topology",
+   "assumption": "A multi-circuit corridor is one branch record carrying the SUM of the circuits' ratings and their parallel reactance. Its outage removes every circuit at once.",
+   "basis": "That is how the v23 topology builds ac_line_all: s_nom = sqrt(3) x U x I x n_circuits. 20,360 of 73,234 in-scope spans (27.8%) have two or more circuits.",
+   "bias": "BOTH directions. The intact corridor is optimistic (full multi-circuit rating on one record); its contingency is pessimistic (a common-tower double-circuit outage, more severe than a single-circuit N-1). Check n_circuits before quoting."
+  },
+  {
+   "id": "scope-monitor",
+   "topic": "Scope",
+   "assumption": "Branches are monitored down to 90 kV, but contingencies are taken only on 220 kV and above (plus all transformers).",
+   "basis": "A 90 kV circuit tripping is a local event; a 90 kV circuit is still worth watching under a backbone outage. Screening 73k outages against 73k monitored branches is roughly ten times the work for little screening value.",
+   "bias": "Understates stress on sub-transmission caused by sub-transmission outages. Backbone N-1 is unaffected."
+  },
+  {
+   "id": "fr-renewal-uplift",
+   "topic": "France",
+   "assumption": "An RTE renewal work raises the existing circuit's thermal rating by 30%.",
+   "basis": "Reconductoring an existing corridor with modern conductor gives roughly +20-40% with larger conventional conductor and up to about 2x with HTLS/ACCC. RTE publishes no rating for these works, so the low-middle of the conventional range is used. A renewal replaces a circuit, so it is modelled as an uplift, never as an added parallel branch.",
+   "bias": "If RTE uses HTLS the uplift is understated, and French capability with it."
+  },
+  {
+   "id": "fr-no-voltage",
+   "topic": "France",
+   "assumption": "French works take their voltage from the substations their endpoints resolve to.",
+   "basis": "RTE's SDDR publishes no voltage for any work. The same endpoint fallback is used for register schemes whose name carries no kV.",
+   "bias": "Neutral, but wrong endpoints would give a wrong voltage class and so a wrong typed rating."
+  },
+  {
+   "id": "fr-year",
+   "topic": "France",
+   "assumption": "French works commission in 2030 (the 2030 works programme) or 2040 (the SDDR new-lines set).",
+   "basis": "RTE's own tileset naming. RTE publishes no commissioning year per work.",
+   "bias": "Coarse. Works inside the 2030 programme that slip past 2030 are modelled as delivered too early."
+  },
+  {
+   "id": "no-year",
+   "topic": "Norway",
+   "assumption": "A consented Norwegian line commissions 5 years after 2026; one still in licensing, 10 years after.",
+   "basis": "NVE publishes a licensing stage, not a date. The brackets are Norwegian consenting-to-energisation lead times, deliberately coarse rather than tuned.",
+   "bias": "Either direction per line. Consented lines that are already under construction arrive later here than in reality."
+  },
+  {
+   "id": "undated-register",
+   "topic": "Register",
+   "assumption": "A scheme with no published service year is admitted at the final horizon only (2040).",
+   "basis": "462 line-like schemes carry no date. Dropping them made them invisible; dating them earlier would invent delivery.",
+   "bias": "Conservative before 2040: earlier horizons show less plan relief than may be real."
+  },
+  {
+   "id": "endpoint-fan",
+   "topic": "Endpoints",
+   "assumption": "Where a plan names a place rather than a substation, the circuit is split across the two or three plausible major terminals, with admittance and rating divided by weight.",
+   "basis": "Requiring an exact station match at both ends dropped 29% of line-like schemes, which understated plan relief in one direction.",
+   "bias": "This is an expected network, not a scenario ensemble. A real build lands the whole circuit on one terminal, and a fan creates a path between its own candidates that no single realisation has."
+  },
+  {
+   "id": "new-station-placement",
+   "topic": "Endpoints",
+   "assumption": "A substation that does not exist yet is placed at the settlement it is named after.",
+   "basis": "A new station cannot be matched to OpenStreetMap because it is not built, but plans name it after its location - \"New Zeebrugge\", \"UW Leoben (new)\", \"TS Crkvicko Polje (ME), new\". 216 of 230 such endpoints carry a usable place name, and the settlement is the best available position. The endpoint resolver then snaps from there to the plausible major terminals nearby.",
+   "bias": "The position is the settlement, not the site: a station built on the edge of a district lands at the district centre here. Corridor lengths near it are approximate."
+  },
+  {
+   "id": "endpoint-name-matching",
+   "topic": "Endpoints",
+   "assumption": "Endpoint names are matched after stripping commentary, page references and station-type words in each language.",
+   "basis": "Plans write endpoints as prose: \"Vohringen (DE) - the system boundary is at the border\" is the station Vohringen, and \"UW Westtirol\" and \"Umspannwerk Westtirol\" are one place written two ways.",
+   "bias": "Over-stripping could match the wrong station. Matching stays on a high fuzzy threshold with a margin over the runner-up."
+  },
+  {
+   "id": "typed-ratings",
+   "topic": "Ratings",
+   "assumption": "Every planned circuit is typed with the median x/km, r/km and s_nom of its voltage class in the v23 backbone.",
+   "basis": "No promoter publishes impedances. Class medians are the only defensible typing without an asset register.",
+   "bias": "A heavier-than-median build is understated and vice versa."
+  },
+  {
+   "id": "dc-patterns",
+   "topic": "DC",
+   "assumption": "A DC link of 500 MW or more enters as a 1 GW converter-injection pattern, not a flow-carrying branch.",
+   "basis": "Per GW the AC-flow consequence of a schedule swing and of a full-import outage is the same linear pattern.",
+   "bias": "Conservative where embedded HVDC parallels AC: the link provides no relief in this model."
+  },
+  {
+   "id": "renewal-excluded-elsewhere",
+   "topic": "Register",
+   "assumption": "Refurbishments, uprates and series devices are not added as new circuits.",
+   "basis": "Adding them created phantom parallel corridors. Note that 'reinforcement' is NOT filtered: in TSO usage a named reinforcement is new build.",
+   "bias": "Uprates that do add capacity are not credited outside France."
+  }
+ ]
+}

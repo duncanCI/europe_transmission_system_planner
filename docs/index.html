@@ -28,6 +28,29 @@
   .subtitle { color:var(--muted); font-size:12.5px; margin-top:2px; }
   .subtitle a { color:#3b5f7a; }
   #map { width:100%; height:100%; }
+  /* Assumptions register: every judgement that is ours rather than a
+     publisher's, with its basis and its direction of bias. Generated from
+     the pipeline's assumptions_register.py, never retyped, so the map cannot
+     drift from what the model actually does. */
+  #asmbtn { margin-top:10px; width:100%; padding:6px 8px; font:inherit;
+            font-size:12px; cursor:pointer; border:1px solid #cbd5e1;
+            border-radius:4px; background:#f8fafc; }
+  #asmbtn:hover { background:#eef2f7; }
+  #asmwrap[hidden] { display:none; }
+  #asmwrap { position:absolute; inset:0; background:rgba(15,23,42,.55);
+             z-index:9; display:flex; align-items:center; justify-content:center; }
+  #asm { background:#fff; max-width:820px; max-height:82%; overflow:auto;
+         border-radius:6px; padding:18px 22px; box-shadow:0 10px 40px rgba(0,0,0,.3); }
+  #asm h2 { margin:0 0 2px; font-size:15px; }
+  #asm .note { color:#64748b; font-size:12px; margin:0 0 12px; }
+  #asm .topic { font-size:11px; text-transform:uppercase; letter-spacing:.04em;
+                color:#475569; margin:14px 0 4px; font-weight:700; }
+  #asm .item { border-left:3px solid #cbd5e1; padding:4px 0 4px 10px; margin:0 0 8px; }
+  #asm .item b { font-size:12.5px; }
+  #asm .item div { font-size:12px; color:#334155; margin-top:2px; }
+  #asm .bias { color:#7c2d12; }
+  #asmclose { float:right; border:0; background:none; font-size:20px;
+              cursor:pointer; color:#64748b; line-height:1; }
   .panel { position:absolute; top:12px; left:12px; z-index:3; width:245px; background:var(--panel);
            border:1px solid var(--rule); border-radius:8px; padding:10px 12px; font-size:12.5px;
            max-height:calc(100% - 48px); overflow:auto; box-shadow:0 1px 4px rgba(0,0,0,.12); }
@@ -87,6 +110,14 @@
 </header>
 <div style="position:relative; min-height:0;">
   <div id="map"></div>
+  <div id="asmwrap" hidden>
+    <div id="asm" role="dialog" aria-modal="true" aria-labelledby="asmtitle">
+      <button id="asmclose" type="button" aria-label="Close">&times;</button>
+      <h2 id="asmtitle">Assumptions register</h2>
+      <p class="note" id="asmnote"></p>
+      <div id="asmbody">Loading&hellip;</div>
+    </div>
+  </div>
   <div class="panel">
     <h2>AC lines by voltage</h2>
     <div id="legend-lines"></div>
@@ -95,6 +126,7 @@
     <div class="displayctl">
       <label for="linescale">Line thickness <output id="scaleout">1.0&times;</output></label>
       <input id="linescale" type="range" min="0.5" max="3" step="0.1" value="1">
+      <button id="asmbtn" type="button">Assumptions register (what is ours, not the publisher's)</button>
     </div>
     <div id="legend-dev-section" hidden>
       <h2 style="margin-top:10px">Development &amp; scenarios</h2>
@@ -642,7 +674,7 @@ async function setupContext() {
             "Reinforcement and connection works, plus the substation sites in the 2030 programme. © RTE/CNDP, by permission.");
   legendRow(dev, `<span class="swatch" style="border-color:#a78bfa"></span>`,
             "France SDDR — renewal only", ["fr_renewal"], false,
-            "Like-for-like renewal of existing circuits — RTE plans roughly 24,000 km of it. Adds no capacity, so it is drawn faint. © RTE/CNDP, by permission.");
+            "Renewal of existing circuits — RTE plans roughly 24,000 km of it, and separates it from the 4,000 km it will 'renforcer ou bâtir'. RTE publishes no rating for these, so no capacity change is modelled; drawn faint for that reason. Reconductoring can uplift a corridor in practice, so treat this as the conservative reading rather than a statement that nothing changes. © RTE/CNDP, by permission.");
   legendRow(dev, `<span class="swatch sq" style="background:#7c3aed;opacity:.35;width:22px;height:10px"></span>`,
             "France SDDR — phase zones", ["fr_zones", "fr_zone_outline"], false,
             "Phase 1 and Phase 2 reinforcement ZONES. RTE publishes these deliberately without routes: a study area, never a line. © RTE/CNDP, by permission.");
@@ -983,6 +1015,44 @@ function wirePopups() {
     map.getCanvas().style.cursor = pick(e.point).length ? "pointer" : "";
   });
 }
+
+// Assumptions register. Direction of bias matters as much as the number: a
+// reader needs to know whether an assumption flatters the network or
+// penalises it, so every entry carries basis AND bias.
+(function () {
+  const wrap = document.getElementById("asmwrap");
+  const btn = document.getElementById("asmbtn");
+  const body = document.getElementById("asmbody");
+  if (!wrap || !btn) return;
+  let loaded = false;
+  const esc = s => String(s == null ? "" : s).replace(/[&<>]/g,
+    c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+  async function open() {
+    wrap.hidden = false;
+    if (loaded) return;
+    try {
+      const d = await fetch("assumptions.json?v=" + TILE_VERSION).then(r => r.json());
+      const items = Array.isArray(d) ? d : d.assumptions || [];
+      document.getElementById("asmnote").textContent = (d && d.note) || "";
+      const byTopic = {};
+      for (const a of items) (byTopic[a.topic] = byTopic[a.topic] || []).push(a);
+      body.innerHTML = Object.keys(byTopic).sort().map(t =>
+        `<div class="topic">${esc(t)}</div>` + byTopic[t].map(a =>
+          `<div class="item"><b>${esc(a.assumption)}</b>` +
+          `<div><i>Basis.</i> ${esc(a.basis)}</div>` +
+          `<div class="bias"><i>Bias.</i> ${esc(a.bias)}</div></div>`).join("")
+      ).join("");
+      loaded = true;
+    } catch (e) {
+      body.textContent = "The assumptions register did not load, so this map is not "
+        + "showing what it assumes. Treat every figure as unqualified until it does.";
+    }
+  }
+  btn.addEventListener("click", open);
+  document.getElementById("asmclose").addEventListener("click", () => { wrap.hidden = true; });
+  wrap.addEventListener("click", e => { if (e.target === wrap) wrap.hidden = true; });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") wrap.hidden = true; });
+})();
 </script>
 </body>
 </html>
