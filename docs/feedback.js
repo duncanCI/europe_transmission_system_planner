@@ -21,9 +21,22 @@
   var cfg = {
     viewer: "map",       // label shown in the payload
     github: null,        // {owner, repo} - PUBLIC viewer only, see above
-    email: null,         // fallback channel
+    // Address as ["user", "domain"], joined only when someone clicks Email.
+    // A plain "user@domain" string in the page source is harvested by the
+    // crawlers that trawl for mailto: targets, and the public map is meant to
+    // be shared widely. Splitting it keeps the channel without leaving the
+    // address sitting in the HTML.
+    //
+    // This defeats scrapers that read markup, NOT one that executes the page's
+    // JavaScript. It lowers the volume; it is not a guarantee.
+    email: null,
     getContext: null,    // () => ({...}) supplied by the viewer
   };
+
+  function emailAddress() {
+    if (!cfg.email) return null;
+    return Array.isArray(cfg.email) ? cfg.email.join("@") : cfg.email;
+  }
 
   var CATEGORIES = [
     ["data", "Something is wrong in the data"],
@@ -273,10 +286,10 @@
     }));
     box.appendChild(copy);
 
-    if (cfg.email) {
+    if (emailAddress()) {
       var mail = el("button", { type: "button" }, "Email it");
       mail.addEventListener("click", guard(function () {
-        var href = "mailto:" + cfg.email +
+        var href = "mailto:" + emailAddress() +
           "?subject=" + encodeURIComponent(title()) +
           "&body=" + encodeURIComponent(payload());
         if (href.length > 1900) { status("Too long for an email link - use Copy instead."); return; }

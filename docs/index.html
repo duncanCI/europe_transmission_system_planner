@@ -1097,7 +1097,8 @@ if (window.FEEDBACK) {
   FEEDBACK.configure({
     viewer: "public grid topology map",
     github: { owner: "duncanCI", repo: "europe_transmission_system_planner" },
-    email: "duncan@continuum.industries",
+    // Split so the address is not a harvestable string in the page source.
+    email: ["duncan", "continuum.industries"],
     getContext: () => {
       const c = map.getCenter();
       return {
