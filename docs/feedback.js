@@ -9,11 +9,11 @@
  * "this line looks wrong" is unactionable, "fid way/12345, NT+ 2040 planned,
  * headroom 2.1 GW, build 130962340a" is a bug report.
  *
- * PERMISSION-HELD DATA. The gated map carries the ENTSO-E TYNDP portfolio and
- * RTE SDDR works, which are published by permission and are NOT open data. A
- * payload naming those schemes must never be routed to a public issue tracker,
- * so `github` is left unset there and only the private channels are offered.
- * Do not add a GitHub target to the gated viewer.
+ * NON-OPEN DATA. The gated map carries the ENTSO-E TYNDP portfolio and the RTE
+ * SDDR works, which are NOT open data. A payload naming those schemes must
+ * never be routed to a public issue tracker, so `github` is left unset there
+ * and only the private channels are offered. Do not add a GitHub target to the
+ * gated viewer.
  */
 (function () {
   "use strict";

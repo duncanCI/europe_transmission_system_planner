@@ -16,7 +16,13 @@
 (function () {
   "use strict";
 
-  var cfg = { map: null, controls: {}, state: null, onFeature: null };
+  var cfg = {
+    map: null, controls: {}, state: null, onFeature: null,
+    // Anything the viewer wants in the link that is not a named control -
+    // layer visibility, for instance. `extra()` returns params to encode,
+    // `applyExtra(params)` puts them back.
+    extra: null, applyExtra: null,
+  };
   var ready = false;
 
   function readHash() {
@@ -44,6 +50,14 @@
       p.lat = c.lat.toFixed(4);
       p.lon = c.lng.toFixed(4);
       p.z = m.getZoom().toFixed(2);
+    }
+    if (cfg.extra) {
+      try {
+        var ex = cfg.extra() || {};
+        Object.keys(ex).forEach(function (k) {
+          if (ex[k] !== undefined && ex[k] !== null && ex[k] !== "") p[k] = ex[k];
+        });
+      } catch (e) { /* a link without layer state is still a useful link */ }
     }
     Object.keys(extra || {}).forEach(function (k) {
       if (extra[k] !== undefined && extra[k] !== null && extra[k] !== "") p[k] = extra[k];
@@ -95,6 +109,9 @@
     if (cfg.map && isFinite(lat) && isFinite(lon) && isFinite(z)) {
       cfg.map.jumpTo({ center: [lon, lat], zoom: z });
     }
+    if (cfg.applyExtra) {
+      try { cfg.applyExtra(p); } catch (e) { /* best-effort */ }
+    }
     if (p.f && cfg.onFeature) {
       try { cfg.onFeature(p.f); } catch (e) { /* focusing is best-effort */ }
     }
@@ -122,6 +139,8 @@
       document.addEventListener("input", write, true);
       write();
     },
+    /** Tell the module the view changed (a layer toggled, say). */
+    touch: function () { write(); },
     /** Absolute URL for the current view; pass {f: fid, lat, lon} to override. */
     url: function (extra) {
       return location.origin + location.pathname + location.search + toHash(params(extra));

@@ -8,8 +8,8 @@
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="https://unpkg.com/pmtiles@3.2.1/dist/pmtiles.js"></script>
-<script src="permalink.js"></script>
-<script src="feedback.js"></script>
+<script src="permalink.js?v=4ccf96bf"></script>
+<script src="feedback.js?v=4ccf96bf"></script>
 <style>
   :root { --paper:#f5f7f6; --ink:#172026; --muted:#59666c; --rule:#c9d1cf; --panel:rgba(245,247,246,.97); }
   * { box-sizing:border-box; }
@@ -53,6 +53,19 @@
   #asm .bias { color:#7c2d12; }
   #asmclose { float:right; border:0; background:none; font-size:20px;
               cursor:pointer; color:#64748b; line-height:1; }
+  /* Collapsible layer groups. The panel had grown to ~20 flat checkboxes,
+     which is a lot to scan; grouping them by source keeps the map visible. */
+  details.lgroup { border-top:1px solid var(--line,#e2e8f0); }
+  details.lgroup:first-of-type { border-top:0; }
+  details.lgroup > summary { cursor:pointer; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.03em; color:#475569;
+    padding:5px 0 4px; list-style:none; display:flex; align-items:center; gap:5px; }
+  details.lgroup > summary::-webkit-details-marker { display:none; }
+  details.lgroup > summary::before { content:"\25B8"; font-size:9px;
+    transition:transform .12s; color:#94a3b8; }
+  details.lgroup[open] > summary::before { transform:rotate(90deg); }
+  details.lgroup > summary:hover { color:#0f172a; }
+  .lgbody { padding:0 0 5px 10px; }
   .panel { position:absolute; top:12px; left:12px; z-index:3; width:245px; background:var(--panel);
            border:1px solid var(--rule); border-radius:8px; padding:10px 12px; font-size:12.5px;
            max-height:calc(100% - 48px); overflow:auto; box-shadow:0 1px 4px rgba(0,0,0,.12); }
@@ -92,7 +105,7 @@
     <div class="subtitle">
       Screening-grade transmission topology derived from OpenStreetMap — not survey-grade, not an
       asset register, not operational data. 36 countries, 50–750&nbsp;kV, with planned developments
-      from national and TSO plans, the ENTSO-E TYNDP&nbsp;2026 project portfolio (by permission)
+      from national and TSO plans, the ENTSO-E TYNDP&nbsp;2026 project portfolio
       and TYNDP&nbsp;2026 scenario context.
       Dataset: <a href="https://doi.org/10.5281/zenodo.22043867">DOI 10.5281/zenodo.22043867</a> ·
       <a href="https://github.com/duncanCI/europe_transmission_system_planner">method &amp; pipeline</a>
@@ -121,9 +134,8 @@
     </div>
   </div>
   <div class="panel">
-    <h2>AC lines by voltage</h2>
+    <!-- Headings live on the group summaries now, so no static <h2> here -->
     <div id="legend-lines"></div>
-    <h2 style="margin-top:10px">Other layers</h2>
     <div id="legend-other"></div>
     <div class="displayctl">
       <label for="linescale">Line thickness <output id="scaleout">1.0&times;</output></label>
@@ -162,12 +174,12 @@
          <b>Sweden</b>. Great Britain, Germany, Denmark, the Netherlands, Hungary and Spain are the
          best covered from national plans. <b>France</b> and <b>Norway</b> are covered a different
          way, because neither TSO publishes a project list: France through RTE's SDDR works
-         geometry (2,427 features, by permission) and Norway through NVE's licensing register
+         geometry (2,427 features) and Norway through NVE's licensing register
          (1,490 lines not yet built). Those two layers carry no commissioning years, so they sit
          outside the year slider — the slider governs the dated national-plan schemes only. <b>Read a sparse country as "not yet harvested", never as
          "not being built"</b> — and never compare countries on scheme counts from this map.</p>
       <p><b>ENTSO-E TYNDP&nbsp;2026 projects</b> are the pan-European portfolio, shown alongside the
-         national plans and published here <b>with ENTSO-E's permission</b> (the portfolio is
+         national plans (the portfolio is
          ENTSO-E's, not open data — see <code>LICENCE_AND_ATTRIBUTION.md</code>). Dashed cyan lines
          are transmission projects and dots are storage; translucent violet-blue fills are
          <b>study corridors and areas — broad zones under study, not routes and not lines</b>.
@@ -204,7 +216,7 @@
       <p><b>Licensing in one line:</b> the data is OpenStreetMap-derived and carries
          ODbL&nbsp;1.0; the code is MIT; the ENTSO-E TYNDP&nbsp;2026 <i>scenario figures</i> are
          CC&nbsp;BY&nbsp;4.0; the ENTSO-E TYNDP&nbsp;2026 <i>project portfolio</i> is ENTSO-E's and
-         is <b>not open data</b> — it appears here by permission, so approach ENTSO-E
+         is <b>not open data</b>, so approach ENTSO-E
          (<code>tyndp@entsoe.eu</code>) for your own reuse of it. Full terms:
          <a href="https://github.com/duncanCI/europe_transmission_system_planner/blob/main/LICENCE_AND_ATTRIBUTION.md">LICENCE_AND_ATTRIBUTION.md</a>.</p>
       <p>Data &copy; OpenStreetMap contributors, ODbL&nbsp;1.0. Method after Xiong et&nbsp;al. (2025),
@@ -259,7 +271,7 @@ map.addControl(new maplibregl.AttributionControl({
   customAttribution: "Grid data &copy; OpenStreetMap contributors, ODbL 1.0 — " +
     "<a href='https://doi.org/10.5281/zenodo.22043867'>DOI 10.5281/zenodo.22043867</a>" +
     " · scenario figures &copy; ENTSO-E TYNDP 2026 Scenarios, CC BY 4.0" +
-    " · TYNDP 2026 project portfolio &copy; ENTSO-E, published with permission",
+    " · TYNDP 2026 project portfolio &copy; ENTSO-E — not open data, contact ENTSO-E for reuse terms",
 }));
 map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
 new ResizeObserver(() => map.resize()).observe(document.getElementById("map"));
@@ -578,7 +590,7 @@ async function setupContext() {
              "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 1.6, 8, 3, 12, 5] } });
 
   // ENTSO-E TYNDP 2026 project portfolio, published here with ENTSO-E's
-  // permission; see LICENCE_AND_ATTRIBUTION.md. It rides in the
+  // licence terms; see LICENCE_AND_ATTRIBUTION.md. It rides in the
   // context tileset's never-drop pass rather than a plain GeoJSON source:
   // MapLibre's own GeoJSON simplification silently discards small features at
   // low zoom (284 features rendered as 4 at z3), which is precisely the defect
@@ -607,7 +619,7 @@ async function setupContext() {
              "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 2.5, 8, 4.5, 12, 7],
              "circle-stroke-color": "#f5f7f6", "circle-stroke-width": 0.8 } });
 
-  // RTE SDDR 2025 works (RTE/CNDP, by permission). Same violet family as the
+  // RTE SDDR 2025 works (RTE/CNDP, not open data). Same violet family as the
   // other planned developments so it reads as one theme, but split by what the
   // work actually is: new build solid and prominent, renewal faint because it
   // adds no capacity, and the phases RTE publishes WITHOUT routes drawn as
@@ -659,40 +671,45 @@ async function setupContext() {
              "line-width": scaledWidth("no_consented", [[4,1.4],[8,2.3],[12,3.8]]) } });
 
   const dev = document.getElementById("legend-dev");
-  legendRow(dev, `<span class="swatch dashed" style="border-color:#7c3aed"></span>`,
+  const gPlan = legendGroup(dev, "Planned projects (TSO registers)", true);
+  legendRow(gPlan, `<span class="swatch dashed" style="border-color:#7c3aed"></span>`,
             "Planned by selected year", ["proj_line_sourced", "proj_line_schematic", "proj_points"], true);
-  legendRow(dev, `<span class="swatch dashed" style="border-color:#9ca3af"></span>`,
+  legendRow(gPlan, `<span class="swatch dashed" style="border-color:#9ca3af"></span>`,
             "Later &amp; undated plans", ["proj_line_rest", "proj_point_rest"], false);
-  legendRow(dev, `<span class="swatch" style="border-color:#0f766e"></span>`,
+  const gNo = legendGroup(dev, "Norway — NVE licensing register", false);
+  legendRow(gNo, `<span class="swatch" style="border-color:#0f766e"></span>`,
             "Norway — consented, not built", ["no_consented"], false,
             "Lines NVE has licensed but that are not yet built, from NVE's open licensing register — the only Norwegian source with geometry, since Statnett publishes no project list. NVE states a licensing stage, not a commissioning year, so no service year is shown or inferred. © NVE, open data.");
-  legendRow(dev, `<span class="swatch dashed" style="border-color:#0d9488"></span>`,
+  legendRow(gNo, `<span class="swatch dashed" style="border-color:#0d9488"></span>`,
             "Norway — still in licensing", ["no_licensing"], false,
             "Notified, in consultation, or under assessment at NVE. The concession stage is carried verbatim from NVE's published domain. © NVE, open data.");
-  legendRow(dev, `<span class="swatch" style="border-color:#5b21b6"></span>`,
+  const gFr = legendGroup(dev, "France — RTE SDDR 2025", false);
+  legendRow(gFr, `<span class="swatch" style="border-color:#5b21b6"></span>`,
             "France SDDR 2025 — new build", ["fr_new"], false,
-            "RTE's SDDR 2025 works, from the Cart'Elec map built for the CNDP public debate. New-build lines. RTE publishes no scheme names, commissioning years or voltages for these, so none are shown. © RTE/CNDP, by permission — not open data.");
-  legendRow(dev, `<span class="swatch dashed" style="border-color:#7c3aed"></span>`,
+            "RTE's SDDR 2025 works, from the Cart'Elec map built for the CNDP public debate. New-build lines. RTE publishes no scheme names, commissioning years or voltages for these, so none are shown. © RTE/CNDP — not open data; contact RTE for reuse terms.");
+  legendRow(gFr, `<span class="swatch dashed" style="border-color:#7c3aed"></span>`,
             "France SDDR — adaptation &amp; sites", ["fr_adaptation", "fr_sites"], false,
-            "Reinforcement and connection works, plus the substation sites in the 2030 programme. © RTE/CNDP, by permission.");
-  legendRow(dev, `<span class="swatch" style="border-color:#a78bfa"></span>`,
+            "Reinforcement and connection works, plus the substation sites in the 2030 programme. © RTE/CNDP — not open data; contact RTE for reuse terms.");
+  legendRow(gFr, `<span class="swatch" style="border-color:#a78bfa"></span>`,
             "France SDDR — renewal only", ["fr_renewal"], false,
-            "Renewal of existing circuits — RTE plans roughly 24,000 km of it, and separates it from the 4,000 km it will 'renforcer ou bâtir'. RTE publishes no rating for these, so no capacity change is modelled; drawn faint for that reason. Reconductoring can uplift a corridor in practice, so treat this as the conservative reading rather than a statement that nothing changes. © RTE/CNDP, by permission.");
-  legendRow(dev, `<span class="swatch sq" style="background:#7c3aed;opacity:.35;width:22px;height:10px"></span>`,
+            "Renewal of existing circuits — RTE plans roughly 24,000 km of it, and separates it from the 4,000 km it will 'renforcer ou bâtir'. RTE publishes no rating for these, so no capacity change is modelled; drawn faint for that reason. Reconductoring can uplift a corridor in practice, so treat this as the conservative reading rather than a statement that nothing changes. © RTE/CNDP — not open data; contact RTE for reuse terms.");
+  legendRow(gFr, `<span class="swatch sq" style="background:#7c3aed;opacity:.35;width:22px;height:10px"></span>`,
             "France SDDR — phase zones", ["fr_zones", "fr_zone_outline"], false,
-            "Phase 1 and Phase 2 reinforcement ZONES. RTE publishes these deliberately without routes: a study area, never a line. © RTE/CNDP, by permission.");
-  legendRow(dev, `<span class="swatch dashed" style="border-color:#06b6d4"></span>`,
+            "Phase 1 and Phase 2 reinforcement ZONES. RTE publishes these deliberately without routes: a study area, never a line. © RTE/CNDP — not open data; contact RTE for reuse terms.");
+  const gTy = legendGroup(dev, "ENTSO-E TYNDP 2026 portfolio", false);
+  legendRow(gTy, `<span class="swatch dashed" style="border-color:#06b6d4"></span>`,
             "TYNDP 2026 lines &amp; storage", ["tyndp_lines", "tyndp_points"], false,
-            "ENTSO-E TYNDP 2026 project portfolio (preliminary draft), published with ENTSO-E's permission. Transmission projects as dashed cyan lines, storage as dots. Year-gated by the slider on ENTSO-E's commissioning year: at 2040 the layer also shows the 7 projects dated later, and the 21 with no published year are always shown rather than given a date ENTSO-E has not stated. Commissioning years are ENTSO-E's, not forecasts.");
-  legendRow(dev, `<span class="swatch sq" style="background:#6366f1;opacity:.45;width:22px;height:10px"></span>`,
+            "ENTSO-E TYNDP 2026 project portfolio (preliminary draft). © ENTSO-E — not open data; contact ENTSO-E for reuse terms. Transmission projects as dashed cyan lines, storage as dots. Year-gated by the slider on ENTSO-E's commissioning year: at 2040 the layer also shows the 7 projects dated later, and the 21 with no published year are always shown rather than given a date ENTSO-E has not stated. Commissioning years are ENTSO-E's, not forecasts.");
+  legendRow(gTy, `<span class="swatch sq" style="background:#6366f1;opacity:.45;width:22px;height:10px"></span>`,
             "TYNDP 2026 study corridors", ["tyndp_polys", "tyndp_poly_outline"], false,
             "Translucent violet-blue FILLS are study corridors and areas from the TYNDP 2026 portfolio - broad zones under study, NOT routes and NOT lines.");
   if (TOTALS) {
-    legendRow(dev, `<span class="swatch dot" style="background:#0284c7;opacity:.6"></span>`,
+    const gScen = legendGroup(dev, "Demand, generation &amp; flexibility", true);
+    legendRow(gScen, `<span class="swatch dot" style="background:#0284c7;opacity:.6"></span>`,
               "Demand at OSM places (avg MW, z4+)", ["demand_places"], true);
-    legendRow(dev, `<span class="swatch dot" style="background:linear-gradient(120deg,#0d9488 30%,#f59e0b 30% 60%,#2563eb 60%)"></span>`,
+    legendRow(gScen, `<span class="swatch dot" style="background:linear-gradient(120deg,#0d9488 30%,#f59e0b 30% 60%,#2563eb 60%)"></span>`,
               "Generation at OSM plants (MW, z4+)", ["gen_plants", "plant_poly_gen"], true);
-    legendRow(dev, `<span class="swatch dot" style="background:#db2777;opacity:.7"></span>`,
+    legendRow(gScen, `<span class="swatch dot" style="background:#db2777;opacity:.7"></span>`,
               "Flexibility — batteries (TYNDP GW)", ["flex_batteries", "plant_poly_flex"], false);
     const ddRow = document.createElement("label");
     ddRow.className = "row"; ddRow.id = "ddelta-row";
@@ -708,7 +725,7 @@ async function setupContext() {
         });
       }
       applyContextState(); });
-    dev.appendChild(ddRow);
+    gScen.appendChild(ddRow);
     const tech = document.createElement("div");
     tech.style.cssText = "color:var(--muted); margin:3px 0 0 29px; line-height:1.5;";
     tech.innerHTML = ["wind_onshore|onshore wind", "wind_offshore|offshore wind",
@@ -750,7 +767,49 @@ async function setupContext() {
 }
 
 function toggle(ids, on) {
-  for (const id of ids) map.setLayoutProperty(id, "visibility", on ? "visible" : "none");
+  for (const id of ids) {
+    if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", on ? "visible" : "none");
+  }
+}
+
+// Every toggle registers itself so a permalink can carry which layers are on.
+// Keyed on the first layer id, which is stable across releases; the link
+// records only DEVIATIONS from the defaults, so a default view has no layer
+// parameters at all and the URL stays readable.
+const LAYER_TOGGLES = {};
+
+function layerParams() {
+  const off = [], on = [];
+  for (const [key, t] of Object.entries(LAYER_TOGGLES)) {
+    if (!t.input) continue;
+    if (t.input.checked !== t.startOn) (t.input.checked ? on : off).push(key);
+  }
+  return { on: on.join(",") || null, off: off.join(",") || null };
+}
+
+function applyLayerParams(p) {
+  const want = new Map();
+  (p.on || "").split(",").filter(Boolean).forEach(k => want.set(k, true));
+  (p.off || "").split(",").filter(Boolean).forEach(k => want.set(k, false));
+  for (const [key, t] of Object.entries(LAYER_TOGGLES)) {
+    if (!t.input) continue;
+    const target = want.has(key) ? want.get(key) : t.startOn;
+    if (t.input.checked === target) continue;
+    t.input.checked = target;
+    // Dispatch rather than calling toggle() directly, so anything else
+    // listening to this checkbox behaves as if a person had clicked it.
+    t.input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+}
+
+/** A collapsible group of layer rows. */
+function legendGroup(parent, title, open) {
+  const d = document.createElement("details");
+  d.className = "lgroup";
+  if (open) d.open = true;
+  d.innerHTML = `<summary>${title}</summary><div class="lgbody"></div>`;
+  parent.appendChild(d);
+  return d.querySelector(".lgbody");
 }
 
 function legendRow(parent, swatchHtml, label, ids, startOn, title) {
@@ -758,8 +817,11 @@ function legendRow(parent, swatchHtml, label, ids, startOn, title) {
   row.className = "row";
   if (title) row.title = title;
   row.innerHTML = `<input type="checkbox" ${startOn ? "checked" : ""}>${swatchHtml}<span>${label}</span>`;
-  row.querySelector("input").addEventListener("change", e => toggle(ids, e.target.checked));
+  const input = row.querySelector("input");
+  input.addEventListener("change", e => toggle(ids, e.target.checked));
+  if (ids && ids.length) LAYER_TOGGLES[ids[0]] = { ids, startOn: !!startOn, input };
   parent.appendChild(row);
+  return row;
 }
 
 // Every line layer registers the base widths it was built from, so the
@@ -792,16 +854,18 @@ function wireDisplayControls() {
 }
 
 function buildLegend() {
-  const lines = document.getElementById("legend-lines");
+  const lines = legendGroup(document.getElementById("legend-lines"),
+                            "AC lines by voltage", true);
   for (const c of VOLTAGE_CLASSES) {
     legendRow(lines, `<span class="swatch" style="border-color:${c.color}"></span>`,
               c.label, ["ac_" + c.min, "ac_uc_" + c.min], true);
   }
   const other = document.getElementById("legend-other");
-  legendRow(other, `<span class="swatch" style="border-color:#0e7490"></span>`, "DC links", ["dc_links"], true);
-  legendRow(other, `<span class="swatch dot" style="background:#1f2937"></span>`, "Substations / buses (z5+)", ["sites"], true);
-  legendRow(other, `<span class="swatch dot" style="background:#b45309"></span>`, "Transformers (z8+)", ["transformers"], false);
-  legendRow(other, `<span class="swatch dashed" style="border-color:#7d8a91"></span>`, "Railway traction 16.7 Hz", ["traction"], false);
+  const g = legendGroup(other, "Other network layers", true);
+  legendRow(g, `<span class="swatch" style="border-color:#0e7490"></span>`, "DC links", ["dc_links"], true);
+  legendRow(g, `<span class="swatch dot" style="background:#1f2937"></span>`, "Substations / buses (z5+)", ["sites"], true);
+  legendRow(g, `<span class="swatch dot" style="background:#b45309"></span>`, "Transformers (z8+)", ["transformers"], false);
+  legendRow(g, `<span class="swatch dashed" style="border-color:#7d8a91"></span>`, "Railway traction 16.7 Hz", ["traction"], false);
   // Dashed means different things on different layers, which is confusing
   // without an explicit key. Spell each one out.
   const key = document.createElement("details");
@@ -935,7 +999,8 @@ function popupBody(f) {
       ["PCI corridor", props.pciCorridor],
       ["source", props.source],
       ["attributes", props.attrs_source],
-      ["note", "\u00a9 ENTSO-E, published here with permission. Commissioning " +
+      ["note", "\u00a9 ENTSO-E \u2014 not open data; contact ENTSO-E for reuse "
+               + "terms. Commissioning " +
                "years are ENTSO-E's, not forecasts, and this map computes no " +
                "power flows."],
     ].filter(([, v]) => v !== null && v !== undefined && v !== "");
@@ -1125,6 +1190,7 @@ if (window.FEEDBACK) {
   function go() {
     if (done || !window.PERMALINK) return;
     if (!document.getElementById("yearslider")) return;   // controls not present
+    if (!Object.keys(LAYER_TOGGLES).length) return;       // legend not built
     done = true;
     PERMALINK.init({
       map: map,
@@ -1133,6 +1199,10 @@ if (window.FEEDBACK) {
         scen: { type: "radio", name: "scen" },
         year: { type: "range", id: "yearslider" },
       },
+      // Which layers are showing is part of "the view" - a link to a corridor
+      // is useless if it opens with that corridor's layer turned off.
+      extra: layerParams,
+      applyExtra: applyLayerParams,
     });
   }
   // The viewer calls this once its control handlers are bound; the map events
