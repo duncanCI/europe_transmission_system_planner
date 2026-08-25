@@ -562,15 +562,22 @@ async function setupContext() {
 
   const projColor = ["case", ["==", ["coalesce", ["get", "is_dc"], false], true],
                      "#0e7490", "#7c3aed"];
+  // SOLID IS RESERVED FOR "IN SERVICE". These lines used to be solid, because
+  // solid encoded "we have the promoter's real route geometry" - but the same
+  // map uses solid for existing circuits, so 71 of the 76 planned lines in a
+  // typical British view read as though they were already built, including
+  // schemes that do not energise until 2035. Provenance is now carried by the
+  // DASH LENGTH instead: long dashes mean a published route, short dashes mean
+  // a schematic. Nothing that is not yet carrying power is drawn solid.
   map.addLayer({ id: "proj_line_sourced", type: "line", source: "context",
     "source-layer": "projects",
     filter: ["all", ["all", isLine, sourcedGeom], datedFilter("dated")],
-    paint: { "line-color": projColor,
+    paint: { "line-color": projColor, "line-dasharray": [5, 1.8],
              "line-width": scaledWidth("proj_line_sourced", [[4,1.6],[8,2.6],[12,4.2]]) } });
   map.addLayer({ id: "proj_line_schematic", type: "line", source: "context",
     "source-layer": "projects",
     filter: ["all", ["all", isLine, ["!", sourcedGeom]], datedFilter("dated")],
-    paint: { "line-color": projColor, "line-dasharray": [2.4, 1.8],
+    paint: { "line-color": projColor, "line-dasharray": [1.5, 2.0],
              "line-width": scaledWidth("proj_line_schematic", [[4,1.2],[8,2.0],[12,3.4]]) } });
   map.addLayer({ id: "proj_points", type: "circle", source: "context",
     "source-layer": "projects",
@@ -646,7 +653,8 @@ async function setupContext() {
   map.addLayer({ id: "fr_new", type: "line", source: "context",
     "source-layer": "fr_sddr", filter: ["==", ["get", "class"], "new"],
     layout: { visibility: "none" },
-    paint: { "line-color": "#5b21b6",
+    // New build is not in service. Solid means in service.
+    paint: { "line-dasharray": [5, 1.8], "line-color": "#5b21b6",
              "line-width": scaledWidth("fr_new", [[4,1.6],[8,2.6],[12,4.2]]) } });
   map.addLayer({ id: "fr_sites", type: "circle", source: "context",
     "source-layer": "fr_sddr", filter: ["==", ["get", "class"], "site"],
@@ -667,7 +675,8 @@ async function setupContext() {
   map.addLayer({ id: "no_consented", type: "line", source: "context",
     "source-layer": "no_nve", filter: ["==", ["get", "class"], "consented"],
     layout: { visibility: "none" },
-    paint: { "line-color": "#0f766e",
+    // Consented is not built. Solid is reserved for circuits in service.
+    paint: { "line-color": "#0f766e", "line-dasharray": [5, 1.8],
              "line-width": scaledWidth("no_consented", [[4,1.4],[8,2.3],[12,3.8]]) } });
 
   const dev = document.getElementById("legend-dev");
@@ -677,14 +686,14 @@ async function setupContext() {
   legendRow(gPlan, `<span class="swatch dashed" style="border-color:#9ca3af"></span>`,
             "Later &amp; undated plans", ["proj_line_rest", "proj_point_rest"], false);
   const gNo = legendGroup(dev, "Norway — NVE licensing register", false);
-  legendRow(gNo, `<span class="swatch" style="border-color:#0f766e"></span>`,
+  legendRow(gNo, `<span class="swatch dashed" style="border-color:#0f766e"></span>`,
             "Norway — consented, not built", ["no_consented"], false,
             "Lines NVE has licensed but that are not yet built, from NVE's open licensing register — the only Norwegian source with geometry, since Statnett publishes no project list. NVE states a licensing stage, not a commissioning year, so no service year is shown or inferred. © NVE, open data.");
   legendRow(gNo, `<span class="swatch dashed" style="border-color:#0d9488"></span>`,
             "Norway — still in licensing", ["no_licensing"], false,
             "Notified, in consultation, or under assessment at NVE. The concession stage is carried verbatim from NVE's published domain. © NVE, open data.");
   const gFr = legendGroup(dev, "France — RTE SDDR 2025", false);
-  legendRow(gFr, `<span class="swatch" style="border-color:#5b21b6"></span>`,
+  legendRow(gFr, `<span class="swatch dashed" style="border-color:#5b21b6"></span>`,
             "France SDDR 2025 — new build", ["fr_new"], false,
             "RTE's SDDR 2025 works, from the Cart'Elec map built for the CNDP public debate. New-build lines. RTE publishes no scheme names, commissioning years or voltages for these, so none are shown. © RTE/CNDP — not open data; contact RTE for reuse terms.");
   legendRow(gFr, `<span class="swatch dashed" style="border-color:#7c3aed"></span>`,
@@ -872,10 +881,12 @@ function buildLegend() {
   key.className = "stylekey";
   key.innerHTML =
     `<summary>Line styles: solid vs dashed</summary>` +
+    `<div class="k" style="margin-bottom:3px"><span></span><span><b>Solid means in service.</b> ` +
+    `Anything not yet carrying power is dashed, whatever its colour.</span></div>` +
     styleKeyRow("#33a02c", false, "<b>Solid</b>, voltage colour — existing circuit, in service") +
     styleKeyRow("#33a02c", true,  "<b>Dashed</b>, voltage colour — tagged under construction in OpenStreetMap") +
-    styleKeyRow("#7c3aed", false, "<b>Solid</b> violet — planned scheme drawn with published plan geometry") +
-    styleKeyRow("#7c3aed", true,  "<b>Dashed</b> violet — planned scheme as a straight schematic between matched endpoints; <b>not a route</b>") +
+    styleKeyRow("#7c3aed", true, "<b>Long-dashed</b> violet — planned scheme along the promoter's published route geometry") +
+    styleKeyRow("#7c3aed", true,  "<b>Short-dashed</b> violet — planned scheme as a straight schematic between matched endpoints; <b>not a route</b>") +
     styleKeyRow("#06b6d4", true,  "<b>Dashed</b> cyan — ENTSO-E TYNDP 2026 project") +
     styleKeyRow("#7d8a91", true,  "<b>Dashed</b> grey, thin — 16.7 Hz railway traction, a separate network") +
     `<div style="margin-top:5px">Line thickness is a display setting only — it never encodes ` +
