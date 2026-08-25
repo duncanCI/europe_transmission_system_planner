@@ -8,6 +8,8 @@
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="https://unpkg.com/pmtiles@3.2.1/dist/pmtiles.js"></script>
+<script src="permalink.js"></script>
+<script src="feedback.js"></script>
 <style>
   :root { --paper:#f5f7f6; --ink:#172026; --muted:#59666c; --rule:#c9d1cf; --panel:rgba(245,247,246,.97); }
   * { box-sizing:border-box; }
@@ -127,6 +129,7 @@
       <label for="linescale">Line thickness <output id="scaleout">1.0&times;</output></label>
       <input id="linescale" type="range" min="0.5" max="3" step="0.1" value="1">
       <button id="asmbtn" type="button">Assumptions register (what is ours, not the publisher's)</button>
+      <button id="fbbtn" type="button" hidden>Flag an issue or make a suggestion</button>
     </div>
     <div id="legend-dev-section" hidden>
       <h2 style="margin-top:10px">Development &amp; scenarios</h2>
@@ -740,6 +743,10 @@ async function setupContext() {
   document.querySelectorAll("input[name=scen]").forEach(r =>
     r.addEventListener("change", () => { state.scen = r.value; applyContextState(); }));
   applyContextState();
+  // The controls are only now live. A permalink sets them and relies on THESE
+  // handlers to update state, so it must not be applied before this point -
+  // the elements exist in the static HTML long before they do anything.
+  if (window.__permalinkReady) window.__permalinkReady();
 }
 
 function toggle(ids, on) {
@@ -833,13 +840,23 @@ const POPUP_TITLES = {
   plant_polys: f => (f.name || "Power plant site"),
 };
 
+// Quotes MUST be escaped: cell() puts this straight inside href="...", and a
+// popup value that starts with http:// and contains a double quote would
+// otherwise close the attribute and inject its own. Every value here is
+// OSM-derived (operator, ref, line_label, station_name) and OSM is world
+// writable, so this is reachable by anyone who can edit a way.
 function esc(s) {
-  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 function cell(v) {
   const s = String(v);
-  return /^https?:\/\//.test(s)
-    ? `<a href="${esc(s)}" target="_blank" rel="noopener">${esc(s.length > 60 ? s.slice(0, 57) + "…" : s)}</a>`
+  // Belt and braces to esc(): only allow a URL that contains nothing needing
+  // escaping in the first place, so the href can never carry markup even if
+  // esc() is weakened later.
+  const safeUrl = /^https?:\/\/[^\s"'<>\\`]+$/.test(s);
+  return safeUrl
+    ? `<a href="${esc(s)}" target="_blank" rel="noopener noreferrer">${esc(s.length > 60 ? s.slice(0, 57) + "…" : s)}</a>`
     : esc(s);
 }
 
@@ -1008,7 +1025,17 @@ function wirePopups() {
     const title = (POPUP_TITLES[f.sourceLayer] || (() => f.sourceLayer))(f.properties);
     new maplibregl.Popup({ maxWidth: "340px" })
       .setLngLat(e.lngLat)
-      .setHTML(`<div class="ptitle">${esc(title)}</div><table>${popupBody(f)}</table>`)
+      .setHTML(`<div class="ptitle">${esc(title)}</div><table>${popupBody(f)}</table>` +
+               (window.FEEDBACK
+                 ? `<div style="margin-top:6px">${FEEDBACK.popupLink(
+                      f.properties.fid ?? f.properties.line_id ?? f.properties.station_id ??
+                        f.id ?? `${f.sourceLayer}@${e.lngLat.lat.toFixed(4)},${e.lngLat.lng.toFixed(4)}`,
+                      title, e.lngLat,
+                      { ac_lines: "branch", dc_links: "DC link",
+                        sites: "substation", transformers: "transformer",
+                        plants: "power plant", plant_polys: "power plant site",
+                        places: "demand point" }[f.sourceLayer] || "feature")}</div>`
+                 : ""))
       .addTo(map);
   });
   map.on("mousemove", e => {
@@ -1040,7 +1067,9 @@ function wirePopups() {
         `<div class="topic">${esc(t)}</div>` + byTopic[t].map(a =>
           `<div class="item"><b>${esc(a.assumption)}</b>` +
           `<div><i>Basis.</i> ${esc(a.basis)}</div>` +
-          `<div class="bias"><i>Bias.</i> ${esc(a.bias)}</div></div>`).join("")
+          `<div class="bias"><i>Bias.</i> ${esc(a.bias)}</div>` +
+          `<div><a class="fbasm" href="#" data-asm="${esc(a.id)}">Disagree with this assumption?</a></div>` +
+          `</div>`).join("")
       ).join("");
       loaded = true;
     } catch (e) {
@@ -1051,7 +1080,65 @@ function wirePopups() {
   btn.addEventListener("click", open);
   document.getElementById("asmclose").addEventListener("click", () => { wrap.hidden = true; });
   wrap.addEventListener("click", e => { if (e.target === wrap) wrap.hidden = true; });
-  document.addEventListener("keydown", e => { if (e.key === "Escape") wrap.hidden = true; });
+  document.addEventListener("keydown", e => {
+    // The feedback modal can be opened from inside this one and claims Escape
+    // for itself; closing both at once loses the reader's place.
+    const fb = document.getElementById("fbwrap");
+    if (fb && !fb.hidden) return;
+    if (e.key === "Escape") wrap.hidden = true;
+  });
+})();
+
+// Feedback widget. The map is a static site, so nothing can be POSTed; the
+// widget builds a structured report and hands it to a channel the reader
+// already has. This viewer is public and its data is ODbL OpenStreetMap plus
+// CC BY TYNDP scenario figures, so a public issue tracker is fine here.
+if (window.FEEDBACK) {
+  FEEDBACK.configure({
+    viewer: "public grid topology map",
+    github: { owner: "duncanCI", repo: "europe_transmission_system_planner" },
+    email: "duncan@continuum.industries",
+    getContext: () => {
+      const c = map.getCenter();
+      return {
+        "map build": TILE_VERSION,
+        scenario: state.scen,
+        year: state.year,
+        centre: `${c.lat.toFixed(4)}, ${c.lng.toFixed(4)}`,
+        zoom: map.getZoom().toFixed(1),
+      };
+    },
+  });
+  const fbb = document.getElementById("fbbtn");
+  fbb.hidden = false;   // only shown once the widget is known to have loaded
+  fbb.addEventListener("click", () => FEEDBACK.open({ kind: "view" }));
+}
+
+// Shareable links. Event-driven, NOT a poll on map.isStyleLoaded(): that flag
+// stays false in this viewer for as long as the development layers keep
+// mutating the style, so a poll on it never fires. What actually matters is
+// that the controls a permalink drives exist and the map can take a camera
+// move, which "load" and "idle" both guarantee.
+(function () {
+  var done = false;
+  function go() {
+    if (done || !window.PERMALINK) return;
+    if (!document.getElementById("yearslider")) return;   // controls not present
+    done = true;
+    PERMALINK.init({
+      map: map,
+      state: state,
+      controls: {
+        scen: { type: "radio", name: "scen" },
+        year: { type: "range", id: "yearslider" },
+      },
+    });
+  }
+  // The viewer calls this once its control handlers are bound; the map events
+  // and the timeout are only fallbacks in case that call is ever removed.
+  window.__permalinkReady = go;
+  map.on("idle", go);
+  setTimeout(go, 6000);
 })();
 </script>
 </body>
