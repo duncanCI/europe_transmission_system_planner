@@ -39,6 +39,7 @@
   }
 
   var CATEGORIES = [
+    ["endpoint", "This scheme connects to the wrong place"],
     ["data", "Something is wrong in the data"],
     ["missing", "A scheme or asset is missing"],
     ["method", "I disagree with the method or an assumption"],
@@ -86,6 +87,9 @@
     "#fb .fbrow button.fbprimary{background:#1d4ed8;color:#fff;border-color:#1d4ed8}",
     "#fb .fbrow button.fbprimary:hover{background:#1e40af}",
     "a.fbflag,a.fbasm{color:#1d4ed8;cursor:pointer;font-size:11px}",
+    "#fb .fbpick{margin-top:6px;font:inherit;font-size:12px;padding:5px 10px;",
+    "  cursor:pointer;border:1px solid #cbd5e1;border-radius:4px;background:#f8fafc}",
+    "#fb #fbephint{margin-top:6px}",
     "#fbbtn{margin-top:6px;width:100%;padding:6px 8px;font:inherit;font-size:12px;",
     "  cursor:pointer;border:1px solid #cbd5e1;border-radius:4px;background:#f8fafc}",
     "#fbbtn:hover{background:#eef2f7}",
@@ -116,7 +120,19 @@
       "</select>" +
       '<label class="fbl" for="fbtext">What did you notice?</label>' +
       '<textarea id="fbtext" rows="5" placeholder="Be as specific as you can. If a value looks wrong, say what you would expect and why."></textarea>' +
-      '<label class="fbl" for="fbwho">Your name and organisation (optional)</label>' +
+      '<div id="fbep" hidden>' +
+      '<label class="fbl" for="fbepend">Which end is wrong?</label>' +
+      '<select id="fbepend">' +
+      '<option value="">not sure - I will describe it below</option>' +
+      '<option value="start">the FROM end</option>' +
+      '<option value="end">the TO end</option>' +
+      '</select>' +
+      '<label class="fbl" for="fbepst">Where should it actually connect?</label>' +
+      '<input id="fbepst" type="text" placeholder="substation name, or a station id like st0012345">' +
+      '<button id="fbeppick" type="button" class="fbpick">Pick it on the map instead</button>' +
+      '<p class="fbnote" id="fbephint">Naming the substation is enough &mdash; the id is looked up on ingest. This changes the scheme\'s geometry, so the load-flow screen is re-run before the map updates.</p>' +
+      '</div>' +
+      '<label class="fbl" for="fbwho">Your name and organisation<span id="fbwhoreq"></span></label>' +
       '<input id="fbwho" type="text" autocomplete="organization" placeholder="e.g. A. Planner, National Grid">' +
       '<div class="fbctx"><b>Attached automatically:</b> <span id="fbctxtext"></span></div>' +
       '<div class="fbrow" id="fbactions"></div>' +
@@ -204,6 +220,29 @@
     return rows;
   }
 
+  function isEndpointFix() {
+    var cat = document.getElementById("fbcat");
+    return cat && cat.value === "endpoint" && scope.kind === "feature";
+  }
+
+  /** The block internal_pipeline/ingest_corrections.py reads.
+   *  Machine-readable on purpose: a correction has to survive the trip from a
+   *  planner's screen to the register without anyone retyping it. */
+  function correctionBlock() {
+    if (!isEndpointFix()) return "";
+    var end = document.getElementById("fbepend").value;
+    var where = document.getElementById("fbepst").value.trim();
+    var who = document.getElementById("fbwho").value.trim();
+    var scheme = String(scope.id || "").replace(/^plan:/, "").replace(/[#.].*$/, "");
+    return "\n```endpoint-correction\n" +
+      "scheme_id: " + scheme + "\n" +
+      "endpoint: " + (end || "UNSPECIFIED") + "\n" +
+      "station_id: " + (/^st\d+$/i.test(where) ? where : "") + "\n" +
+      "station_name: " + (/^st\d+$/i.test(where) ? "" : where) + "\n" +
+      "submitted_by: " + who + "\n" +
+      "```\n";
+  }
+
   function payload() {
     var lines = contextLines().map(function (r) { return "- " + r[0] + ": " + r[1]; });
     var cat = document.getElementById("fbcat");
@@ -214,6 +253,7 @@
       text + "\n\n" +
       (who ? "From: " + who + "\n\n" : "") +
       "Category: " + label + "\n" +
+      correctionBlock() +
       "Context (captured by the map, not typed):\n" +
       lines.join("\n") + "\n"
     );
@@ -236,6 +276,16 @@
     return "[" + cat + "] " + String(what).slice(0, 80);
   }
 
+  function syncEndpointFields() {
+    var on = isEndpointFix();
+    document.getElementById("fbep").hidden = !on;
+    // The ingest refuses an anonymous correction - a name is what makes it
+    // evidence rather than an assertion - so say that here, not after they
+    // have sent it.
+    document.getElementById("fbwhoreq").textContent =
+      on ? " \u2014 required for a correction" : " (optional)";
+  }
+
   function status(msg) { document.getElementById("fbstatus").textContent = msg; }
 
   function actions() {
@@ -246,6 +296,18 @@
     function guard(fn) {
       return function () {
         if (!text.value.trim()) { status("Add a note first - the context alone does not say what is wrong."); text.focus(); return; }
+        if (isEndpointFix()) {
+          var who = document.getElementById("fbwho");
+          if (!who.value.trim()) {
+            status("A correction needs your name: it is applied ahead of the "
+                 + "automatic matcher, so it has to be attributable.");
+            who.focus(); return;
+          }
+          if (!document.getElementById("fbepst").value.trim()) {
+            status("Say where it should connect, or switch to a plain data report.");
+            document.getElementById("fbepst").focus(); return;
+          }
+        }
         fn();
       };
     }
@@ -329,6 +391,14 @@
     document.getElementById("fbctxtext").textContent =
       contextLines().map(function (r) { return r[0] + " " + r[1]; }).join(" · ");
     document.getElementById("fbstatus").textContent = "";
+    var cat = document.getElementById("fbcat");
+    // Only offer the endpoint-correction fields where they mean something:
+    // a scheme on the map, not an assumption or the view as a whole.
+    var epOption = cat.querySelector('option[value="endpoint"]');
+    if (epOption) epOption.hidden = scope.kind !== "feature";
+    if (cat.value === "endpoint" && scope.kind !== "feature") cat.selectedIndex = 1;
+    cat.onchange = syncEndpointFields;
+    syncEndpointFields();
     actions();
     document.getElementById("fbwrap").hidden = false;
     document.getElementById("fbtext").focus();
