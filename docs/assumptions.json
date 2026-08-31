@@ -65,16 +65,16 @@
    "bias": "Those branches are absent from the screen entirely. Islands above the floor (Sardinia, Corsica) ARE screened, and now carry their own area label rather than being pooled under 'Continental'."
   },
   {
-   "id": "multi-circuit-collapse",
+   "id": "multi-circuit-per-circuit",
    "topic": "Topology",
-   "assumption": "A multi-circuit corridor is one branch record carrying the SUM of the circuits' ratings and their parallel reactance. Its outage removes every circuit at once.",
-   "basis": "That is how the v23 topology builds ac_line_all: s_nom = sqrt(3) x U x I x n_circuits. 20,360 of 73,234 in-scope spans (27.8%) have two or more circuits.",
-   "bias": "OPTIMISTIC for the number the map paints, which the earlier wording got backwards. Measured after matching on country, voltage and length: a collapsed corridor carries 1.78x the headroom of the same line drawn as separate circuits, because it cannot lose a single circuit at all - only all of them, which then disperses into the mesh. Whether a corridor is collapsed is an OpenStreetMap drawing convention, not a grid property, and its prevalence is national: 5% of Norway's multi-circuit backbone, 8% of France's, against 45% of GB's and 56% of Finland's. Collapsed and split corridors are NOT comparable with each other. Separately, the corridor outage is a common-structure event (TPL-001 P7), not N-1."
+   "assumption": "A corridor carrying n circuits is modelled as n parallel branches of rating/n and impedance xn, so a single contingency takes a single circuit.",
+   "basis": "The corridor used to be ONE branch, so its outage removed every circuit at once - a TPL-001 P7 common-structure event, not N-1, though every result was labelled N-1. It also broke comparability, because whether a double circuit is drawn as one way or two is an OpenStreetMap convention, not a grid property: 5% of Norway's multi-circuit backbone is bundled against 45% of GB's and 56% of Finland's, and a bundled corridor came out with 1.78x the headroom of the same line drawn as two ways. Splitting leaves the corridor's aggregate rating and admittance exactly as they were.",
+   "bias": "None known between countries; this removes a bias that favoured countries whose contributors bundle circuits. Common-tower double-circuit outages are still NOT taken, so corridors where both circuits share towers are screened optimistically against that event."
   },
   {
    "id": "scope-monitor",
    "topic": "Scope",
-   "assumption": "Branches are monitored down to 90 kV, but contingencies are taken only on 220 kV and above (plus all transformers).",
+   "assumption": "Branches are monitored down to 60 kV, but contingencies are taken only on 220 kV and above (plus all transformers). Results are published in two tiers - transmission at 220 kV and above, sub-transmission below it - and never pooled.",
    "basis": "A 90 kV circuit tripping is a local event; a 90 kV circuit is still worth watching under a backbone outage. Screening 73k outages against 73k monitored branches is roughly ten times the work for little screening value.",
    "bias": "Understates stress on sub-transmission caused by sub-transmission outages. Backbone N-1 is unaffected."
   },
