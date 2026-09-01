@@ -197,7 +197,7 @@
          schemes across the 16 countries checked. The worst are <b>Greece</b> (the ΔΠΑ 2025-2034
          lists ~95 project clusters; none are here yet), <b>Croatia</b>, <b>Lithuania</b>,
          <b>Belgium</b> (four concurrent statutory plans, federal and regional, of which one is
-         reflected here), <b>Italy</b> (Terna's PdS 2025 has 232 interventi against the 67 shown),
+         reflected here), <b>Italy</b> (Terna's PdS 2025 lists 1,208 opere; 249 interventions are in the register and 140 of those are placeable on the map — most publish no usable endpoints),
          <b>Sweden</b>. Great Britain, Germany, Denmark, the Netherlands, Hungary and Spain are the
          best covered from national plans. <b>France</b> and <b>Norway</b> are covered a different
          way, because neither TSO publishes a project list: France through RTE's SDDR works
@@ -263,7 +263,10 @@
 // state.lineScale while they are being built.
 const state = { lineScale: 1, year: 2030, scen: "ntp", ddelta: false };
 
-const TILE_VERSION = "20260822d";
+// Bumped when ANY fetched artefact changes - assumptions.json is fetched
+// with this stamp, so a content change there must bump it or returning
+// visitors keep a cached, retracted copy.
+const TILE_VERSION = "20260901a";
 // Ground colour behind the tiles. MapLibre paints cannot read CSS custom
 // properties, so this literal must match --paper in the stylesheet above.
 const PAPER = "#EEF0F2";

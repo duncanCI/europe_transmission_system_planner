@@ -2,6 +2,20 @@
  "note": "Assumptions that are ours, not a publisher's. Each states its basis and which way it biases the result.",
  "assumptions": [
   {
+   "id": "kosovo-absent",
+   "topic": "Coverage",
+   "assumption": "Kosovo (XK) is in the network topology but carries no demand or generation weights, so no transfer pattern sources, sinks or crosses it and it has no register or planned branches.",
+   "basis": "The TYNDP 2026 scenario tables this screen is shaped by publish no XK figures (every other Balkan system is present). Inventing weights would breach the provenance rule: a value is sourced, inferred or unknown.",
+   "bias": "Kosovan branches appear only as unexposed or under other systems' transfers; Kosovan stress is UNDERSTATED. Plugging this needs a sourced demand/generation figure (e.g. KOSTT adequacy data), not a guess."
+  },
+  {
+   "id": "plan-source-coverage",
+   "topic": "Coverage",
+   "assumption": "The 'with plans' network only contains what a source publishes: national register schemes where a TSO plan was harvested, TYNDP projects everywhere, RTE/NVE geometry for France/Norway. Several countries have no harvested national plan and therefore contribute only TYNDP-level projects.",
+   "basis": "Plan harvesting is per-source manual work; the public map's coverage note names the worst gaps (Greece, Croatia, Lithuania, Belgium regional plans, Italy's unplaceable interventions).",
+   "bias": "Plan relief is understated in un-harvested countries, so their residual 'with plans' stress reads HIGH relative to well-harvested neighbours. Cross-country plan-effect comparisons are only meaningful between well-covered countries."
+  },
+  {
    "id": "endpoint-synchronous-area",
    "topic": "Planned endpoints",
    "assumption": "A planned AC branch may not join two synchronous areas. Candidate terminal pairings that cross one are rejected and the circuit's full rating is renormalised onto the pairings that remain.",
@@ -61,8 +75,8 @@
    "id": "scope-component-floor",
    "topic": "Scope",
    "assumption": "Only connected components of at least 50 buses are screened. Every run report carries the count of buses, lines and transformers this excludes.",
-   "basis": "Screening a severed OSM fragment standalone produces nonsense. At the 90 kV floor this excludes roughly 5,700 of 73,234 AC lines (7.8%), which was previously happening with no count published anywhere.",
-   "bias": "Those branches are absent from the screen entirely. Islands above the floor (Sardinia, Corsica) ARE screened, and now carry their own area label rather than being pooled under 'Continental'."
+   "basis": "Screening a severed OSM fragment standalone produces nonsense. At the 60 kV floor this excludes roughly 9,200 spans and 9,700 buses (per-run counts are published in every run report as lines_dropped_below_floor and buses_below_floor), which previously happened with no count published anywhere.",
+   "bias": "Those branches are absent from the screen entirely. Islands above the floor carry their own area label rather than being pooled under 'Continental'. Sardinia is screened; Corsica is selected but currently produces NO results, because none of the TYNDP generation or demand weight lands on its buses - every run report says so ('skipped: no injection patterns') rather than leaving it silently absent."
   },
   {
    "id": "multi-circuit-per-circuit",
