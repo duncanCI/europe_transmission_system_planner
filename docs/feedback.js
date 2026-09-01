@@ -63,36 +63,38 @@
 
   var scope = { kind: "view", id: null, label: null };
 
+  // Colours resolve against the brand tokens in index.html's :root (the
+  // injected sheet lives in the same document, so var() works here).
   var CSS = [
     "#fbwrap[hidden]{display:none}",
-    "#fbwrap{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:20;",
+    "#fbwrap{position:fixed;inset:0;background:rgba(35,26,69,.55);z-index:20;",
     "  display:flex;align-items:center;justify-content:center}",
     "#fb{background:#fff;width:min(560px,92vw);max-height:88vh;overflow:auto;",
     "  border-radius:6px;padding:18px 22px;box-shadow:0 10px 40px rgba(0,0,0,.3);",
-    "  font:13px/1.45 system-ui,-apple-system,'Segoe UI',sans-serif;color:#0f172a}",
+    "  font:13px/1.45 Roboto,system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--ink)}",
     "#fb h2{margin:0 0 4px;font-size:15px}",
     "#fbclose{float:right;border:0;background:none;font-size:20px;cursor:pointer;",
-    "  color:#64748b;line-height:1}",
-    "#fb .fbnote{color:#64748b;font-size:12px;margin:0 0 10px}",
+    "  color:var(--muted);line-height:1}",
+    "#fb .fbnote{color:var(--muted);font-size:12px;margin:0 0 10px}",
     "#fb .fbl{display:block;font-weight:600;font-size:12px;margin:10px 0 3px}",
     "#fb select,#fb textarea,#fb input[type=text]{width:100%;font:inherit;padding:6px 8px;",
-    "  border:1px solid #cbd5e1;border-radius:4px;background:#fff;box-sizing:border-box}",
+    "  border:1px solid var(--rule);border-radius:4px;background:#fff;box-sizing:border-box}",
     "#fb textarea{resize:vertical}",
-    "#fb .fbctx{margin:12px 0 0;padding:8px 10px;background:#f1f5f9;border-radius:4px;",
-    "  font-size:11px;color:#334155;word-break:break-word}",
+    "#fb .fbctx{margin:12px 0 0;padding:8px 10px;background:var(--paper);border-radius:4px;",
+    "  font-size:11px;color:var(--muted);word-break:break-word}",
     "#fb .fbrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}",
     "#fb .fbrow button{font:inherit;font-size:12px;padding:7px 12px;cursor:pointer;",
-    "  border:1px solid #cbd5e1;border-radius:4px;background:#f8fafc}",
-    "#fb .fbrow button:hover{background:#eef2f7}",
-    "#fb .fbrow button.fbprimary{background:#1d4ed8;color:#fff;border-color:#1d4ed8}",
-    "#fb .fbrow button.fbprimary:hover{background:#1e40af}",
-    "a.fbflag,a.fbasm{color:#1d4ed8;cursor:pointer;font-size:11px}",
+    "  border:1px solid var(--rule);border-radius:4px;background:var(--paper)}",
+    "#fb .fbrow button:hover{background:var(--teal-soft)}",
+    "#fb .fbrow button.fbprimary{background:var(--brand);color:#fff;border-color:var(--brand)}",
+    "#fb .fbrow button.fbprimary:hover{background:var(--brand-2)}",
+    "a.fbflag,a.fbasm{color:var(--link);cursor:pointer;font-size:11px}",
     "#fb .fbpick{margin-top:6px;font:inherit;font-size:12px;padding:5px 10px;",
-    "  cursor:pointer;border:1px solid #cbd5e1;border-radius:4px;background:#f8fafc}",
+    "  cursor:pointer;border:1px solid var(--rule);border-radius:4px;background:var(--paper)}",
     "#fb #fbephint{margin-top:6px}",
     "#fbbtn{margin-top:6px;width:100%;padding:6px 8px;font:inherit;font-size:12px;",
-    "  cursor:pointer;border:1px solid #cbd5e1;border-radius:4px;background:#f8fafc}",
-    "#fbbtn:hover{background:#eef2f7}",
+    "  cursor:pointer;border:1px solid var(--rule);border-radius:4px;background:var(--paper)}",
+    "#fbbtn:hover{background:var(--teal-soft)}",
   ].join("");
 
   // Styles go in at load, not on first open: the panel button is rendered

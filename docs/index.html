@@ -8,13 +8,24 @@
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="https://unpkg.com/pmtiles@3.2.1/dist/pmtiles.js"></script>
-<script src="permalink.js?v=20260822d"></script>
-<script src="feedback.js?v=20260822d"></script>
+<script src="permalink.js?v=20260901"></script>
+<script src="feedback.js?v=20260901"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
 <style>
-  :root { --paper:#f5f7f6; --ink:#172026; --muted:#59666c; --rule:#c9d1cf; --panel:rgba(245,247,246,.97); }
+  /* Continuum Industries / Optioneer brand tokens, read from the shipped app
+     theme (Vuetify: primary #29194F, secondary #1CCDD8, warning #E8590C,
+     variants #330084/#3E0CBA, pale teal #9CEDF2) and its ground #EEF0F2.
+     Chrome only: the DATA colours (headroom ramp, voltage classes, planned
+     violet, DC teal) are semantic and deliberately unchanged. */
+  :root { --paper:#EEF0F2; --ink:#231A45; --muted:#5B5773; --rule:#CED6D7;
+          --panel:rgba(255,255,255,.97);
+          --brand:#29194F; --brand-2:#330084; --link:#3E0CBA;
+          --teal:#1CCDD8; --teal-soft:#9CEDF2; --warn:#E8590C; --apricot:#FDC182; }
   * { box-sizing:border-box; }
   html,body { height:100%; margin:0; color:var(--ink); background:var(--paper);
-              font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+              font-family:Roboto,-apple-system,"Segoe UI",Arial,sans-serif; }
   body { display:grid; grid-template-rows:auto minmax(0,1fr); overflow:hidden; }
   header { z-index:4; padding:10px 16px; border-bottom:1px solid var(--rule); background:var(--panel);
            display:flex; justify-content:space-between; align-items:center; gap:18px; flex-wrap:wrap; }
@@ -26,52 +37,52 @@
   .scenrow label { display:flex; gap:3px; align-items:center; }
   .scenrow input { accent-color:#7c3aed; margin:0; }
   .scenrow label.off { opacity:.4; }
-  h1 { margin:0; font:600 19px/1.2 Georgia,serif; }
+  h1 { margin:0; font:700 19px/1.2 Roboto,sans-serif; color:var(--brand); letter-spacing:.01em; }
   .subtitle { color:var(--muted); font-size:12.5px; margin-top:2px; }
-  .subtitle a { color:#3b5f7a; }
+  .subtitle a { color:var(--link); }
   #map { width:100%; height:100%; }
   /* Assumptions register: every judgement that is ours rather than a
      publisher's, with its basis and its direction of bias. Generated from
      the pipeline's assumptions_register.py, never retyped, so the map cannot
      drift from what the model actually does. */
   #asmbtn { margin-top:10px; width:100%; padding:6px 8px; font:inherit;
-            font-size:12px; cursor:pointer; border:1px solid #cbd5e1;
-            border-radius:4px; background:#f8fafc; }
-  #asmbtn:hover { background:#eef2f7; }
+            font-size:12px; cursor:pointer; border:1px solid var(--brand);
+            border-radius:4px; background:var(--brand); color:#fff; }
+  #asmbtn:hover { background:var(--brand-2); }
   #asmwrap[hidden] { display:none; }
-  #asmwrap { position:absolute; inset:0; background:rgba(15,23,42,.55);
+  #asmwrap { position:absolute; inset:0; background:rgba(35,26,69,.55);
              z-index:9; display:flex; align-items:center; justify-content:center; }
   #asm { background:#fff; max-width:820px; max-height:82%; overflow:auto;
          border-radius:6px; padding:18px 22px; box-shadow:0 10px 40px rgba(0,0,0,.3); }
   #asm h2 { margin:0 0 2px; font-size:15px; }
-  #asm .note { color:#64748b; font-size:12px; margin:0 0 12px; }
+  #asm .note { color:var(--muted); font-size:12px; margin:0 0 12px; }
   #asm .topic { font-size:11px; text-transform:uppercase; letter-spacing:.04em;
-                color:#475569; margin:14px 0 4px; font-weight:700; }
-  #asm .item { border-left:3px solid #cbd5e1; padding:4px 0 4px 10px; margin:0 0 8px; }
+                color:var(--muted); margin:14px 0 4px; font-weight:700; }
+  #asm .item { border-left:3px solid var(--rule); padding:4px 0 4px 10px; margin:0 0 8px; }
   #asm .item b { font-size:12.5px; }
-  #asm .item div { font-size:12px; color:#334155; margin-top:2px; }
+  #asm .item div { font-size:12px; color:var(--ink); margin-top:2px; }
   #asm .bias { color:#7c2d12; }
   #asmclose { float:right; border:0; background:none; font-size:20px;
-              cursor:pointer; color:#64748b; line-height:1; }
+              cursor:pointer; color:var(--muted); line-height:1; }
   /* Collapsible layer groups. The panel had grown to ~20 flat checkboxes,
      which is a lot to scan; grouping them by source keeps the map visible. */
-  details.lgroup { border-top:1px solid var(--line,#e2e8f0); }
+  details.lgroup { border-top:1px solid var(--rule); }
   details.lgroup:first-of-type { border-top:0; }
   details.lgroup > summary { cursor:pointer; font-size:11px; font-weight:700;
-    text-transform:uppercase; letter-spacing:.03em; color:#475569;
+    text-transform:uppercase; letter-spacing:.03em; color:var(--muted);
     padding:5px 0 4px; list-style:none; display:flex; align-items:center; gap:5px; }
   details.lgroup > summary::-webkit-details-marker { display:none; }
   details.lgroup > summary::before { content:"\25B8"; font-size:9px;
-    transition:transform .12s; color:#94a3b8; }
+    transition:transform .12s; color:var(--muted); }
   details.lgroup[open] > summary::before { transform:rotate(90deg); }
-  details.lgroup > summary:hover { color:#0f172a; }
+  details.lgroup > summary:hover { color:var(--ink); }
   .lgbody { padding:0 0 5px 10px; }
   .panel { position:absolute; top:12px; left:12px; z-index:3; width:245px; background:var(--panel);
            border:1px solid var(--rule); border-radius:8px; padding:10px 12px; font-size:12.5px;
            max-height:calc(100% - 48px); overflow:auto; box-shadow:0 1px 4px rgba(0,0,0,.12); }
   .panel h2 { margin:0 0 6px; font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
   .row { display:flex; align-items:center; gap:7px; padding:2.5px 0; }
-  .row input { margin:0; accent-color:#3b5f7a; }
+  .row input { margin:0; accent-color:var(--brand); }
   .swatch { width:22px; height:0; border-top:3px solid; flex:none; }
   .swatch.dashed { border-top-style:dashed; }
   .swatch.dot { width:9px; height:9px; border-radius:50%; border:none; }
@@ -79,8 +90,8 @@
   .displayctl { margin-top:10px; border-top:1px solid var(--rule); padding-top:8px;
                 color:var(--muted); font-size:12px; }
   .displayctl label { display:block; }
-  .displayctl output { color:#3b5f7a; font-weight:700; font-variant-numeric:tabular-nums; }
-  .displayctl input[type=range] { width:100%; accent-color:#3b5f7a; }
+  .displayctl output { color:var(--brand); font-weight:700; font-variant-numeric:tabular-nums; }
+  .displayctl input[type=range] { width:100%; accent-color:var(--brand); }
   .stylekey { margin-top:8px; color:var(--muted); line-height:1.5;
               border-top:1px solid var(--rule); padding-top:7px; }
   .stylekey > summary { cursor:pointer; font-weight:600; font-size:12px;
@@ -90,12 +101,15 @@
   details { margin-top:8px; border-top:1px solid var(--rule); padding-top:8px; }
   details summary { cursor:pointer; font-weight:600; font-size:12px; }
   details p { margin:6px 0; color:var(--muted); line-height:1.45; }
-  .maplibregl-popup-content { font:12px/1.4 -apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  .maplibregl-popup-content { font:12px/1.4 Roboto,-apple-system,"Segoe UI",Arial,sans-serif;
                               max-height:290px; overflow:auto; min-width:230px; }
   .maplibregl-popup-content table { border-collapse:collapse; width:100%; }
   .maplibregl-popup-content td { padding:1.5px 6px 1.5px 0; vertical-align:top; }
   .maplibregl-popup-content td:first-child { color:var(--muted); white-space:nowrap; }
   .maplibregl-popup-content .ptitle { font-weight:700; margin-bottom:4px; }
+  /* Focus ring: --link, not --teal — teal is ~1.7:1 on the paper ground,
+     under the 3:1 non-text minimum (WCAG 2.2 SC 1.4.11). */
+  :is(a,button,input,select,textarea):focus-visible { outline:2px solid var(--link); outline-offset:1px; }
 </style>
 </head>
 <body>
@@ -237,6 +251,9 @@
 const state = { lineScale: 1, year: 2030, scen: "ntp", ddelta: false };
 
 const TILE_VERSION = "20260822d";
+// Ground colour behind the tiles. MapLibre paints cannot read CSS custom
+// properties, so this literal must match --paper in the stylesheet above.
+const PAPER = "#EEF0F2";
 const TILES = {
   linework: `europe_grid_v23_linework.pmtiles?v=${TILE_VERSION}`,
   points:   `europe_grid_v23_points.pmtiles?v=${TILE_VERSION}`,
@@ -351,7 +368,7 @@ function setup() {
     id: "sites", type: "circle", source: "points", "source-layer": "sites", minzoom: 5,
     paint: { "circle-color": "#1f2937", "circle-opacity": 0.85,
              "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.2, 9, 3, 13, 6],
-             "circle-stroke-color": "#f5f7f6", "circle-stroke-width": 0.6 },
+             "circle-stroke-color": PAPER, "circle-stroke-width": 0.6 },
   });
 
   map.addLayer({
@@ -584,7 +601,7 @@ async function setupContext() {
     filter: ["all", ["all", isPoint], datedFilter("dated")],
     paint: { "circle-color": projColor, "circle-opacity": 0.85,
              "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 2, 8, 4, 12, 7],
-             "circle-stroke-color": "#f5f7f6", "circle-stroke-width": 0.8 } });
+             "circle-stroke-color": PAPER, "circle-stroke-width": 0.8 } });
   map.addLayer({ id: "proj_line_rest", type: "line", source: "context",
     "source-layer": "projects", layout: { visibility: "none" },
     filter: ["all", ["all", isLine], datedFilter("rest")],
@@ -624,7 +641,7 @@ async function setupContext() {
     layout: { visibility: "none" },
     paint: { "circle-color": "#06b6d4", "circle-opacity": 0.85,
              "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 2.5, 8, 4.5, 12, 7],
-             "circle-stroke-color": "#f5f7f6", "circle-stroke-width": 0.8 } });
+             "circle-stroke-color": PAPER, "circle-stroke-width": 0.8 } });
 
   // RTE SDDR 2025 works (RTE/CNDP, not open data). Same violet family as the
   // other planned developments so it reads as one theme, but split by what the
@@ -661,7 +678,7 @@ async function setupContext() {
     minzoom: 6, layout: { visibility: "none" },
     paint: { "circle-color": "#7c3aed", "circle-opacity": 0.7,
              "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 1.8, 12, 5],
-             "circle-stroke-color": "#f5f7f6", "circle-stroke-width": 0.6 } });
+             "circle-stroke-color": PAPER, "circle-stroke-width": 0.6 } });
 
   // Norway, from NVE's open licensing register. No commissioning years exist
   // for these, so they are coloured by how far through consenting they are —
@@ -752,8 +769,8 @@ async function setupContext() {
     const cta = document.createElement("a");
     cta.href = GATED_STRESS_URL;
     cta.target = "_blank"; cta.rel = "noopener";
-    cta.style.cssText = "display:block; margin-top:8px; padding:7px 9px; border:1px solid #7c3aed;" +
-      "border-radius:6px; color:#7c3aed; text-decoration:none; font-weight:600; text-align:center;";
+    cta.style.cssText = "display:block; margin-top:8px; padding:7px 9px; border:1px solid var(--link);" +
+      "border-radius:6px; color:var(--link); text-decoration:none; font-weight:600; text-align:center;";
     cta.textContent = "Screening-grade N-1 stress screen — post-fault headroom per GW of scenario-shaped transfer (PTDF/LODF, typed ratings), not a loading forecast. Request access →";
     dev.appendChild(cta);
   }
