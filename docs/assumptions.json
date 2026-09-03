@@ -46,9 +46,9 @@
   {
    "id": "endpoint-voltage-level",
    "topic": "Planned endpoints",
-   "assumption": "A planned AC branch may not join two busbars whose nominal voltages differ by more than 10%. 380/400 and 420/400 kV are one system; 330/220 and 275/220 are not.",
-   "basis": "Such a branch shorts two nominal levels without the transformer that really couples them, and pypsa derives x_pu from bus0's v_nom alone, so identical ohms differ by (380/220)^2 = 3.0x depending which terminal sorted first. 336 planned branches were doing this.",
-   "bias": "Conservative: the pairing is dropped and the rating renormalised onto same-level candidates."
+   "assumption": "A planned circuit lands only on busbars at its own nominal level (within 10%: 380/400/420 kV are one system, 60/63/66 kV another; 330/220 and 275/220 are not). A named station that holds no busbar at that level is not an exact match, and the endpoint falls back to the nearest major terminal AT that level. Sources that publish no voltage (RTE) get theirs from the best-weighted terminals first, then the same rule.",
+   "basis": "A branch between two levels shorts them without the transformer that really couples them, and pypsa derives x_pu from the bus voltage, so identical ohms carry (400/110)^2 = 13x less flow between two 110 kV busbars than between two 400 kV ones. Once the candidate floor followed the monitoring floor to 60 kV, a soft preference for the right level was not enough: 62 register sub-branches at 220-750 kV were built between two 110/132/60 kV busbars and relieved nothing, 70% of Norway's 420 kV licensed sub-branches landed on 132 kV busbars, and 55 380/400 kV schemes whose named station holds only a 110 kV busbar were dropped outright.",
+   "bias": "A scheme with no same-level terminal within its search radius is unresolved rather than misplaced, which understates plan relief for that scheme; it is counted (exact_refused_wrong_level, unresolved_endpoint)."
   },
   {
    "id": "renewal-one-circuit",
@@ -144,7 +144,7 @@
   {
    "id": "endpoint-name-matching",
    "topic": "Endpoints",
-   "assumption": "Endpoint names are matched after stripping commentary, page references and station-type words in each language.",
+   "assumption": "Endpoint names are matched after stripping commentary, page references and station-type words in each language; an endpoint cell is also tried segment by segment (via-clauses cut, dash- and slash-separated alternatives, its own '(DE)'-style country hint), and a border crossing named as an endpoint is classed as a border point, not a failed station match.",
    "basis": "Plans write endpoints as prose: \"Vohringen (DE) - the system boundary is at the border\" is the station Vohringen, and \"UW Westtirol\" and \"Umspannwerk Westtirol\" are one place written two ways.",
    "bias": "Over-stripping could match the wrong station. Matching stays on a high fuzzy threshold with a margin over the runner-up."
   },
@@ -160,14 +160,21 @@
    "topic": "DC",
    "assumption": "A DC link of 500 MW or more enters as a 1 GW converter-injection pattern, not a flow-carrying branch.",
    "basis": "Per GW the AC-flow consequence of a schedule swing and of a full-import outage is the same linear pattern.",
-   "bias": "Conservative where embedded HVDC parallels AC: the link provides no relief in this model."
+   "bias": "Conservative where embedded HVDC parallels AC: the link provides no relief in the default columns. The 'with DC redispatch' view is the labelled exception below."
+  },
+  {
+   "id": "dc-redispatch-sensitivity",
+   "topic": "DC",
+   "assumption": "The 'with DC redispatch' view raises a branch's headroom by the single most helpful HVDC link redispatched to its full rating at that branch's binding case.",
+   "basis": "HVDC setpoints are controllable within post-fault timescales, and relieving paralleled AC corridors is a stated purpose of the planned links. The link's converter pattern response is the same physics the swing screen already computes.",
+   "bias": "Optimistic per branch, in three stated ways: one link per branch but every branch assumes ITS best link (no shared dispatch), relief is evaluated at the unrelieved binding case only (a nearly-as-severe second case with no DC leverage narrows the true gain), and full rating assumes no concurrent market schedule. The default view keeps the no-relief limit."
   },
   {
    "id": "renewal-excluded-elsewhere",
    "topic": "Register",
    "assumption": "Refurbishments, uprates and series devices are not added as new circuits.",
    "basis": "Adding them created phantom parallel corridors. Note that 'reinforcement' is NOT filtered: in TSO usage a named reinforcement is new build.",
-   "bias": "Uprates that do add capacity are not credited outside France."
+   "bias": "A refurbishment or uprating scheme now credits its single most probable existing span with the same x1.3 conductor uplift as an RTE renewal (one scheme, one span, never twice, across sources). Series devices remain uncredited: their benefit is dispatch-dependent, which this screen does not model."
   }
  ]
 }
