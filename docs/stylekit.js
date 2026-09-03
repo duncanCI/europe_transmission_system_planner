@@ -1,7 +1,8 @@
 /* Per-user layer styling for the grid maps.
  *
- * Canonical copy lives in docs/stylekit.js and is copied to the gated repo the
- * same way permalink.js and feedback.js are - one source, two viewers.
+ * Canonical copy lives in docs/stylekit.js. It is viewer-agnostic and meant to
+ * be copied to the gated viewer the same way permalink.js and feedback.js are
+ * (one source, two viewers); as of 2026-09-03 only the public map wires it in.
  *
  * What it does: every legend row gets a small edit control. It changes the
  * colour, opacity, size (line width or circle radius) and dash of the layers
