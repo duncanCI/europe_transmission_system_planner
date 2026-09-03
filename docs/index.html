@@ -10,6 +10,7 @@
 <script src="https://unpkg.com/pmtiles@3.2.1/dist/pmtiles.js"></script>
 <script src="permalink.js?v=20260901"></script>
 <script src="feedback.js?v=20260901"></script>
+<script src="stylekit.js?v=20260903"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
@@ -312,6 +313,9 @@ map.addControl(new maplibregl.AttributionControl({
 }));
 map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
 new ResizeObserver(() => map.resize()).observe(document.getElementById("map"));
+// Per-user layer styling (colour, opacity, size, dash), saved in this browser
+// only - never in the permalink, never on a server. See stylekit.js.
+if (window.STYLEKIT) STYLEKIT.init({ map, key: "egt.public.layerstyles.v1" });
 
 function voltageColorExpr() {
   const expr = ["case"];
@@ -400,6 +404,10 @@ function setup() {
 
   buildLegend();
   wireDisplayControls();
+  if (window.STYLEKIT) {
+    STYLEKIT.reapply();
+    STYLEKIT.mountReset(document.querySelector(".displayctl"));
+  }
   wirePopups();
   setupContext();
 }
@@ -430,6 +438,18 @@ function tyndpYearFilter() {
           ["!", ["has", "year"]],
           ["<=", ["get", "year"], state.year],
           ...(state.year >= SLIDER_MAX ? [[">", ["get", "year"], SLIDER_MAX]] : [])];
+}
+
+// RTE publishes no commissioning years, but it does label each work with the
+// programme horizon it belongs to ("2030 works programme", "2035", "2040",
+// "SDDR 2040 new lines"). The slider gates on that label - RTE's own, a
+// programme rather than a per-scheme date, and the legend says so. A work whose
+// label carries no year (the phase zones) is never gated: hiding it would imply
+// a date RTE has not given.
+const FR_HORIZON_YEAR = ["match", ["get", "horizon"],
+  "2030 works programme", 2030, "2035", 2035, "2040", 2040, "SDDR 2040 new lines", 2040, 0];
+function frHorizonFilter() {
+  return ["any", ["!", ["has", "horizon"]], ["<=", FR_HORIZON_YEAR, state.year]];
 }
 
 function datedFilter(kind) {
@@ -518,6 +538,11 @@ function applyContextState() {
     const gf = map.getFilter(id);
     map.setFilter(id, [gf[0], gf[1], tyndpYearFilter()]);
   }
+  for (const id of ["fr_new", "fr_adaptation", "fr_renewal", "fr_sites"]) {
+    if (!map.getLayer(id)) continue;
+    const gf = map.getFilter(id);
+    map.setFilter(id, [gf[0], gf[1], frHorizonFilter()]);
+  }
   if (TOTALS) {
     const dd = state.ddelta && state.scen !== "ntp" ? demandDeltaExprs() : null;
     map.setPaintProperty("demand_places", "circle-radius",
@@ -542,6 +567,8 @@ function applyContextState() {
     const ddRow = document.getElementById("ddelta-row");
     if (ddRow) ddRow.style.opacity = state.scen === "ntp" ? 0.4 : 1;
   }
+  // the demand colours above are the viewer's; a saved override goes back on top
+  if (window.STYLEKIT) STYLEKIT.reapply();
 }
 
 async function setupContext() {
@@ -652,13 +679,11 @@ async function setupContext() {
   map.addLayer({ id: "tyndp_lines", type: "line", source: "context",
     "source-layer": "tyndp",
     filter: ["all", ["==", ["geometry-type"], "LineString"], tyndpYearFilter()],
-    layout: { visibility: "none" },
     paint: { "line-color": "#06b6d4", "line-dasharray": [4, 1.6],
              "line-width": scaledWidth("tyndp_lines", [[4,1.6],[8,2.6],[12,4.0]]) } });
   map.addLayer({ id: "tyndp_points", type: "circle", source: "context",
     "source-layer": "tyndp",
     filter: ["all", ["==", ["geometry-type"], "Point"], tyndpYearFilter()],
-    layout: { visibility: "none" },
     paint: { "circle-color": "#06b6d4", "circle-opacity": 0.85,
              "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 2.5, 8, 4.5, 12, 7],
              "circle-stroke-color": PAPER, "circle-stroke-width": 0.8 } });
@@ -678,24 +703,26 @@ async function setupContext() {
     paint: { "line-color": "#7c3aed", "line-width": 1.2, "line-opacity": 0.7,
              "line-dasharray": [3, 2] } });
   map.addLayer({ id: "fr_renewal", type: "line", source: "context",
-    "source-layer": "fr_sddr", filter: ["==", ["get", "class"], "renewal"],
+    "source-layer": "fr_sddr",
+    filter: ["all", ["==", ["get", "class"], "renewal"], frHorizonFilter()],
     layout: { visibility: "none" },
     paint: { "line-color": "#a78bfa", "line-opacity": 0.55,
              "line-width": scaledWidth("fr_renewal", [[4,0.7],[8,1.2],[12,2.0]]) } });
   map.addLayer({ id: "fr_adaptation", type: "line", source: "context",
-    "source-layer": "fr_sddr", filter: ["==", ["get", "class"], "adaptation"],
-    layout: { visibility: "none" },
+    "source-layer": "fr_sddr",
+    filter: ["all", ["==", ["get", "class"], "adaptation"], frHorizonFilter()],
     paint: { "line-color": "#7c3aed", "line-dasharray": [2.4, 1.8],
              "line-width": scaledWidth("fr_adaptation", [[4,1.0],[8,1.7],[12,2.8]]) } });
   map.addLayer({ id: "fr_new", type: "line", source: "context",
-    "source-layer": "fr_sddr", filter: ["==", ["get", "class"], "new"],
-    layout: { visibility: "none" },
+    "source-layer": "fr_sddr",
+    filter: ["all", ["==", ["get", "class"], "new"], frHorizonFilter()],
     // New build is not in service. Solid means in service.
     paint: { "line-dasharray": [5, 1.8], "line-color": "#5b21b6",
              "line-width": scaledWidth("fr_new", [[4,1.6],[8,2.6],[12,4.2]]) } });
   map.addLayer({ id: "fr_sites", type: "circle", source: "context",
-    "source-layer": "fr_sddr", filter: ["==", ["get", "class"], "site"],
-    minzoom: 6, layout: { visibility: "none" },
+    "source-layer": "fr_sddr",
+    filter: ["all", ["==", ["get", "class"], "site"], frHorizonFilter()],
+    minzoom: 6,
     paint: { "circle-color": "#7c3aed", "circle-opacity": 0.7,
              "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 1.8, 12, 5],
              "circle-stroke-color": PAPER, "circle-stroke-width": 0.6 } });
@@ -706,12 +733,10 @@ async function setupContext() {
   // substitute for a date and arguably more informative than one.
   map.addLayer({ id: "no_licensing", type: "line", source: "context",
     "source-layer": "no_nve", filter: ["==", ["get", "class"], "in licensing"],
-    layout: { visibility: "none" },
     paint: { "line-color": "#0d9488", "line-opacity": 0.6, "line-dasharray": [2.2, 1.8],
              "line-width": scaledWidth("no_licensing", [[4,0.9],[8,1.5],[12,2.6]]) } });
   map.addLayer({ id: "no_consented", type: "line", source: "context",
     "source-layer": "no_nve", filter: ["==", ["get", "class"], "consented"],
-    layout: { visibility: "none" },
     // Consented is not built. Solid is reserved for circuits in service.
     paint: { "line-color": "#0f766e", "line-dasharray": [5, 1.8],
              "line-width": scaledWidth("no_consented", [[4,1.4],[8,2.3],[12,3.8]]) } });
@@ -722,29 +747,34 @@ async function setupContext() {
             "Planned by selected year", ["proj_line_sourced", "proj_line_schematic", "proj_points"], true);
   legendRow(gPlan, `<span class="swatch dashed" style="border-color:#9ca3af"></span>`,
             "Later &amp; undated plans", ["proj_line_rest", "proj_point_rest"], false);
-  const gNo = legendGroup(dev, "Norway — NVE licensing register", false);
+  // Norway, France and the TYNDP portfolio are ON by default: the year slider
+  // is the point of this panel, and a slider that reveals planned build only
+  // in the countries whose layers happen to be ticked misreads as coverage.
+  // Renewal-only works and the two AREA layers stay off - not lines, and the
+  // 24,000 km of faint renewal would swamp France.
+  const gNo = legendGroup(dev, "Norway — NVE licensing register", true);
   legendRow(gNo, `<span class="swatch dashed" style="border-color:#0f766e"></span>`,
-            "Norway — consented, not built", ["no_consented"], false,
+            "Norway — consented, not built", ["no_consented"], true,
             "Lines NVE has licensed but that are not yet built, from NVE's open licensing register — the only Norwegian source with geometry, since Statnett publishes no project list. NVE states a licensing stage, not a commissioning year, so no service year is shown or inferred. © NVE, open data.");
   legendRow(gNo, `<span class="swatch dashed" style="border-color:#0d9488"></span>`,
-            "Norway — still in licensing", ["no_licensing"], false,
+            "Norway — still in licensing", ["no_licensing"], true,
             "Notified, in consultation, or under assessment at NVE. The concession stage is carried verbatim from NVE's published domain. © NVE, open data.");
-  const gFr = legendGroup(dev, "France — RTE SDDR 2025", false);
+  const gFr = legendGroup(dev, "France — RTE SDDR 2025", true);
   legendRow(gFr, `<span class="swatch dashed" style="border-color:#5b21b6"></span>`,
-            "France SDDR 2025 — new build", ["fr_new"], false,
-            "RTE's SDDR 2025 works, from the Cart'Elec map built for the CNDP public debate. New-build lines. RTE publishes no scheme names, commissioning years or voltages for these, so none are shown. © RTE/CNDP — not open data; contact RTE for reuse terms.");
+            "France SDDR 2025 — new build", ["fr_new"], true,
+            "RTE's SDDR 2025 works, from the Cart'Elec map built for the CNDP public debate. New-build lines. RTE publishes no scheme names, per-scheme commissioning years or voltages, so none are shown; the year slider gates on RTE's own programme label (2030 works programme, 2035, 2040), which is a programme horizon, not a delivery date. © RTE/CNDP — not open data; contact RTE for reuse terms.");
   legendRow(gFr, `<span class="swatch dashed" style="border-color:#7c3aed"></span>`,
-            "France SDDR — adaptation &amp; sites", ["fr_adaptation", "fr_sites"], false,
-            "Reinforcement and connection works, plus the substation sites in the 2030 programme. © RTE/CNDP — not open data; contact RTE for reuse terms.");
+            "France SDDR — adaptation &amp; sites", ["fr_adaptation", "fr_sites"], true,
+            "Reinforcement and connection works, plus the substation sites, gated by RTE's programme label (2030 works programme, 2035, 2040) - a programme horizon, not a delivery date. © RTE/CNDP — not open data; contact RTE for reuse terms.");
   legendRow(gFr, `<span class="swatch" style="border-color:#a78bfa"></span>`,
             "France SDDR — renewal only", ["fr_renewal"], false,
             "Renewal of existing circuits — RTE plans roughly 24,000 km of it, and separates it from the 4,000 km it will 'renforcer ou bâtir'. RTE publishes no rating for these, so no capacity change is modelled; drawn faint for that reason. Reconductoring can uplift a corridor in practice, so treat this as the conservative reading rather than a statement that nothing changes. © RTE/CNDP — not open data; contact RTE for reuse terms.");
   legendRow(gFr, `<span class="swatch sq" style="background:#7c3aed;opacity:.35;width:22px;height:10px"></span>`,
             "France SDDR — phase zones", ["fr_zones", "fr_zone_outline"], false,
             "Phase 1 and Phase 2 reinforcement ZONES. RTE publishes these deliberately without routes: a study area, never a line. © RTE/CNDP — not open data; contact RTE for reuse terms.");
-  const gTy = legendGroup(dev, "ENTSO-E TYNDP 2026 portfolio", false);
+  const gTy = legendGroup(dev, "ENTSO-E TYNDP 2026 portfolio", true);
   legendRow(gTy, `<span class="swatch dashed" style="border-color:#06b6d4"></span>`,
-            "TYNDP 2026 lines &amp; storage", ["tyndp_lines", "tyndp_points"], false,
+            "TYNDP 2026 lines &amp; storage", ["tyndp_lines", "tyndp_points"], true,
             "ENTSO-E TYNDP 2026 project portfolio (preliminary draft). © ENTSO-E — not open data; contact ENTSO-E for reuse terms. Transmission projects as dashed cyan lines, storage as dots. Year-gated by the slider on ENTSO-E's commissioning year: at 2040 the layer also shows the 7 projects dated later, and the 21 with no published year are always shown rather than given a date ENTSO-E has not stated. Commissioning years are ENTSO-E's, not forecasts.");
   legendRow(gTy, `<span class="swatch sq" style="background:#6366f1;opacity:.45;width:22px;height:10px"></span>`,
             "TYNDP 2026 study corridors", ["tyndp_polys", "tyndp_poly_outline"], false,
@@ -867,6 +897,7 @@ function legendRow(parent, swatchHtml, label, ids, startOn, title) {
   input.addEventListener("change", e => toggle(ids, e.target.checked));
   if (ids && ids.length) LAYER_TOGGLES[ids[0]] = { ids, startOn: !!startOn, input };
   parent.appendChild(row);
+  if (window.STYLEKIT && ids && ids.length) STYLEKIT.decorateRow(row, ids);
   return row;
 }
 
@@ -887,6 +918,7 @@ function applyLineScale() {
   for (const [id, stops] of Object.entries(LINE_BASES)) {
     if (map.getLayer(id)) map.setPaintProperty(id, "line-width", widthExpr(stops));
   }
+  if (window.STYLEKIT) STYLEKIT.reapply();
   const out = document.getElementById("scaleout");
   if (out) out.textContent = state.lineScale.toFixed(1) + "\u00d7";
 }
@@ -927,7 +959,9 @@ function buildLegend() {
     styleKeyRow("#06b6d4", true,  "<b>Dashed</b> cyan — ENTSO-E TYNDP 2026 project") +
     styleKeyRow("#7d8a91", true,  "<b>Dashed</b> grey, thin — 16.7 Hz railway traction, a separate network") +
     `<div style="margin-top:5px">Line thickness is a display setting only — it never encodes ` +
-    `capacity. Voltage is the colour.</div>`;
+    `capacity. Voltage is the colour.</div>` +
+    `<div style="margin-top:5px">The colours and widths above are the defaults. The &#x270E; beside each ` +
+    `layer restyles it for this browser only; nothing is shared through a link.</div>`;
   other.appendChild(key);
 }
 
