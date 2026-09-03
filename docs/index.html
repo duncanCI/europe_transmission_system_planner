@@ -669,12 +669,10 @@ async function setupContext() {
   map.addLayer({ id: "tyndp_polys", type: "fill", source: "context",
     "source-layer": "tyndp",
     filter: ["all", ["==", ["geometry-type"], "Polygon"], tyndpYearFilter()],
-    layout: { visibility: "none" },
     paint: { "fill-color": "#6366f1", "fill-opacity": 0.14 } });
   map.addLayer({ id: "tyndp_poly_outline", type: "line", source: "context",
     "source-layer": "tyndp",
     filter: ["all", ["==", ["geometry-type"], "Polygon"], tyndpYearFilter()],
-    layout: { visibility: "none" },
     paint: { "line-color": "#6366f1", "line-width": 1.4, "line-opacity": 0.85 } });
   map.addLayer({ id: "tyndp_lines", type: "line", source: "context",
     "source-layer": "tyndp",
@@ -695,11 +693,9 @@ async function setupContext() {
   // translucent zones so they can never be read as lines.
   map.addLayer({ id: "fr_zones", type: "fill", source: "context",
     "source-layer": "fr_sddr", filter: ["==", ["get", "class"], "zone"],
-    layout: { visibility: "none" },
     paint: { "fill-color": "#7c3aed", "fill-opacity": 0.10 } });
   map.addLayer({ id: "fr_zone_outline", type: "line", source: "context",
     "source-layer": "fr_sddr", filter: ["==", ["get", "class"], "zone"],
-    layout: { visibility: "none" },
     paint: { "line-color": "#7c3aed", "line-width": 1.2, "line-opacity": 0.7,
              "line-dasharray": [3, 2] } });
   map.addLayer({ id: "fr_renewal", type: "line", source: "context",
@@ -750,8 +746,9 @@ async function setupContext() {
   // Norway, France and the TYNDP portfolio are ON by default: the year slider
   // is the point of this panel, and a slider that reveals planned build only
   // in the countries whose layers happen to be ticked misreads as coverage.
-  // Renewal-only works and the two AREA layers stay off - not lines, and the
-  // 24,000 km of faint renewal would swamp France.
+  // The study areas (RTE phase zones, TYNDP study corridors) are on as well:
+  // they are where a plan exists without a route yet. Only renewal-only works
+  // stay off - 24,000 km of faint lines that add no capacity would swamp France.
   const gNo = legendGroup(dev, "Norway — NVE licensing register", true);
   legendRow(gNo, `<span class="swatch dashed" style="border-color:#0f766e"></span>`,
             "Norway — consented, not built", ["no_consented"], true,
@@ -770,14 +767,14 @@ async function setupContext() {
             "France SDDR — renewal only", ["fr_renewal"], false,
             "Renewal of existing circuits — RTE plans roughly 24,000 km of it, and separates it from the 4,000 km it will 'renforcer ou bâtir'. RTE publishes no rating for these, so no capacity change is modelled; drawn faint for that reason. Reconductoring can uplift a corridor in practice, so treat this as the conservative reading rather than a statement that nothing changes. © RTE/CNDP — not open data; contact RTE for reuse terms.");
   legendRow(gFr, `<span class="swatch sq" style="background:#7c3aed;opacity:.35;width:22px;height:10px"></span>`,
-            "France SDDR — phase zones", ["fr_zones", "fr_zone_outline"], false,
+            "France SDDR — phase zones", ["fr_zones", "fr_zone_outline"], true,
             "Phase 1 and Phase 2 reinforcement ZONES. RTE publishes these deliberately without routes: a study area, never a line. © RTE/CNDP — not open data; contact RTE for reuse terms.");
   const gTy = legendGroup(dev, "ENTSO-E TYNDP 2026 portfolio", true);
   legendRow(gTy, `<span class="swatch dashed" style="border-color:#06b6d4"></span>`,
             "TYNDP 2026 lines &amp; storage", ["tyndp_lines", "tyndp_points"], true,
             "ENTSO-E TYNDP 2026 project portfolio (preliminary draft). © ENTSO-E — not open data; contact ENTSO-E for reuse terms. Transmission projects as dashed cyan lines, storage as dots. Year-gated by the slider on ENTSO-E's commissioning year: at 2040 the layer also shows the 7 projects dated later, and the 21 with no published year are always shown rather than given a date ENTSO-E has not stated. Commissioning years are ENTSO-E's, not forecasts.");
   legendRow(gTy, `<span class="swatch sq" style="background:#6366f1;opacity:.45;width:22px;height:10px"></span>`,
-            "TYNDP 2026 study corridors", ["tyndp_polys", "tyndp_poly_outline"], false,
+            "TYNDP 2026 study corridors", ["tyndp_polys", "tyndp_poly_outline"], true,
             "Translucent violet-blue FILLS are study corridors and areas from the TYNDP 2026 portfolio - broad zones under study, NOT routes and NOT lines.");
   if (TOTALS) {
     const gScen = legendGroup(dev, "Demand, generation &amp; flexibility", true);
