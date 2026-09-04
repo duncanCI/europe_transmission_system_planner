@@ -205,6 +205,34 @@
    "bias": "The spans under the route are uplifted but the gap in the graph is not closed, so the corridor stays as broken in the screen as it was before. A route drawn schematically (a straight line between two stations) rarely stays within 1 km of the real spans and is rarely credited this way. Where a voltage upgrade is credited at the tier level, the circuit keeps its present voltage and impedance."
   },
   {
+   "id": "hvdc-relief-dispatch",
+   "topic": "DC",
+   "assumption": "Every HVDC link of 500 MW or more in the network at a horizon - existing, under construction, in a register or in the TYNDP portfolio - is a controllable element. For each scenario transfer pattern its set-point is chosen, with every other link's, to minimise the worst utilisation over the transmission-tier branches it can steer and over the links themselves (a linear programme per pattern), within the link's rating; the AC flows the screen reports include those set-points, held post-fault. An embedded link (both converters inside the synchronous area) may use its full rating; an interconnector or offshore landing only half.",
+   "basis": "Embedded HVDC is built precisely for controllable, separable relief of the AC network - the Eastern Green Links, SuedLink and Ultranet are operated for constraint management. Until v4.7 the screen modelled only the stress a link imposes and gave it no relief, so the corridors those links relieve read as unrelieved and the links themselves carried no colour. Interconnector schedules are market-driven; only countertrading and redispatch move them, so half the rating is taken as available.",
+   "bias": "Optimistic where the operator would not run a link for constraint relief, and for interconnectors the half-rating share is a round assumption in both directions. The dispatch minimises the worst utilisation per pattern, so it can raise the loading of a lightly used branch to relieve a heavily used one; that is what the operator would do. Post-fault the set-points are held, which is conservative: real schemes re-dispatch after a fault (the 'with DC redispatch' view keeps that single-link counterfactual)."
+  },
+  {
+   "id": "hvdc-inventory-ratings",
+   "topic": "DC",
+   "assumption": "An HVDC link whose source states no rating is given one by class: 2 GW at 500 kV and above, 1.4 GW at 300-499 kV, 2 GW for a link named as a 2 GW-class scheme (Eastern Green Link, Sea Link, SuedLink, Ultranet), else 1 GW. Register and TYNDP links land on the matched station, else on the nearest >=220 kV station within 40 km of the drawn end; an end with nothing in reach is offshore or abroad and the link enters as a landing infeed. A TYNDP DC study corridor (an area) is read along its long axis. The same link listed by several sources counts once (OSM before register before TYNDP).",
+   "basis": "The register's HVDC rows quote a capacity in 3 of 24 cases and the TYNDP portfolio quotes none; the DC voltage class is stated far more often and tracks rating closely in practice.",
+   "bias": "A defaulted rating can be wrong by a factor of two either way (a 320 kV link may be 700 MW or 1.4 GW); every defaulted figure is flagged in the link's provenance. A corridor's long axis may end at the wrong station when the area is broad."
+  },
+  {
+   "id": "corridor-axis-lines",
+   "topic": "Planned endpoints",
+   "assumption": "A planned work published only as an AREA - an RTE 400 kV programme phase named after two stations ('CHAINGY-DAMBRON'), or a TYNDP AC study corridor - enters as one circuit: between the two named stations, or along the area's long axis to the nearest transmission stations (searched within 40 km). Voltage from the source, else 400 kV; year from the source, else 2035 for an RTE Phase 1 zone and 2040 for a TYNDP corridor with no date.",
+   "basis": "These plans refer to major upgrades or interconnections whose route is not yet chosen; leaving them out understated the planned network exactly where the largest works are. RTE's phases and the TYNDP corridors both name their ends or span a region whose extremities are the obvious terminals.",
+   "bias": "The circuit's length and terminals are approximate, so its impedance and the corridor it parallels may be off; the commissioning years for undated works are ours."
+  },
+  {
+   "id": "zone-uplift",
+   "topic": "Register",
+   "assumption": "A reinforcement area with no named ends ('MASSIF CENTRAL', 'HTLS in Lyonnais', 'Limitations removal on the Italian-Slovenian border', PST installations) is read as reinforcement of the network inside it: every existing transmission span (>=220 kV) lying at least 60% inside the polygon takes the x1.3 conductor uplift, once.",
+   "basis": "Such areas say the network there is reinforced without saying how; an uprating of what exists is the conservative reading and the same figure the renewal works already carry.",
+   "bias": "A phase-shifter or a synchronisation project changes power flow control, not thermal rating; crediting it as a rating uplift is a proxy. Spans just outside the polygon get nothing."
+  },
+  {
    "id": "new-station-at-drawn-end",
    "topic": "Planned endpoints",
    "assumption": "When a planned circuit's drawn end lies where no station at the scheme's level exists within reach and the plan names none, the plan builds a new station there: a busbar at the drawn end, at the scheme's voltage, shared by every scheme drawn to within about 1.5 km of it. It has no transformer, there being nothing existing to couple to.",
