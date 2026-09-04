@@ -198,6 +198,13 @@
    "bias": "A voltage upgrade is credited as a x1.3 uplift of the lower level's circuit, not as the new higher-voltage circuit it will become: conservative on capacity, and the corridor keeps the old level's impedance. Where two stations share several levels and the wording says nothing, the highest is taken; a sub-transmission reconductoring between two 400 kV stations would be credited one level too high."
   },
   {
+   "id": "uplift-under-drawn-route",
+   "topic": "Register",
+   "assumption": "When no continuous chain of existing spans joins the two ends of a refurbishment at any of its candidate levels, the spans lying under the promoter's drawn route are the ones reconductored: existing spans within 1 km of the route, each at least 60% inside that corridor, together covering at least 30% of the route, at the scheme's level or, failing that, any transmission level (>= 220 kV).",
+   "basis": "The v23 graph is not continuous everywhere: Walham 400 kV carries no span towards Feckenham although the A586 circuit runs there, and Kincardine North 400 kV carries no span at all. Twelve schemes drawn from NESO's own route shapefiles (Feckenham-Walham, Feckenham-Minety, Spennymoor-Stella West, Bramford-Braintree-Rayleigh ...) found no chain for that reason alone.",
+   "bias": "The spans under the route are uplifted but the gap in the graph is not closed, so the corridor stays as broken in the screen as it was before. A route drawn schematically (a straight line between two stations) rarely stays within 1 km of the real spans and is rarely credited this way. Where a voltage upgrade is credited at the tier level, the circuit keeps its present voltage and impedance."
+  },
+  {
    "id": "new-station-at-drawn-end",
    "topic": "Planned endpoints",
    "assumption": "When a planned circuit's drawn end lies where no station at the scheme's level exists within reach and the plan names none, the plan builds a new station there: a busbar at the drawn end, at the scheme's voltage, shared by every scheme drawn to within about 1.5 km of it. It has no transformer, there being nothing existing to couple to.",
