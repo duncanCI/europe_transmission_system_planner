@@ -219,6 +219,13 @@
    "bias": "A defaulted rating can be wrong by a factor of two either way (a 320 kV link may be 700 MW or 1.4 GW); every defaulted figure is flagged in the link's provenance. A corridor's long axis may end at the wrong station when the area is broad."
   },
   {
+   "id": "neso-future-circuits-offshore",
+   "topic": "DC",
+   "assumption": "A coded NESO 'future circuit' (BEDD_400, HUCS_400, SW_E1a/b/c, AC6, INTOG, HND_CS_FW, HND_PA ...) with a drawn end more than 40 km from any station at its level, or longer than 250 km, is an offshore element: an HVDC link (2 GW class when coded 400 kV, 1.4 GW when 275 kV) landing at the station it reaches, never an AC circuit. A future circuit landing offshore generation (one country, one landing) is a stress pattern only; it is not dispatched for relief. Coded 132 kV offshore connections are a wind farm's own export cable and are left out.",
+   "basis": "NESO publishes its offshore network design as bare coded lines without a technology field. Read as 400 kV AC with new stations at their sea ends, they formed an AC mesh at sea bypassing the B6 boundary: 67 GB circuits became stressed pre-fault and Alverdiscott's 400 kV feed jumped from 4 to 520 MW per GW. No AC circuit of that length is built at sea; these are the HVDC bootstraps and wind connections of the Holistic Network Design.",
+   "bias": "A long onshore future circuit (none is known) would be wrongly read as HVDC. Landing points are the nearest station within 40 km of the drawn end, which may not be the design's."
+  },
+  {
    "id": "corridor-axis-lines",
    "topic": "Planned endpoints",
    "assumption": "A planned work published only as an AREA - an RTE 400 kV programme phase named after two stations ('CHAINGY-DAMBRON'), or a TYNDP AC study corridor - enters as one circuit: between the two named stations, or along the area's long axis to the nearest transmission stations (searched within 40 km). Voltage from the source, else 400 kV; year from the source, else 2035 for an RTE Phase 1 zone and 2040 for a TYNDP corridor with no date.",
