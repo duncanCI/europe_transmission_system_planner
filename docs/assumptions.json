@@ -188,7 +188,21 @@
    "topic": "Register",
    "assumption": "Refurbishments, uprates and series devices are not added as new circuits, in any of the plans' languages (repotenciaci\u00f3n, renovaci\u00f3n, rekonstrueerimine, verzwaren, Kabel REI, power line renewal, modernizare, major maintenance ...). A work on a corridor that already carries a circuit, whose wording does not say 'new circuit' in any language, is credited the same way a refurbishment is - as a rating uplift on the existing circuit - rather than dropped.",
    "basis": "Adding refurbishments created phantom parallel corridors (Spanish 'repotenciaci\u00f3n' alone put 41 uprating works on the map as second circuits); dropping unspecific corridor works hid 372 schemes at 2040 that plainly change the corridor. Note that 'reinforcement' is NOT filtered: in TSO usage a named reinforcement is new build.",
-   "bias": "A refurbishment, uprating or unspecific corridor scheme credits its single most probable existing span with the same x1.3 conductor uplift as an RTE renewal (one scheme, one span, never twice, across sources). Conservative where the work is in fact a second circuit; the multilingual 'second circuit' wording catches the ones that say so. Series devices remain uncredited: their benefit is dispatch-dependent, which this screen does not model."
+   "bias": "A refurbishment, uprating or unspecific corridor scheme credits the existing corridor between its two ends with the same x1.3 conductor uplift as an RTE renewal: the corridor is the shortest chain of existing spans, in kilometres, at the level the work runs at, capped at 3x the drawn length plus 40 km; one circuit per span unless the wording says both, and a span is never uplifted twice across sources (a second row on an already-credited corridor is recorded as the same work). Conservative where the work is in fact a second circuit; the multilingual 'second circuit' wording catches the ones that say so. Series devices remain uncredited: their benefit is dispatch-dependent, which this screen does not model."
+  },
+  {
+   "id": "refurb-corridor-level",
+   "topic": "Register",
+   "assumption": "The voltage at which a refurbishment or uprating is looked for is the level of the EXISTING circuit: the lowest figure the wording quotes ('275 kV to 400 kV' works on a 275 kV circuit), else the highest level the two named stations share, else any other quoted figure; levels are tried in that order until one yields a corridor of existing spans.",
+   "basis": "Half the NESO reconductoring schemes quote no voltage at all ('Replace the conductors on the existing circuit between Feckenham and Hams Hall'). Taking each station's lowest busbar found a 66 kV Feckenham and a 132 kV Hams Hall with no span between them; taking a voltage upgrade's target level searched a network that does not exist yet. Reconductoring named between two transmission stations is transmission work.",
+   "bias": "A voltage upgrade is credited as a x1.3 uplift of the lower level's circuit, not as the new higher-voltage circuit it will become: conservative on capacity, and the corridor keeps the old level's impedance. Where two stations share several levels and the wording says nothing, the highest is taken; a sub-transmission reconductoring between two 400 kV stations would be credited one level too high."
+  },
+  {
+   "id": "new-station-at-drawn-end",
+   "topic": "Planned endpoints",
+   "assumption": "When a planned circuit's drawn end lies where no station at the scheme's level exists within reach and the plan names none, the plan builds a new station there: a busbar at the drawn end, at the scheme's voltage, shared by every scheme drawn to within about 1.5 km of it. It has no transformer, there being nothing existing to couple to.",
+   "basis": "Loch Buidhe is a new 400 kV switching station in Sutherland at the meeting point of three NESO circuits; no 400 kV station lies within 40 km. Without the rule every circuit into it was dropped as unresolved and the through-path they form did not exist in the model.",
+   "bias": "A circuit into a new station that no other planned circuit reaches is a radial dead end: it carries no flow, so it appears screened but unexposed rather than absent. The station's position is the drawn end, which for a schematic line is approximate."
   }
  ]
 }
