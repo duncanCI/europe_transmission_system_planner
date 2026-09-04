@@ -228,7 +228,7 @@
   {
    "id": "zone-uplift",
    "topic": "Register",
-   "assumption": "A reinforcement area with no named ends ('MASSIF CENTRAL', 'HTLS in Lyonnais', 'Limitations removal on the Italian-Slovenian border', PST installations) is read as reinforcement of the network inside it: every existing transmission span (>=220 kV) lying at least 60% inside the polygon takes the x1.3 conductor uplift, once.",
+   "assumption": "A reinforcement area with no named ends ('MASSIF CENTRAL', 'HTLS in Lyonnais', 'Limitations removal on the Italian-Slovenian border', PST installations) is read as reinforcement of the network inside it: every existing span at the programme's level lying at least 60% inside the polygon takes the x1.3 conductor uplift, once - the 400 kV spans for an RTE 400 kV programme phase, the >=220 kV spans for a TYNDP area. Synchronisation programmes are not read as uplifts.",
    "basis": "Such areas say the network there is reinforced without saying how; an uprating of what exists is the conservative reading and the same figure the renewal works already carry.",
    "bias": "A phase-shifter or a synchronisation project changes power flow control, not thermal rating; crediting it as a rating uplift is a proxy. Spans just outside the polygon get nothing."
   },
