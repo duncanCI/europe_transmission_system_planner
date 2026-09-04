@@ -144,9 +144,23 @@
   {
    "id": "endpoint-name-matching",
    "topic": "Endpoints",
-   "assumption": "Endpoint names are matched after stripping commentary, page references and station-type words in each language; an endpoint cell is also tried segment by segment (via-clauses cut, dash- and slash-separated alternatives, its own '(DE)'-style country hint), and a border crossing named as an endpoint is classed as a border point, not a failed station match.",
-   "basis": "Plans write endpoints as prose: \"Vohringen (DE) - the system boundary is at the border\" is the station Vohringen, and \"UW Westtirol\" and \"Umspannwerk Westtirol\" are one place written two ways.",
-   "bias": "Over-stripping could match the wrong station. Matching stays on a high fuzzy threshold with a margin over the runner-up."
+   "assumption": "Endpoint names are matched after stripping commentary, page references, our own annotations, articles and prepositions, and station-type words in each language; Greek and Cyrillic are transliterated to Latin on both sides with one fixed scheme; digits stay part of a name (TEC-1 is not TEC-2) while voltages do not. An endpoint cell is also tried segment by segment (via-clauses cut, dash- and slash-separated alternatives, its own '(DE)'-style country hint). When several catalogue names all contain the endpoint name, the most specific is taken rather than none. The unmatched end of a scheme whose other end is known is retried against stations within one corridor length (at most 300 km) of that end, accepting only spelling variants of the same stem (Lanesboro / Lanesborough, Toivila / Toivilan). A border crossing named as an endpoint is a border point, not a failed station match; a station in a neighbouring country is accepted only when the endpoint text itself points there.",
+   "basis": "Plans write endpoints as prose, in twenty languages and three alphabets. Before transliteration no Greek, Bulgarian or Serbian station could match at all (their OSM names are in native script); \"Subesta\u00e7\u00e3o de Armamar\" never matched \"Armamar\" because of the \"de\"; and the uniqueness margin rejected exact matches whenever a longer sibling name existed.",
+   "bias": "Over-stripping could match the wrong station. Matching stays on a high fuzzy threshold with a margin over the runner-up, the near pass adds a same-stem test and a distance cap, and every match carries its rule in the provenance text."
+  },
+  {
+   "id": "new-busbar-at-named-station",
+   "topic": "Planned endpoints",
+   "assumption": "When a plan names a station that holds no busbar at the scheme's voltage, the scheme creates one: a new busbar at that station at the scheme's voltage, coupled to the station's highest existing level by a transformer typed from the v23 transformer table (per-class medians). The same rule serves a place-anchored endpoint with no station at the scheme's level within 25 km: the nearest existing station receives the new busbar. Every scheme landing there shares it.",
+   "basis": "\"380-kV-Leitung Trumau - Hessenberg\" builds 380 kV at Hessenberg, which is 110/220 kV today. 111 schemes at 2040 were dropped for want of a same-level terminal within 15 km and others quietly landed on a different station up to 15 km away. Substation extension to a new level is what such plans describe.",
+   "bias": "The new busbar's coupling transformer is typed, not sourced, so its impedance is a class median; the busbar's position is the existing station's. Where a plan really builds a wholly new station elsewhere, the circuit lands one station too close to the old one."
+  },
+  {
+   "id": "register-voltage-field",
+   "topic": "Planned endpoints",
+   "assumption": "A scheme's voltage is read from its name first, then from the register's own voltage field, then from a NESO circuit id suffix (BODE_400), then from the matched endpoint stations.",
+   "basis": "73 schemes were dropped for 'no voltage' while the register row beside them stated one; 55 of them GB Beyond-2030 reinforcements.",
+   "bias": "None beyond the field's own accuracy; the source of the voltage is recorded per branch."
   },
   {
    "id": "typed-ratings",
@@ -172,9 +186,9 @@
   {
    "id": "renewal-excluded-elsewhere",
    "topic": "Register",
-   "assumption": "Refurbishments, uprates and series devices are not added as new circuits.",
-   "basis": "Adding them created phantom parallel corridors. Note that 'reinforcement' is NOT filtered: in TSO usage a named reinforcement is new build.",
-   "bias": "A refurbishment or uprating scheme now credits its single most probable existing span with the same x1.3 conductor uplift as an RTE renewal (one scheme, one span, never twice, across sources). Series devices remain uncredited: their benefit is dispatch-dependent, which this screen does not model."
+   "assumption": "Refurbishments, uprates and series devices are not added as new circuits, in any of the plans' languages (repotenciaci\u00f3n, renovaci\u00f3n, rekonstrueerimine, verzwaren, Kabel REI, power line renewal, modernizare, major maintenance ...). A work on a corridor that already carries a circuit, whose wording does not say 'new circuit' in any language, is credited the same way a refurbishment is - as a rating uplift on the existing circuit - rather than dropped.",
+   "basis": "Adding refurbishments created phantom parallel corridors (Spanish 'repotenciaci\u00f3n' alone put 41 uprating works on the map as second circuits); dropping unspecific corridor works hid 372 schemes at 2040 that plainly change the corridor. Note that 'reinforcement' is NOT filtered: in TSO usage a named reinforcement is new build.",
+   "bias": "A refurbishment, uprating or unspecific corridor scheme credits its single most probable existing span with the same x1.3 conductor uplift as an RTE renewal (one scheme, one span, never twice, across sources). Conservative where the work is in fact a second circuit; the multilingual 'second circuit' wording catches the ones that say so. Series devices remain uncredited: their benefit is dispatch-dependent, which this screen does not model."
   }
  ]
 }
