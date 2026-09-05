@@ -226,6 +226,20 @@
    "bias": "A long onshore future circuit (none is known) would be wrongly read as HVDC. Landing points are the nearest station within 40 km of the drawn end, which may not be the design's."
   },
   {
+   "id": "dc-swing-capability-cap",
+   "topic": "DC",
+   "assumption": "A converter-swing stress pattern is per GW of swing, but a link can swing at most its rating. Where the swing that would saturate a branch exceeds the link's rating, that link cannot saturate that branch and the figure is not counted as DC-swing stress.",
+   "basis": "With every planned HVDC link carrying a converter pattern, a branch that saturated at 8 GW of swing under a 1 GW link was coloured as if 8 GW could happen; the headline grew redder with each link added (GB 2040 with plans: 275 -> 467 pre-fault stressed circuits, all DC-mechanism).",
+   "bias": "A link's rating is the cap for a single link; two links swinging together are not combined, so joint events are understated. Links with a defaulted rating carry that default's uncertainty into the cap."
+  },
+  {
+   "id": "tyndp-generalised-endpoints",
+   "topic": "Planned endpoints",
+   "assumption": "A TYNDP project drawn between generalised points is attached in three steps: the nearest terminals at its voltage within 15 km of the drawn end; failing that, within 40 km, fanned over the nearest major substations by distance; failing that, the nearest >=220 kV station within 40 km receives a new busbar at the project's voltage, coupled by a typed transformer.",
+   "basis": "The portfolio draws many projects between a region's centre or a substation that does not exist yet: the North South Interconnector ends where Turleenan 400 kV will be, on a 275 kV network, and 19 of 51 eligible AC projects at 2040 were dropped as unresolved. The point of the portfolio is the relief the projects bring; a dropped project brings none.",
+   "bias": "The landing may be a neighbour of the intended substation and the new busbar's transformer is typed, not sourced; corridor lengths near a fanned end are approximate."
+  },
+  {
    "id": "corridor-axis-lines",
    "topic": "Planned endpoints",
    "assumption": "A planned work published only as an AREA - an RTE 400 kV programme phase named after two stations ('CHAINGY-DAMBRON'), or a TYNDP AC study corridor - enters as one circuit: between the two named stations, or along the area's long axis to the nearest transmission stations (searched within 40 km). Voltage from the source, else 400 kV; year from the source, else 2035 for an RTE Phase 1 zone and 2040 for a TYNDP corridor with no date.",
