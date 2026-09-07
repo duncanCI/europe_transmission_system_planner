@@ -240,6 +240,13 @@
    "bias": "The landing may be a neighbour of the intended substation and the new busbar's transformer is typed, not sourced; corridor lengths near a fanned end are approximate."
   },
   {
+   "id": "connect-everything-liberal",
+   "topic": "Register",
+   "assumption": "Every planned line-like project connects to the model (Duncan, 2026-09-07: '100% of planned projects ... rather liberal than too conservative'). When the strict reading fails, in order: a scheme with no voltage anywhere takes its country's typical transmission level (the most common >=220 kV busbar level); a pairing that is empty at the drawn point is retried at the widest radius; a reconductoring with no corridor at its level takes the shortest chain at any level with the length cap waived; one with no chain at all becomes a new typed circuit between its ends; a corridor already credited to another row makes this row the same work; two ends in two synchronous areas make the scheme an HVDC link; an RTE/NVE work on a pair that already carries a circuit uprates that circuit; an HVDC end lands on the nearest transmission station within 100 km; a TYNDP AC line with one end abroad enters as a boundary infeed at its in-scope end. Every such reading is flagged 'inferred' and 'liberal' on the branch.",
+   "basis": "A dropped scheme shows no relief and reads as 'not modelled' on the map; the purpose of the plans layer is the relief they bring. Before this rule 118 line-like register rows, 196 RTE/NVE candidates and 4 TYNDP AC projects left the model at 2040.",
+   "bias": "Liberal by design: a scheme read as a new circuit where a corridor exists adds capacity that is not there; a default voltage can be a level too high; a 100 km landing may not be the design's. Each such branch names its reading in its provenance so it can be discounted."
+  },
+  {
    "id": "corridor-axis-lines",
    "topic": "Planned endpoints",
    "assumption": "A planned work published only as an AREA - an RTE 400 kV programme phase named after two stations ('CHAINGY-DAMBRON'), or a TYNDP AC study corridor - enters as one circuit: between the two named stations, or along the area's long axis to the nearest transmission stations (searched within 40 km). Voltage from the source, else 400 kV; year from the source, else 2035 for an RTE Phase 1 zone and 2040 for a TYNDP corridor with no date.",
