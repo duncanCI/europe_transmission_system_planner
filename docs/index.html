@@ -267,7 +267,7 @@ const state = { lineScale: 1, year: 2030, scen: "ntp", ddelta: false };
 // Bumped when ANY fetched artefact changes - assumptions.json is fetched
 // with this stamp, so a content change there must bump it or returning
 // visitors keep a cached, retracted copy.
-const TILE_VERSION = "20260904b";
+const TILE_VERSION = "20260908a";
 // Ground colour behind the tiles. MapLibre paints cannot read CSS custom
 // properties, so this literal must match --paper in the stylesheet above.
 const PAPER = "#EEF0F2";
@@ -659,6 +659,22 @@ async function setupContext() {
     filter: ["all", ["all", isPoint], datedFilter("rest")],
     paint: { "circle-color": "#9ca3af", "circle-opacity": 0.5,
              "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 1.6, 8, 3, 12, 5] } });
+  // CONTEXT ONLY, two layers with no promoter behind them: OpenStreetMap lines
+  // tagged proposed / under construction / planned (never in the v23 graph -
+  // the harvest asks for power=line), and exploratory interconnection concepts
+  // announced publicly but in no portfolio (indicative straight lines). Amber
+  // fine dots and magenta long dashes so neither reads as a planned scheme.
+  // Each popup offers "suggest for the core model".
+  map.addLayer({ id: "osm_lifecycle_lines", type: "line", source: "context",
+    "source-layer": "osm_lifecycle",
+    filter: ["any", ["!", ["has", "voltage_kv"]], [">=", ["get", "voltage_kv"], 100]],
+    paint: { "line-color": ["match", ["get", "lifecycle"], "under construction", "#b45309", "#ca8a04"],
+             "line-dasharray": [1, 1.6], "line-opacity": 0.9,
+             "line-width": scaledWidth("osm_lifecycle_lines", [[4,1.2],[8,2.0],[12,3.2]]) } });
+  map.addLayer({ id: "exploratory_lines", type: "line", source: "context",
+    "source-layer": "exploratory",
+    paint: { "line-color": "#be185d", "line-dasharray": [6, 4], "line-opacity": 0.8,
+             "line-width": scaledWidth("exploratory_lines", [[2,1.2],[6,2.0],[10,3.0]]) } });
 
   // ENTSO-E TYNDP 2026 project portfolio, published here with ENTSO-E's
   // licence terms; see LICENCE_AND_ATTRIBUTION.md. It rides in the
@@ -776,6 +792,13 @@ async function setupContext() {
   legendRow(gTy, `<span class="swatch sq" style="background:#6366f1;opacity:.45;width:22px;height:10px"></span>`,
             "TYNDP 2026 study corridors", ["tyndp_polys", "tyndp_poly_outline"], true,
             "Translucent violet-blue FILLS are study corridors and areas from the TYNDP 2026 portfolio - broad zones under study, NOT routes and NOT lines.");
+  const gEx = legendGroup(dev, "Exploratory &amp; OpenStreetMap lifecycle (context only)", true);
+  legendRow(gEx, `<span class="swatch dashed" style="border-color:#be185d"></span>`,
+            "Exploratory concepts (announced, in no portfolio)", ["exploratory_lines"], true,
+            "Interconnection concepts announced publicly - an intergovernmental MoU, a national policy aspiration, a developer concept - that are in neither the ENTSO-E TYNDP 2026 portfolio nor any promoter register: Ireland-Spain (feasibility MoU, April 2026), Ireland-Belgium/Netherlands and a second Ireland-France link (Ireland's 2023 interconnection policy), IceLink, NorthConnect, Xlinks. Geometry is an INDICATIVE straight line between plausible landing regions - no route exists. Context only: nothing here is modelled. The popup names the status and the source.");
+  legendRow(gEx, `<span class="swatch dashed" style="border-color:#b45309"></span>`,
+            "OSM proposed &amp; under-construction lines (≥100 kV)", ["osm_lifecycle_lines"], true,
+            "Power lines and cables that OpenStreetMap contributors have tagged as proposed, under construction or planned (lifecycle tags), harvested via Overpass. The v23 topology harvest asks for power=line/cable, so these are NOT in the graph and NOT in any model; they are shown so a reader can see what mappers know about, and can suggest one for the core model from its popup. Amber = under construction, ochre = proposed. Below 100 kV hidden. © OpenStreetMap contributors, ODbL 1.0.");
   if (TOTALS) {
     const gScen = legendGroup(dev, "Demand, generation &amp; flexibility", true);
     legendRow(gScen, `<span class="swatch dot" style="background:#0284c7;opacity:.6"></span>`,
@@ -976,6 +999,8 @@ const POPUP_TITLES = {
   sites: f => (f.station_name || f.bus_id || "Site"),
   transformers: f => (f.station_name || "Transformer"),
   projects: f => (f.name || "Planned development"),
+  osm_lifecycle: f => (f.name || f.ref || ((f.lifecycle || "proposed") + " " + (f.kind || "line") + " (OpenStreetMap)")),
+  exploratory: f => (f.name || "Exploratory interconnection concept"),
   scenario_stations: f => ((f.station_name && f.station_name !== "unknown"
                             ? f.station_name : f.station_id) + " — TYNDP scenario"),
   places: f => (f.name || "Populated place"),
@@ -1135,6 +1160,40 @@ function popupBody(f) {
       `disaggregated by OSM population / plant patterns — visualization weights, not forecasts</td></tr>`);
     return rows.join("");
   }
+  if (f.sourceLayer === "osm_lifecycle") {
+    const rows = [
+      ["status", (props.lifecycle || "proposed") + " " + (props.kind || "line") + " \u2014 as tagged in OpenStreetMap; context only, NOT in the v23 graph or any model"],
+      ["voltage", props.voltage_kv ? props.voltage_kv + " kV" : (props.voltage_verbatim || "not tagged")],
+      ["operator", props.operator],
+      ["ref", props.ref],
+      ["circuits / cables", [props.circuits, props.cables].filter(Boolean).join(" / ") || null],
+      ["date tagged", props.start_date],
+      ["length", props.length_km ? props.length_km + " km" : null],
+      ["countries", props.countries ? props.countries + " (" + (props.countries_source || "") + ")" : null],
+      ["note", props.note],
+      ["OSM", props.osm_url],
+      ["website", props.website],
+      ["source", props.source],
+      ["to model it", "use \u201cSuggest this for the core model\u201d below: the request lands in the private promotions file and, once accepted, the line enters the screen as a planned circuit with that provenance"],
+    ].filter(([, v]) => v !== null && v !== undefined && v !== "");
+    return rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${cell(v)}</td></tr>`).join("");
+  }
+  if (f.sourceLayer === "exploratory") {
+    const srcs = String(props.sources || "").split(" | ").filter(Boolean);
+    const rows = [
+      ["status", props.status],
+      ["countries", props.countries],
+      ["technology", props.technology],
+      ["capacity", props.capacity_mw ? props.capacity_mw + " MW" : (props.capacity_note || "not stated")],
+      ["indicative year", props.indicative_year],
+      ["from", props.from_label],
+      ["to", props.to_label],
+      ["geometry", props.geometry_note],
+      ...srcs.map((u, i) => ["source " + (i + 1), u]),
+      ["in this map", props.layer_status],
+    ].filter(([, v]) => v !== null && v !== undefined && v !== "");
+    return rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${cell(v)}</td></tr>`).join("");
+  }
   const generic = Object.entries(props)
     .filter(([, v]) => v !== null && v !== undefined && v !== "")
     .map(([k, v]) => `<tr><td>${esc(k)}</td><td>${cell(v)}</td></tr>`).join("");
@@ -1178,7 +1237,9 @@ function wirePopups() {
                       { ac_lines: "branch", dc_links: "DC link",
                         sites: "substation", transformers: "transformer",
                         plants: "power plant", plant_polys: "power plant site",
-                        places: "demand point" }[f.sourceLayer] || "feature")}</div>`
+                        places: "demand point", osm_lifecycle: "proposed line",
+                        exploratory: "exploratory project" }[f.sourceLayer] || "feature",
+                      ["osm_lifecycle", "exploratory"].includes(f.sourceLayer) ? "promote" : null)}</div>`
                  : ""))
       .addTo(map);
   });

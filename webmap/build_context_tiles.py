@@ -101,6 +101,16 @@ FULL_LAYERS = {
     # NVE's licensing register (Norway, open data). Statnett publishes no
     # project list, so this is the only Norwegian source with geometry.
     "no_nve": "no_nve_public.geojson",
+    # Two CONTEXT-ONLY layers kept in this repo's webmap/ folder (open data,
+    # ours), not in the sanitised export: OpenStreetMap lines tagged proposed /
+    # under construction / planned (rebuild_pipeline/04_build_lifecycle_layer.py)
+    # and exploratory interconnection concepts announced publicly but in no
+    # portfolio (webmap/exploratory_projects_public.geojson, indicative straight
+    # lines with sources). Neither is in the v23 graph or any model; each popup
+    # offers "suggest for the core model", which lands in the private
+    # promotions file.
+    "osm_lifecycle": "osm_lifecycle_public.geojson",
+    "exploratory": "exploratory_projects_public.geojson",
 }
 # dense context layers: z4+ (viewer minzoom), -r1, size-guard backstop
 CONTEXT_LAYERS = {
@@ -116,6 +126,9 @@ def layer_args(layers: dict[str, str], export_dir: Path, tmp: Path) -> list[str]
     out: list[str] = []
     for layer, fname in layers.items():
         path = export_dir / fname
+        if not path.exists():
+            # open-data layers this repo owns live beside this script
+            path = Path(__file__).resolve().parent / fname
         if not path.exists():
             print(f"skipping layer {layer}: {fname} not present")
             continue

@@ -226,6 +226,27 @@
    "bias": "A landing chosen by rule can be the wrong station within the radius; the swing then loads the wrong corridor and stress is over- or understated locally. Merged parallel links are assumed to swing together and to fail together (one common-mode outage), conservative for the outage case. A far landing up to 250 km away puts a hub-to-hub link's relief on a shore station the developer may not intend; a short offshore-to-offshore link left unattached removes whatever path it would create."
   },
   {
+   "id": "exploratory-context-layer",
+   "topic": "Coverage",
+   "assumption": "Interconnection concepts announced publicly but present in neither the ENTSO-E TYNDP 2026 portfolio nor a promoter register - Ireland-Spain (intergovernmental MoU for feasibility studies, April 2026), Ireland-Belgium/Netherlands and a second Ireland-France link (Ireland's National Policy Statement on Electricity Interconnection, July 2023), IceLink (dormant), NorthConnect (licence refused 2023), Xlinks (withdrawn 2025) - are shown as a CONTEXT layer only, each with its status and source, and drawn as an indicative straight line between plausible landing regions. None is modelled: a concept with no promoter, route or capacity has nothing the screen could represent honestly. One enters the model only through an accepted promotion (promotion-path).",
+   "basis": "Reviewers asked why the Irish links were missing. They are in no ingested source; the concepts are real but pre-project, and a map that hides them looks unaware while one that models them invents capacity.",
+   "bias": "None on the results. The indicative geometry can mislead a reader about landing points, which is why every popup says the line is indicative and no route exists. The list is curated by hand and may lag announcements."
+  },
+  {
+   "id": "osm-lifecycle-context-layer",
+   "topic": "Coverage",
+   "assumption": "Power lines and cables that OpenStreetMap contributors tag as proposed, under construction or planned (lifecycle tags: proposed:power, power=construction with construction:power, planned:power) are shown as a CONTEXT layer, harvested via Overpass, with the state, voltage, name, operator and dates as tagged and the country of the nearest v23 station. They are NOT in the v23 graph (the topology harvest asks for power=line/cable, so lifecycle-prefixed elements never enter it) and NOT modelled; elements tagged power=line together with a construction tag are the one exception and were already carried as under construction. Below 100 kV they are hidden by default.",
+   "basis": "Mapper knowledge of consented and under-construction lines is often ahead of any register, but its quality is uneven and unattributable; showing it beside the register lets a reader judge, and promotion by a named reviewer lets the good part in.",
+   "bias": "None on the results unless promoted. Coverage follows mapper activity: dense where OSM power mapping is active, absent elsewhere, so the layer says nothing about where proposals do not exist."
+  },
+  {
+   "id": "promotion-path",
+   "topic": "Coverage",
+   "assumption": "A context-only feature enters the modelled network only through register/promotions.csv: a request from the map (the popup's 'suggest this for the core model', which writes a promotion-request block) becomes a pending row, and a named person accepts it with a service year (and a rating for a DC link). An accepted AC line enters as a planned circuit through the external-plans loader (its endpoints resolved like any drawn plan); an accepted DC link enters the HVDC inventory. The branch's provenance names who requested and who accepted it, so a promoted line is never mistaken for a promoter's plan.",
+   "basis": "The same rule as endpoint corrections: attributable human knowledge beats the automatic rule, anonymous assertions are refused, and the dataset's value must be sourced:, inferred: or unknown.",
+   "bias": "Whatever the accepting reviewer decides: a promotion adds capacity the published plans do not contain, and the service year is theirs. Every promoted branch is visible as such."
+  },
+  {
    "id": "neso-future-circuits-offshore",
    "topic": "DC",
    "assumption": "A coded NESO 'future circuit' (BEDD_400, HUCS_400, SW_E1a/b/c, AC6, INTOG, HND_CS_FW, HND_PA ...) with a drawn end more than 40 km from any station of any level (offshore platforms excepted), or longer than 250 km, is an offshore element: an HVDC link (2 GW class when coded 400 kV, 1.4 GW when 275 kV) landing at the station it reaches, never an AC circuit. A future circuit landing offshore generation (one country, one landing) is a stress pattern only; it is not dispatched for relief. Coded 132 kV offshore connections are a wind farm's own export cable and are left out. A coded circuit with both ends onshore is an AC reinforcement: a station it reaches that has no busbar at the coded level gets one, coupled by a typed transformer (SPIT_400: Spittal to Dounreay at 400 kV).",

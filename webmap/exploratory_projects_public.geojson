@@ -1,0 +1,211 @@
+{
+ "type": "FeatureCollection",
+ "name": "exploratory_projects_public",
+ "note": "Exploratory interconnection concepts announced publicly but present in neither the ENTSO-E TYNDP 2026 draft portfolio nor a promoter register. Geometry is an INDICATIVE straight line between plausible landing regions; no route has been published. Context only: nothing here is modelled.",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "explore:ie-es",
+    "name": "Ireland - Spain interconnector (feasibility)",
+    "countries": "ES;IE",
+    "technology": "HVDC (assumed)",
+    "capacity_mw": null,
+    "capacity_note": "not stated; Ireland's 2023 policy statement counts conceptual proposals towards >5,000 MW by 2033",
+    "status": "feasibility studies; MoU between Ireland's Department of Climate, Energy and the Environment and Spain's Ministry for the Ecological Transition, welcomed by EirGrid and Red Electrica, 24 April 2026",
+    "indicative_year": "mid-2030s (if feasible)",
+    "from_label": "south coast of Ireland (Cork area; indicative)",
+    "to_label": "north coast of Spain (Galicia/Asturias; indicative)",
+    "sources": "https://www.eirgrid.ie/news/eirgrid-welcomes-signing-mou-explore-potential-ireland-spain-electricity-interconnector | https://www.gov.ie/en/publication/3d96f-national-policy-statement-on-electricity-connection-2023/",
+    "source_primary": "https://www.eirgrid.ie/news/eirgrid-welcomes-signing-mou-explore-potential-ireland-spain-electricity-interconnector",
+    "geometry_note": "indicative straight line between plausible landing regions; no route published",
+    "layer_status": "context only: not in the TYNDP 2026 draft portfolio or any promoter register; not modelled",
+    "licence": "compiled from public announcements (links in sources); geometry is ours (indicative)",
+    "fid": "explore:ie-es"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -8.3,
+      51.8
+     ],
+     [
+      -7.7,
+      43.6
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "explore:ie-be",
+    "name": "Ireland - Belgium/Netherlands connection (policy aspiration; possibly hybrid or multi-purpose)",
+    "countries": "BE;IE;NL",
+    "technology": "HVDC (assumed)",
+    "capacity_mw": null,
+    "capacity_note": "not stated",
+    "status": "listed in Ireland's National Policy Statement on Electricity Interconnection (July 2023) as a connection to be tested for feasibility, 'potentially a hybrid or multi-purpose interconnector'; no promoter project yet",
+    "indicative_year": "beyond 2030",
+    "from_label": "east coast of Ireland (Dublin/Wicklow; indicative)",
+    "to_label": "Belgian coast (Zeebrugge area; indicative; the Netherlands is the stated alternative)",
+    "sources": "https://www.gov.ie/en/publication/3d96f-national-policy-statement-on-electricity-connection-2023/ | https://www.rte.ie/news/business/2023/0726/1396503-up-to-five-new-electricity-interconnectors-planned/",
+    "source_primary": "https://www.gov.ie/en/publication/3d96f-national-policy-statement-on-electricity-connection-2023/",
+    "geometry_note": "indicative straight line between plausible landing regions; no route published",
+    "layer_status": "context only: not in the TYNDP 2026 draft portfolio or any promoter register; not modelled",
+    "licence": "compiled from public announcements (links in sources); geometry is ours (indicative)",
+    "fid": "explore:ie-be"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -6.0,
+      53.1
+     ],
+     [
+      3.2,
+      51.35
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "explore:ie-fr-2",
+    "name": "Second Ireland - France connection (policy aspiration)",
+    "countries": "FR;IE",
+    "technology": "HVDC (assumed)",
+    "capacity_mw": null,
+    "capacity_note": "not stated",
+    "status": "listed in Ireland's National Policy Statement on Electricity Interconnection (July 2023): 'a second connection to France by the middle of the next decade'",
+    "indicative_year": "about 2035",
+    "from_label": "south coast of Ireland (indicative)",
+    "to_label": "Brittany (indicative)",
+    "sources": "https://www.gov.ie/en/publication/3d96f-national-policy-statement-on-electricity-connection-2023/",
+    "source_primary": "https://www.gov.ie/en/publication/3d96f-national-policy-statement-on-electricity-connection-2023/",
+    "geometry_note": "indicative straight line between plausible landing regions; no route published",
+    "layer_status": "context only: not in the TYNDP 2026 draft portfolio or any promoter register; not modelled",
+    "licence": "compiled from public announcements (links in sources); geometry is ours (indicative)",
+    "fid": "explore:ie-fr-2"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -8.0,
+      51.75
+     ],
+     [
+      -4.3,
+      48.45
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "explore:is-gb",
+    "name": "IceLink (Iceland - Great Britain; dormant concept)",
+    "countries": "GB;IS",
+    "technology": "HVDC",
+    "capacity_mw": 1000,
+    "capacity_note": "800-1,200 MW per the developer's concept",
+    "status": "dormant: feasibility-stage concept (Landsvirkjun/National Grid studies); no intergovernmental talks since 2016",
+    "indicative_year": null,
+    "from_label": "south-east Iceland (indicative)",
+    "to_label": "north-east Scotland (Peterhead area; indicative)",
+    "sources": "https://www.landsvirkjun.com/researchdevelopment/research/submarinecabletoeurope | https://en.wikipedia.org/wiki/Icelink",
+    "source_primary": "https://www.landsvirkjun.com/researchdevelopment/research/submarinecabletoeurope",
+    "geometry_note": "indicative straight line between plausible landing regions; no route published",
+    "layer_status": "context only: not in the TYNDP 2026 draft portfolio or any promoter register; not modelled",
+    "licence": "compiled from public announcements (links in sources); geometry is ours (indicative)",
+    "fid": "explore:is-gb"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -14.5,
+      64.3
+     ],
+     [
+      -1.8,
+      57.5
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "explore:no-gb-northconnect",
+    "name": "NorthConnect (Norway - Scotland; licence refused, consents held)",
+    "countries": "GB;NO",
+    "technology": "HVDC",
+    "capacity_mw": 1400,
+    "capacity_note": "1,400 MW as consented",
+    "status": "dormant: Norwegian licence application refused (March 2023); onshore and offshore consents acquired by new owners, no commitment to build",
+    "indicative_year": null,
+    "from_label": "Sima, Hardanger (Norway)",
+    "to_label": "Peterhead (Scotland)",
+    "sources": "https://en.wikipedia.org/wiki/NorthConnect | https://www.solarpowerportal.co.uk/solar-planning/1-4gw-scotland-norway-interconnector-refused-license-by-norwegian-government",
+    "source_primary": "https://en.wikipedia.org/wiki/NorthConnect",
+    "geometry_note": "indicative straight line between plausible landing regions; no route published",
+    "layer_status": "context only: not in the TYNDP 2026 draft portfolio or any promoter register; not modelled",
+    "licence": "compiled from public announcements (links in sources); geometry is ours (indicative)",
+    "fid": "explore:no-gb-northconnect"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      7.1,
+      60.4
+     ],
+     [
+      -1.79,
+      57.48
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "explore:ma-gb-xlinks",
+    "name": "Xlinks Morocco - UK Power Project (withdrawn 2025)",
+    "countries": "GB;MA",
+    "technology": "HVDC",
+    "capacity_mw": 3600,
+    "capacity_note": "3.6 GW delivered to Alverdiscott per the developer",
+    "status": "withdrawn: UK government declined a Contract for Difference (June 2025); Development Consent Order application withdrawn",
+    "indicative_year": null,
+    "from_label": "Guelmim-Oued Noun, Morocco (indicative)",
+    "to_label": "Alverdiscott, Devon",
+    "sources": "https://en.wikipedia.org/wiki/Xlinks_Morocco%E2%80%93UK_Power_Project | https://www.solarpowerportal.co.uk/energy-policy/uk-government-will-not-fund-xlinks-morocco-uk-interconnector",
+    "source_primary": "https://en.wikipedia.org/wiki/Xlinks_Morocco%E2%80%93UK_Power_Project",
+    "geometry_note": "indicative straight line between plausible landing regions; no route published",
+    "layer_status": "context only: not in the TYNDP 2026 draft portfolio or any promoter register; not modelled",
+    "licence": "compiled from public announcements (links in sources); geometry is ours (indicative)",
+    "fid": "explore:ma-gb-xlinks"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -10.2,
+      28.9
+     ],
+     [
+      -4.1,
+      50.99
+     ]
+    ]
+   }
+  }
+ ]
+}

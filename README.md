@@ -51,6 +51,8 @@ matched public endpoints unless marked as sourced plan geometry - never route
 alignments; scenario circles are `inferred:` visualization weights, and the
 map computes no power flows.
 
+Two further context layers carry things no promoter has yet put in a plan, and are kept in `webmap/` as open data of our own: `osm_lifecycle_public.geojson`, every power line or cable that OpenStreetMap contributors tag as proposed, under construction or planned (harvested via Overpass and built by `rebuild_pipeline/04_build_lifecycle_layer.py`; the v23 topology harvest asks for `power=line`/`cable`, so these are NOT in the graph), and `exploratory_projects_public.geojson`, interconnection concepts announced publicly but in no portfolio (an intergovernmental MoU, a national policy aspiration, a developer concept), drawn as indicative straight lines with their status and sources. Neither is modelled anywhere. Each popup offers "suggest this for the core model", which files a promotion request; a named reviewer accepts it before anything enters the screen.
+
 ## Quick start
 
 QGIS: open `europe_grid_topology.gpkg`, layers are per voltage; filter `frequency_hz = 50` for the public grid. PyPSA: load `ac_line_all` + `site_all` from the graph file as Lines/Buses, `transformer` and `dc_link` from the topology file (transformer `x_pu`/`r_pu` are per-unit on `s_nom_mva` - do not pair `x_pu` with `s_nom_pypsa_eur_mva` without recomputing); `supporting/_xfer/acid_test_pypsa.py` is a working end-to-end example (all checks PASS, `supporting/acid_report_v23.json`).

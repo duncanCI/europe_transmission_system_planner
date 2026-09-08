@@ -42,6 +42,7 @@
     ["endpoint", "This scheme connects to the wrong place"],
     ["data", "Something is wrong in the data"],
     ["missing", "A scheme or asset is missing"],
+    ["promote", "Suggest this for the core model"],
     ["method", "I disagree with the method or an assumption"],
     ["interpret", "This is being read the wrong way"],
     ["suggest", "Suggestion or feature request"],
@@ -227,6 +228,26 @@
     return cat && cat.value === "endpoint" && scope.kind === "feature";
   }
 
+  function isPromotion() {
+    var cat = document.getElementById("fbcat");
+    return cat && cat.value === "promote" && scope.kind === "feature";
+  }
+
+  /** The block internal_pipeline/ingest_promotions.py reads: a request that a
+   *  context-only feature (an OSM proposed line, an exploratory concept) be
+   *  brought into the modelled network. It is a request, not a decision - the
+   *  promotions file records who asked and who accepted. */
+  function promotionBlock() {
+    if (!isPromotion()) return "";
+    var who = document.getElementById("fbwho").value.trim();
+    return "\n```promotion-request\n" +
+      "feature_id: " + String(scope.id || "") + "\n" +
+      "layer: " + String(scope.what || "") + "\n" +
+      "label: " + String(scope.label || "") + "\n" +
+      "submitted_by: " + who + "\n" +
+      "```\n";
+  }
+
   /** The block internal_pipeline/ingest_corrections.py reads.
    *  Machine-readable on purpose: a correction has to survive the trip from a
    *  planner's screen to the register without anyone retyping it. */
@@ -256,6 +277,7 @@
       (who ? "From: " + who + "\n\n" : "") +
       "Category: " + label + "\n" +
       correctionBlock() +
+      promotionBlock() +
       "Context (captured by the map, not typed):\n" +
       lines.join("\n") + "\n"
     );
@@ -285,7 +307,8 @@
     // evidence rather than an assertion - so say that here, not after they
     // have sent it.
     document.getElementById("fbwhoreq").textContent =
-      on ? " \u2014 required for a correction" : " (optional)";
+      on ? " \u2014 required for a correction"
+         : isPromotion() ? " \u2014 required for a promotion request" : " (optional)";
   }
 
   function status(msg) { document.getElementById("fbstatus").textContent = msg; }
@@ -298,6 +321,11 @@
     function guard(fn) {
       return function () {
         if (!text.value.trim()) { status("Add a note first - the context alone does not say what is wrong."); text.focus(); return; }
+        if (isPromotion() && !document.getElementById("fbwho").value.trim()) {
+          status("A promotion request needs your name: it asks for a change to the "
+               + "modelled network, so it has to be attributable.");
+          document.getElementById("fbwho").focus(); return;
+        }
         if (isEndpointFix()) {
           var who = document.getElementById("fbwho");
           if (!who.value.trim()) {
@@ -399,6 +427,13 @@
     var epOption = cat.querySelector('option[value="endpoint"]');
     if (epOption) epOption.hidden = scope.kind !== "feature";
     if (cat.value === "endpoint" && scope.kind !== "feature") cat.selectedIndex = 1;
+    // Promotion only means something for a context-only feature (an OSM
+    // proposed line, an exploratory concept); a popup opened for one of those
+    // preselects it.
+    var prOption = cat.querySelector('option[value="promote"]');
+    if (prOption) prOption.hidden = scope.kind !== "feature";
+    if (scope.pre && cat.querySelector('option[value="' + scope.pre + '"]')) cat.value = scope.pre;
+    if (cat.value === "promote" && scope.kind !== "feature") cat.selectedIndex = 1;
     cat.onchange = syncEndpointFields;
     syncEndpointFields();
     actions();
@@ -414,14 +449,17 @@
      *  clicked. `what` names the kind of thing ("branch", "substation",
      *  "power plant") - every popup used to say "branch", so a report about a
      *  substation arrived labelled as a branch. */
-    popupLink: function (fid, label, lngLat, what) {
+    popupLink: function (fid, label, lngLat, what, pre) {
       var pos = "";
       if (lngLat && isFinite(lngLat.lat) && isFinite(lngLat.lng)) {
         pos = ' data-lat="' + lngLat.lat.toFixed(4) + '" data-lon="' + lngLat.lng.toFixed(4) + '"';
       }
+      var text = pre === "promote"
+        ? "Suggest this " + esc(what || "feature") + " for the core model, or flag it"
+        : "Flag this " + esc(what || "feature");
       return '<a href="#" class="fbflag" data-fid="' + esc(fid) +
         '" data-label="' + esc(label || fid) + '" data-what="' + esc(what || "feature") +
-        '"' + pos + '>Flag this ' + esc(what || "feature") + '</a>';
+        '"' + (pre ? ' data-pre="' + esc(pre) + '"' : "") + pos + '>' + text + '</a>';
     },
   };
 
@@ -436,6 +474,7 @@
         id: a.getAttribute("data-fid"),
         label: a.getAttribute("data-label"),
         what: a.getAttribute("data-what") || "feature",
+        pre: a.getAttribute("data-pre") || null,
         lat: a.getAttribute("data-lat"),
         lon: a.getAttribute("data-lon"),
       });
