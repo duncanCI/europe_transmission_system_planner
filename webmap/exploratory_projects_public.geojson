@@ -21,7 +21,9 @@
     "geometry_note": "indicative straight line between plausible landing regions; no route published",
     "layer_status": "context only: not in the TYNDP 2026 draft portfolio or any promoter register; not modelled",
     "licence": "compiled from public announcements (links in sources); geometry is ours (indicative)",
-    "fid": "explore:ie-es"
+    "fid": "explore:ie-es",
+    "service_year_min": 2035,
+    "year_basis": "inferred:the MoU of 24 April 2026 starts early feasibility studies; press coverage puts operation in the mid-2030s if feasible; taken as 2035"
    },
    "geometry": {
     "type": "LineString",
@@ -55,7 +57,9 @@
     "geometry_note": "indicative straight line between plausible landing regions; no route published",
     "layer_status": "context only: not in the TYNDP 2026 draft portfolio or any promoter register; not modelled",
     "licence": "compiled from public announcements (links in sources); geometry is ours (indicative)",
-    "fid": "explore:ie-be"
+    "fid": "explore:ie-be",
+    "service_year_min": 2033,
+    "year_basis": "inferred:Ireland's July 2023 policy statement lists it for 'beyond 2030' and counts conceptual proposals towards more than 5,000 MW by 2033; taken as 2033"
    },
    "geometry": {
     "type": "LineString",
@@ -89,7 +93,9 @@
     "geometry_note": "indicative straight line between plausible landing regions; no route published",
     "layer_status": "context only: not in the TYNDP 2026 draft portfolio or any promoter register; not modelled",
     "licence": "compiled from public announcements (links in sources); geometry is ours (indicative)",
-    "fid": "explore:ie-fr-2"
+    "fid": "explore:ie-fr-2",
+    "service_year_min": 2035,
+    "year_basis": "inferred:'a second connection to France by the middle of the next decade' in the July 2023 policy statement; taken as 2035"
    },
    "geometry": {
     "type": "LineString",
@@ -123,7 +129,8 @@
     "geometry_note": "indicative straight line between plausible landing regions; no route published",
     "layer_status": "context only: not in the TYNDP 2026 draft portfolio or any promoter register; not modelled",
     "licence": "compiled from public announcements (links in sources); geometry is ours (indicative)",
-    "fid": "explore:is-gb"
+    "fid": "explore:is-gb",
+    "year_basis": "no delivery year: dormant concept with no active development; shown only at the slider's end (2040 and later)"
    },
    "geometry": {
     "type": "LineString",
@@ -157,7 +164,8 @@
     "geometry_note": "indicative straight line between plausible landing regions; no route published",
     "layer_status": "context only: not in the TYNDP 2026 draft portfolio or any promoter register; not modelled",
     "licence": "compiled from public announcements (links in sources); geometry is ours (indicative)",
-    "fid": "explore:no-gb-northconnect"
+    "fid": "explore:no-gb-northconnect",
+    "year_basis": "no delivery year: licence refused in 2023 and no commitment to build; shown only at the slider's end (2040 and later)"
    },
    "geometry": {
     "type": "LineString",
@@ -191,7 +199,8 @@
     "geometry_note": "indicative straight line between plausible landing regions; no route published",
     "layer_status": "context only: not in the TYNDP 2026 draft portfolio or any promoter register; not modelled",
     "licence": "compiled from public announcements (links in sources); geometry is ours (indicative)",
-    "fid": "explore:ma-gb-xlinks"
+    "fid": "explore:ma-gb-xlinks",
+    "year_basis": "no delivery year: withdrawn in 2025; shown only at the slider's end (2040 and later)"
    },
    "geometry": {
     "type": "LineString",

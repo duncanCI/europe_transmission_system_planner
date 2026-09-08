@@ -33,6 +33,41 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 LIFE_KEYS = ("proposed:power", "construction:power", "planned:power")
 KV_RE = re.compile(r"\d+(?:\.\d+)?")
+YEAR_RE = re.compile(r"\b(19\d{2}|20\d{2})\b")
+
+# The year slider needs a delivery year on every feature. OSM rarely tags one
+# (6 opening_date and 72 start_date tags in 2,300 elements), so a line without
+# a date gets a DEFAULT by lifecycle state, flagged inferred: - the same
+# treatment as Norway's licensing register in the modelled plans. A tagged
+# opening_date is taken as sourced; a start_date at or after the base year is
+# read as the delivery year (inferred); a past start_date on an unfinished
+# line is a construction start and is ignored.
+BASE_YEAR = 2026
+DEFAULT_LEAD_YEARS = {"under construction": 2, "planned": 4, "proposed": 6}
+OPENING_KEYS = ("opening_date", "proposed:opening_date", "construction:opening_date", "planned:opening_date",
+                "end_date", "construction:end_date")
+START_KEYS = ("start_date", "proposed:start_date", "planned:start_date", "construction:start_date")
+
+
+def year_of(v) -> int | None:
+    m = YEAR_RE.search(str(v or ""))
+    return int(m.group(1)) if m else None
+
+
+def delivery_year(tags: dict, state: str) -> tuple[int, str]:
+    """(service_year_min, year_basis) for the slider."""
+    for k in OPENING_KEYS:
+        y = year_of(tags.get(k))
+        if y:
+            if y < BASE_YEAR:
+                return BASE_YEAR, f"inferred:OSM {k}={tags[k]} is in the past on an unfinished line; taken as due now ({BASE_YEAR})"
+            return y, f"sourced:OSM {k}={tags[k]}"
+    for k in START_KEYS:
+        y = year_of(tags.get(k))
+        if y and y >= BASE_YEAR:
+            return y, f"inferred:OSM {k}={tags[k]} read as the delivery year"
+    lead = DEFAULT_LEAD_YEARS.get(state, 6)
+    return BASE_YEAR + lead, f"inferred:no date tagged; default for a line {state} ({BASE_YEAR} + {lead} years)"
 
 
 def lifecycle_of(tags: dict) -> tuple[str, str]:
@@ -175,6 +210,7 @@ def main() -> int:
             continue
         state, kind = lifecycle_of(tags)
         km = sum(line_km(p) for p in geom["coordinates"]) if geom["type"] == "MultiLineString" else line_km(coords)
+        year, year_basis = delivery_year(tags, state)
         props = {
             "fid": oid,
             "osm_url": f"https://www.openstreetmap.org/{oid}",
@@ -190,6 +226,8 @@ def main() -> int:
             "frequency": tags.get("frequency") or None,
             "location": tags.get("location") or None,
             "start_date": tags.get("start_date") or tags.get("opening_date") or tags.get("proposed:start_date") or tags.get("construction:start_date") or None,
+            "service_year_min": year,
+            "year_basis": year_basis,
             "note": tags.get("note") or tags.get("description") or None,
             "website": tags.get("website") or tags.get("source:url") or None,
             "countries": nearest_country(stations, [allc[0], allc[-1]]) if stations else "",
@@ -211,8 +249,10 @@ def main() -> int:
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(out, ensure_ascii=False))
     by_state = {}
+    sourced_years = sum(1 for f in feats if str(f["properties"].get("year_basis", "")).startswith("sourced:"))
     for f in feats:
         by_state[f["properties"]["lifecycle"]] = by_state.get(f["properties"]["lifecycle"], 0) + 1
+    print(f"delivery years: {sourced_years} sourced from OSM tags, {len(feats) - sourced_years} defaulted by state (flagged)")
     print(f"wrote {args.out} : {len(feats)} features {by_state}; dropped {dropped_kv} below {args.min_kv:.0f} kV, "
           f"{dropped_geom} without geometry; {in_graph} already in the v23 graph (power=line/cable); "
           f"{len(member_ways)} member ways folded into relations")

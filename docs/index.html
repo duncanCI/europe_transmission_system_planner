@@ -267,7 +267,7 @@ const state = { lineScale: 1, year: 2030, scen: "ntp", ddelta: false };
 // Bumped when ANY fetched artefact changes - assumptions.json is fetched
 // with this stamp, so a content change there must bump it or returning
 // visitors keep a cached, retracted copy.
-const TILE_VERSION = "20260908a";
+const TILE_VERSION = "20260908b";
 // Ground colour behind the tiles. MapLibre paints cannot read CSS custom
 // properties, so this literal must match --paper in the stylesheet above.
 const PAPER = "#EEF0F2";
@@ -452,6 +452,18 @@ function frHorizonFilter() {
   return ["any", ["!", ["has", "horizon"]], ["<=", FR_HORIZON_YEAR, state.year]];
 }
 
+// Exploratory concepts and OSM lifecycle lines carry a delivery year too
+// (sourced from an OSM opening_date where tagged, else a flagged default by
+// lifecycle state; the exploratory years come from the announcing document).
+// Dated features show from that year; the few with no year at all (dormant or
+// withdrawn concepts) show only at the slider's end, as the TYNDP rule does.
+const LIFECYCLE_KV_FILTER = ["any", ["!", ["has", "voltage_kv"]], [">=", ["get", "voltage_kv"], 100]];
+function contextYearFilter() {
+  return ["any",
+          ["all", ["has", "service_year_min"], ["<=", ["get", "service_year_min"], state.year]],
+          ...(state.year >= SLIDER_MAX ? [["!", ["has", "service_year_min"]]] : [])];
+}
+
 function datedFilter(kind) {
   const yr = ["all", ["has", "service_year_min"],
               ["<=", ["get", "service_year_min"], state.year]];
@@ -538,6 +550,9 @@ function applyContextState() {
     const gf = map.getFilter(id);
     map.setFilter(id, [gf[0], gf[1], tyndpYearFilter()]);
   }
+  if (map.getLayer("osm_lifecycle_lines"))
+    map.setFilter("osm_lifecycle_lines", ["all", LIFECYCLE_KV_FILTER, contextYearFilter()]);
+  if (map.getLayer("exploratory_lines")) map.setFilter("exploratory_lines", contextYearFilter());
   for (const id of ["fr_new", "fr_adaptation", "fr_renewal", "fr_sites"]) {
     if (!map.getLayer(id)) continue;
     const gf = map.getFilter(id);
@@ -667,12 +682,12 @@ async function setupContext() {
   // Each popup offers "suggest for the core model".
   map.addLayer({ id: "osm_lifecycle_lines", type: "line", source: "context",
     "source-layer": "osm_lifecycle",
-    filter: ["any", ["!", ["has", "voltage_kv"]], [">=", ["get", "voltage_kv"], 100]],
+    filter: ["all", LIFECYCLE_KV_FILTER, contextYearFilter()],
     paint: { "line-color": ["match", ["get", "lifecycle"], "under construction", "#b45309", "#ca8a04"],
              "line-dasharray": [1, 1.6], "line-opacity": 0.9,
              "line-width": scaledWidth("osm_lifecycle_lines", [[4,1.2],[8,2.0],[12,3.2]]) } });
   map.addLayer({ id: "exploratory_lines", type: "line", source: "context",
-    "source-layer": "exploratory",
+    "source-layer": "exploratory", filter: contextYearFilter(),
     paint: { "line-color": "#be185d", "line-dasharray": [6, 4], "line-opacity": 0.8,
              "line-width": scaledWidth("exploratory_lines", [[2,1.2],[6,2.0],[10,3.0]]) } });
 
@@ -795,10 +810,10 @@ async function setupContext() {
   const gEx = legendGroup(dev, "Exploratory &amp; OpenStreetMap lifecycle (context only)", true);
   legendRow(gEx, `<span class="swatch dashed" style="border-color:#be185d"></span>`,
             "Exploratory concepts (announced, in no portfolio)", ["exploratory_lines"], true,
-            "Interconnection concepts announced publicly - an intergovernmental MoU, a national policy aspiration, a developer concept - that are in neither the ENTSO-E TYNDP 2026 portfolio nor any promoter register: Ireland-Spain (feasibility MoU, April 2026), Ireland-Belgium/Netherlands and a second Ireland-France link (Ireland's 2023 interconnection policy), IceLink, NorthConnect, Xlinks. Geometry is an INDICATIVE straight line between plausible landing regions - no route exists. Context only: nothing here is modelled. The popup names the status and the source.");
+            "Interconnection concepts announced publicly - an intergovernmental MoU, a national policy aspiration, a developer concept - that are in neither the ENTSO-E TYNDP 2026 portfolio nor any promoter register: Ireland-Spain (feasibility MoU, April 2026), Ireland-Belgium/Netherlands and a second Ireland-France link (Ireland's 2023 interconnection policy), IceLink, NorthConnect, Xlinks. Shown from a delivery year read from the announcing document and flagged as inferred (Ireland-Spain 2035, Ireland-Belgium/Netherlands 2033, second Ireland-France 2035); the dormant or withdrawn concepts have none and appear only at the slider's end. Geometry is an INDICATIVE straight line between plausible landing regions - no route exists. Context only: nothing here is modelled.");
   legendRow(gEx, `<span class="swatch dashed" style="border-color:#b45309"></span>`,
             "OSM proposed &amp; under-construction lines (≥100 kV)", ["osm_lifecycle_lines"], true,
-            "Power lines and cables that OpenStreetMap contributors have tagged as proposed, under construction or planned (lifecycle tags), harvested via Overpass. The v23 topology harvest asks for power=line/cable, so these are NOT in the graph and NOT in any model; they are shown so a reader can see what mappers know about, and can suggest one for the core model from its popup. Amber = under construction, ochre = proposed. Below 100 kV hidden. © OpenStreetMap contributors, ODbL 1.0.");
+            "Power lines and cables that OpenStreetMap contributors have tagged as proposed, under construction or planned (lifecycle tags), harvested via Overpass. The v23 topology harvest asks for power=line/cable, so these are NOT in the graph and NOT in any model; they are shown so a reader can see what mappers know about, and can suggest one for the core model from its popup. Shown from a delivery year: OSM's opening_date where tagged (sourced), else a default by state flagged as inferred - under construction 2028, planned 2030, proposed 2032. Amber = under construction, ochre = proposed. Below 100 kV hidden. © OpenStreetMap contributors, ODbL 1.0.");
   if (TOTALS) {
     const gScen = legendGroup(dev, "Demand, generation &amp; flexibility", true);
     legendRow(gScen, `<span class="swatch dot" style="background:#0284c7;opacity:.6"></span>`,
@@ -1167,6 +1182,7 @@ function popupBody(f) {
       ["operator", props.operator],
       ["ref", props.ref],
       ["circuits / cables", [props.circuits, props.cables].filter(Boolean).join(" / ") || null],
+      ["delivery year (slider)", props.service_year_min ? props.service_year_min + " \u2014 " + (props.year_basis || "") : "none"],
       ["date tagged", props.start_date],
       ["length", props.length_km ? props.length_km + " km" : null],
       ["countries", props.countries ? props.countries + " (" + (props.countries_source || "") + ")" : null],
@@ -1186,6 +1202,7 @@ function popupBody(f) {
       ["technology", props.technology],
       ["capacity", props.capacity_mw ? props.capacity_mw + " MW" : (props.capacity_note || "not stated")],
       ["indicative year", props.indicative_year],
+      ["delivery year (slider)", props.service_year_min ? props.service_year_min + " \u2014 " + (props.year_basis || "") : (props.year_basis || "none")],
       ["from", props.from_label],
       ["to", props.to_label],
       ["geometry", props.geometry_note],
